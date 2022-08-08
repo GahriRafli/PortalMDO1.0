@@ -138,8 +138,10 @@ const AssignModule = ({ problem, user, idProblem }) => {
         {/* Beginning of Kondisional reassign untuk TL */}
         {ProblemHelper.checkTLAES(user) &&
         problem.problemStatus.id !== 4 &&
-        problem.assigned_to !== null &&
-        [...problem.incidents].shift().isProblem != "R" ? (
+        problem.assigned_to !== null
+        // && problem.incidents.length > 0
+        // && [...problem.incidents].shift().isProblem != "R"
+        ? (
           <span className="text-yellow-600 text-sm ml-auto mr-0">
             <ButtonCircle
               action={() => {
