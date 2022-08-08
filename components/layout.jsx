@@ -25,7 +25,7 @@ const navigation = [
     children: [
       {
         name: "Report",
-        href: "/problem/report",
+        href: "#",
         permission: "all",
       },
       {
