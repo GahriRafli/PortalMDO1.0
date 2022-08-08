@@ -186,7 +186,7 @@ const CreateForm = ({ user }) => {
       .then(function (response) {
         if (response.status === 201 || postProblem) {
           toast.success("Problem Sucessfully Created");
-          setTimeout(() => router.push("/problem"), 1000);
+          setTimeout(() => router.push(`/problem/${response.data.data.id}`), 1000);
         }
       })
       .catch((error) => {

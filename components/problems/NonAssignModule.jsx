@@ -155,7 +155,7 @@ const NonAssignModule = ({ problem, user, option }) => {
                           as="h3"
                           className="text-lg leading-6 font-medium text-gray-900"
                         >
-                          Assign this problem to OPA/Agile
+                          Assign this problem to {option.toUpperCase()}
                         </Dialog.Title>
 
                         <div className="grid grid-cols-1 sm:grid-cols-1">

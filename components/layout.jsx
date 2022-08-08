@@ -25,13 +25,18 @@ const navigation = [
     children: [
       {
         name: "Report",
-        href: "#",
+        href: "/problem/report",
         permission: "all",
       },
       {
         name: "My Task",
         href: "/problem",
         permission: "member",
+      },
+      {
+        name: "Search",
+        href: "/problem/search",
+        permission: "all",
       },
       {
         name: "List",

@@ -21,6 +21,7 @@ import {
   PlusSmIcon,
   SearchIcon,
   DocumentAddIcon,
+  DocumentSearchIcon,
   PuzzleIcon,
   SparklesIcon,
   BadgeCheckIcon,
@@ -378,12 +379,16 @@ export default function ProblemList({ user, problems, countAssign }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="Problem List">
-            {/* <Link href="/problem/create" passHref>
-              <PrimaryAnchorButton>
-                <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                New Problem
-              </PrimaryAnchorButton>
-            </Link> */}
+            <Link href="/problem/search" passHref>
+              <SecondaryAnchorButton>
+                {/* <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> */}
+                <DocumentSearchIcon
+                  className="w-5 h-5 mr-2 -ml-1"
+                  aria-hidden="true"
+                />
+                Problem Matching
+              </SecondaryAnchorButton>
+            </Link>
             {/* <span className="relative inline-flex">
               <Link href="/problem/assign" passHref>
                 <SecondaryAnchorButton>
