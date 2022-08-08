@@ -2,13 +2,11 @@ import React, { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { useRouter } from "next/router";
 import withSession from "lib/session";
-import { async } from "regenerator-runtime";
 import Layout from "components/layout";
 import Head from "next/head";
 import Link from "next/link";
 import { SearchIcon, CodeIcon } from "@heroicons/react/solid";
 import { classNames } from "components/utils";
-import { format } from "date-fns";
 import { Spin, Alert } from "antd";
 import { PrimaryAnchorButton as Button } from "components/ui/button/primary-anchor-button";
 import { Input } from "antd";
@@ -53,7 +51,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     }
   }
 
-  // jika ada query param nya
+  // Jika ada Query Paramnya
   res = await fetch(url.toString(), {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
@@ -63,6 +61,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     return {
       props: {
         user: user,
+        keyword: query.q,
         search: getSearch,
       },
     };
@@ -70,6 +69,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     return {
       props: {
         user: user,
+        keyword: query.q,
         search: getSearch,
       },
     };
@@ -83,7 +83,8 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   }
 });
 
-const ProblemSearch = ({ user, search }) => {
+// const ProblemSearch = ({ user, search }) => {
+const ProblemSearch = (props) => {
   const [isLoading, setLoading] = useState(false);
   const [selectedPage, setSelectedPage] = useState("");
   const startLoading = () => setLoading(true);
@@ -101,7 +102,7 @@ const ProblemSearch = ({ user, search }) => {
     };
   }, []);
 
-  // Handle on enter search
+  // Handle On Enter Search Form
   const onSearch = (e) => {
     const keyword = e.target.value;
     if (e.key === "Enter" && keyword) {
@@ -128,110 +129,119 @@ const ProblemSearch = ({ user, search }) => {
   };
 
   let content = null;
-  if (isLoading)
-    content = (
-      <>
-        <div
-          style={{
-            marginTop: "10vh",
-            marginBottom: "10vh",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Spin size="large" tip="Loading..." />
-        </div>
-      </>
-    );
-  else {
-    content = (
-      <>
-        <ul className="divide-y divide-gray-200">
-          {/* Ini kalau ketemu */}
-          {search && search.data.count > 0
-            ? search.data.rows.map((result) => (
-                <li
-                  key={result.idproblem}
-                  className="relative bg-white sm:rounded-lg my-5 py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
-                >
-                  <div className="flex justify-between space-x-3">
-                    <div className="min-w-0 flex-1">
-                      <Link href={`/problem/${result.idproblem}`}>
-                        <a href="#" className="block focus:outline-none">
-                          <span
-                            className="absolute inset-0"
-                            aria-hidden="true"
-                          />
-                          <p className="text-sm font-bold text-gray-900">
-                            [{result.problemNumber}] {result.problemName}
+  content = (
+    <>
+      <Spin
+        style={{
+          marginTop: "10vh",
+          marginBottom: "10vh",
+          display: "block",
+          justifyContent: "center",
+        }}
+        size="large"
+        spinning={isLoading}
+        tip="Loading..."
+      />
+      {props.keyword !== undefined ? (
+        <h1 className="mt-3">
+          {props.search.data.count} results about&nbsp;
+          <span className="font-semibold">{props.keyword}</span>
+        </h1>
+      ) : null}
+      <ul className="divide-y divide-gray-200">
+        {/* Ini kalau ketemu */}
+        {props.search && props.search.data.count > 0
+          ? props.search.data.rows.map((result) => (
+              <li
+                key={result.idproblem}
+                className="relative bg-white sm:rounded-lg my-5 py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
+              >
+                <div className="flex justify-between space-x-3">
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/problem/${result.idProblem}`}>
+                      <a
+                        href={`/problem/${result.idProblem}`}
+                        className="block focus:outline-none"
+                      >
+                        <span className="absolute inset-0" aria-hidden="true" />
+                        <p className="text-sm text-gray-500">
+                          <span className="font-bold">
+                            {result.problemNumber}{" "}
+                          </span>
+                          {result.problemName}
+                        </p>
+                        <div className="mt-1 flex space-x-4">
+                          <p className="flex items-center text-sm text-gray-500 truncate">
+                            <CodeIcon
+                              className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-700"
+                              aria-hidden="true"
+                            />{" "}
+                            {result.problemApp}
                           </p>
-                          <div className="mt-1 flex space-x-4">
-                            <p className="flex items-center text-sm text-gray-500 truncate">
-                              <CodeIcon
-                                className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-700"
-                                aria-hidden="true"
-                              />{" "}
-                              {result.problemApp}
-                            </p>
-                            <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                              {result.problemType
-                                ? result.problemType
-                                : "Not Defined Problem Type"}
-                            </p>
-                            <p
-                              className={classNames(
-                                result.problemStatus === "Done"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800",
-                                "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                              )}
-                            >
-                              {result.problemStatus == null
-                                ? "Problem Status Not Defined"
-                                : result.problemStatus}
-                            </p>
-                          </div>
-                        </a>
-                      </Link>
-                    </div>
-                    <time
-                      dateTime={result.problemCreatedAt}
-                      className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
-                    >
-                      {result.problemCreatedAt}
-                    </time>
+                          <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {result.problemType
+                              ? result.problemType
+                              : "Not Defined Problem Type"}
+                          </p>
+                          <p
+                            className={classNames(
+                              result.problemStatus === "Unassigned"
+                                ? "bg-red-100 text-gray-800"
+                                : result.problemStatus === "Waiting for Review"
+                                ? "bg-gray-100 text-gray-800"
+                                : result.problemStatus === "Ongoing at JIRA"
+                                ? "bg-blue-100 text-gray-800"
+                                : result.problemStatus === "Done"
+                                ? "bg-green-100 text-gray-800"
+                                : "bg-gray-100 text-gray-800",
+                              "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                            )}
+                          >
+                            {result.problemStatus == null
+                              ? "Problem Status Not Defined"
+                              : result.problemStatus}
+                          </p>
+                        </div>
+                      </a>
+                    </Link>
                   </div>
-                  <div className="mt-4">
-                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                      Impacted System :{" "}
-                      {result.problemImpactedSystem != null
-                        ? result.problemImpactedSystem
-                        : "Not Defined Yet/Recorded"}
-                    </p>
-                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                      Root Cause :{" "}
-                      {result.problemRootCause != null
-                        ? result.problemRootCause
-                        : "Not Defined Yet/Recorded"}
-                    </p>
-                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                      Action :{" "}
-                      {result.problemResolution != null
-                        ? result.problemResolution
-                        : "Not Defined Yet/Recorded"}
-                    </p>
-                  </div>
-                </li>
-              ))
-            : null}
-        </ul>
-      </>
-    );
-  }
+                  <time
+                    dateTime={result.problemCreatedAt}
+                    className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
+                  >
+                    {result.problemCreatedAt}
+                  </time>
+                </div>
+                <div className="mt-4">
+                  <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                    Impacted System :{" "}
+                    {result.problemImpactedSystem != null
+                      ? result.problemImpactedSystem
+                      : "Not Defined Yet/Recorded"}
+                  </p>
+                  <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                    Root Cause :{" "}
+                    {result.problemRootCause != null
+                      ? result.problemRootCause
+                      : "Not Defined Yet/Recorded"}
+                  </p>
+                  <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                    Action :{" "}
+                    {result.problemResolution != null
+                      ? result.problemResolution
+                      : "Not Defined Yet/Recorded"}
+                  </p>
+                </div>
+              </li>
+            ))
+          : null}
+      </ul>
+    </>
+  );
 
   return (
     <>
-      <Layout session={user}>
+      <Layout session={props.user}>
         <Head>
           <title>Problem Search</title>
         </Head>
@@ -266,7 +276,7 @@ const ProblemSearch = ({ user, search }) => {
               </div>
             </div>
 
-            {search && search.status > 400 ? (
+            {props.search && props.search.status > 400 ? (
               <>
                 <Alert
                   message="This page is specifically for searches related to problem name, root causes and actions of problems. Please type a word related to these three things"
@@ -289,7 +299,9 @@ const ProblemSearch = ({ user, search }) => {
                   </div>
                 </div>
               </>
-            ) : search && search.status !== 400 && search.data.count === 0 ? (
+            ) : props.search &&
+              props.search.status !== 400 &&
+              props.search.data.count === 0 ? (
               <div className="relative mx-auto">
                 <div className="relative">
                   <img
@@ -306,11 +318,11 @@ const ProblemSearch = ({ user, search }) => {
                     </p>
                     <Link
                       href={{
-                        pathname: "search",
+                        pathname: "list",
                       }}
                       passHref
                     >
-                      <Button>Back to incident menu</Button>
+                      <Button>Back to Problem List</Button>
                     </Link>
                   </div>
                 </div>
@@ -318,50 +330,55 @@ const ProblemSearch = ({ user, search }) => {
             ) : (
               <>
                 {content}
-                <div className="mt-3 hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing{" "}
-                      <span className="font-medium">{search.paging.Page}</span>{" "}
-                      to{" "}
-                      <span className="font-medium">
-                        {search.paging.totalPages}
-                      </span>{" "}
-                      of{" "}
-                      <span className="font-medium">
-                        {search.paging.totalData}
-                      </span>{" "}
-                      results
-                    </p>
+
+                {props.keyword !== undefined ? (
+                  <div className="mt-3 hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        Showing{" "}
+                        <span className="font-medium">
+                          {props.search.paging.Page}
+                        </span>{" "}
+                        to{" "}
+                        <span className="font-medium">
+                          {props.search.paging.totalPages}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-medium">
+                          {props.search.paging.totalData}
+                        </span>{" "}
+                        results
+                      </p>
+                    </div>
+                    <div>
+                      <ReactPaginate
+                        initialPage={props.search.paging.Page - 1}
+                        pageCount={props.search.paging.totalPages} //page count
+                        previousLabel={"Prev"}
+                        onPageChange={paginationHandler}
+                        containerClassName={
+                          "relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                        }
+                        pageLinkClassName={
+                          "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                        }
+                        previousLinkClassName={
+                          "relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                        }
+                        nextLinkClassName={
+                          "relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                        }
+                        breakLabel={"..."}
+                        breakLinkClassName={
+                          "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                        }
+                        activeLinkClassName={
+                          "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                        }
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <ReactPaginate
-                      initialPage={search.paging.Page - 1}
-                      pageCount={search.paging.totalPages} //page count
-                      previousLabel={"Prev"}
-                      onPageChange={paginationHandler}
-                      containerClassName={
-                        "relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                      }
-                      pageLinkClassName={
-                        "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                      }
-                      previousLinkClassName={
-                        "relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                      }
-                      nextLinkClassName={
-                        "relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                      }
-                      breakLabel={"..."}
-                      breakLinkClassName={
-                        "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                      }
-                      activeLinkClassName={
-                        "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
-                      }
-                    />
-                  </div>
-                </div>
+                ) : null}
               </>
             )}
           </div>
