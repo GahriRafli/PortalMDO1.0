@@ -38,8 +38,7 @@ yarn-error.log*
 
 #exclude main file
 pages/sample.jsx
-.bck
-/pages/incidents/[id].jsx
+*.bck
 
 # package-lock
 package-lock.json

@@ -1283,7 +1283,7 @@ function IncidentDetail({ user, incident }) {
                 )}
 
                 {/* Comments */}
-                <section aria-labelledby="notes-title">
+                {/* <section aria-labelledby="notes-title">
                   <div className="bg-white shadow sm:rounded-lg sm:overflow-hidden">
                     <div className="divide-y divide-gray-200">
                       <div className="px-4 py-5 sm:px-6">
@@ -1391,7 +1391,7 @@ function IncidentDetail({ user, incident }) {
                       </div>
                     </div>
                   </div>
-                </section>
+                </section> */}
               </div>
 
               <section
