@@ -220,10 +220,7 @@ export default function ModalRootCause({ user, problem }) {
                                     "Please lengthen this text to 10 characters or more.",
                                 },
                               })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
+                              rows={5}
                               className={classNames(
                                 errors.description
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
@@ -255,10 +252,7 @@ export default function ModalRootCause({ user, problem }) {
                                     "Please lengthen this text to 10 characters or more.",
                                 },
                               })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
+                              rows={5}
                               className={classNames(
                                 errors.impactSystem
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
@@ -290,10 +284,7 @@ export default function ModalRootCause({ user, problem }) {
                                     "Please lengthen this text to 10 characters or more.",
                                 },
                               })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
+                              rows={5}
                               className={classNames(
                                 errors.rootCause
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
@@ -325,10 +316,7 @@ export default function ModalRootCause({ user, problem }) {
                                     "Please lengthen this text to 10 characters or more.",
                                 },
                               })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
+                              rows={5}
                               className={classNames(
                                 errors.resolution
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
@@ -360,10 +348,7 @@ export default function ModalRootCause({ user, problem }) {
                                     "Please lengthen this text to 10 characters or more.",
                                 },
                               })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
+                              rows={5}
                               className={classNames(
                                 errors.lessonLearned
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "

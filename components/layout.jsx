@@ -12,6 +12,7 @@ import {
   DocumentSearchIcon,
   FireIcon,
   ChatAlt2Icon,
+  FolderIcon,
 } from "@heroicons/react/outline";
 
 const navigation = [
@@ -33,6 +34,11 @@ const navigation = [
         permission: "member",
       },
       {
+        name: "Search",
+        href: "/problem/search",
+        permission: "all",
+      },
+      {
         name: "List",
         href: "/problem/list",
         permission: "all",
@@ -51,6 +57,19 @@ const navigation = [
     icon: FireIcon,
   },
   { key: 4, name: "Tickets", href: "/tickets", icon: ChatAlt2Icon },
+  {
+    key: 5,
+    name: "Report",
+    href: "/report",
+    children: [
+      {
+        name: "Third Party",
+        href: "/report/third-party",
+        permission: "all",
+      },
+    ],
+    icon: FolderIcon,
+  },
 ];
 
 async function logout() {
