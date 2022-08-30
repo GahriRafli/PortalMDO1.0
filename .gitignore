@@ -36,8 +36,10 @@ yarn-error.log*
 # env file
 .env
 
-#exclude sample.jsx
+#exclude main file
 pages/sample.jsx
 .bck
+/pages/incidents/[id].jsx
+
 # package-lock
 package-lock.json

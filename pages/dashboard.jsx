@@ -43,17 +43,16 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   const groupBy = "Periodic";
   const today = new Date();
   const tahun = today.getFullYear().toString();
-  var bulan = today.getMonth().toString();
-  if (bulan.length < 2) {
-    bulan = "0" + today.getMonth().toString();
+  let bulan = today.getMonth() + 1;
+  if (bulan.toString().length < 2) {
+    bulan = `0${bulan}`;
   }
-  var tanggal = today.getDate().toString();
+  let tanggal = today.getDate().toString();
   if (today.getDate().toString().length < 2) {
     tanggal = "0" + today.getDate().toString();
   }
-
   const periodeAwal = today.getFullYear().toString() + "-01-01";
-  const periodeAkhir = tahun + "-" + bulan + "-" + tanggal;
+  const periodeAkhir = tahun + "-" + bulan.toString() + "-" + tanggal;
 
   const dashboardIncident = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${groupBy}&periodeAwal=${periodeAwal}&periodeAkhir=${periodeAkhir}&PIC=&CriticalApp=&AppName=`,
