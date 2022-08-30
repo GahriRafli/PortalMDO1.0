@@ -49,35 +49,41 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     } else {
       return true;
     }
-  }
+    // Jika ada Query Paramnya
+    res = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    });
+    getSearch = await res.json();
 
-  // Jika ada Query Paramnya
-  res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${user.accessToken}` },
-  });
-  getSearch = await res.json();
-
-  if (res.status === 200) {
+    if (res.status === 200) {
+      return {
+        props: {
+          user: user,
+          keyword: query.q,
+          search: getSearch,
+        },
+      };
+    } else if (res.status === 201) {
+      return {
+        props: {
+          user: user,
+          keyword: query.q,
+          search: getSearch,
+        },
+      };
+    } else if (res.status === 202) {
+      return {
+        props: {
+          user: user,
+          search: getSearch,
+        },
+      };
+    }
+  } else {
     return {
       props: {
         user: user,
-        keyword: query.q,
-        search: getSearch,
-      },
-    };
-  } else if (res.status === 201) {
-    return {
-      props: {
-        user: user,
-        keyword: query.q,
-        search: getSearch,
-      },
-    };
-  } else if (res.status === 202) {
-    return {
-      props: {
-        user: user,
-        search: getSearch,
+        search: null,
       },
     };
   }
