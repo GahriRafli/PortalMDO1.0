@@ -13,11 +13,15 @@ const ProblemDetailPanel = ({ problem }) => {
         <div className="sm:col-span-1">
           <dt className="text-sm font-medium text-gray-500">Link JIRA</dt>
           <dd className="mt-1 text-sm text-gray-900">
-            {problem.jiraProblem ? (
+            {problem.problemStatus.label.includes("Agile") ||
+            problem.problemStatus.label.includes("OPA") ? (
+              `Refer to JIRA Agile/OPA`
+            ) : problem.jiraProblem ? (
               <a
                 href={problem.jiraProblem}
                 target="_blank"
                 rel="noopener noreferrer"
+                style={{ wordBreak: "break-word" }}
               >
                 {problem.jiraProblem}
               </a>
@@ -64,6 +68,7 @@ const ProblemDetailPanel = ({ problem }) => {
                   href={problem.followupCM}
                   target="_blank"
                   rel="noopener noreferrer"
+                  style={{ wordBreak: "break-word" }}
                 >
                   {problem.followupCM}
                 </a>

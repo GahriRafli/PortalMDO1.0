@@ -26,6 +26,7 @@ import {
 } from "../../components/utils";
 import { PencilIcon, XIcon, CheckIcon } from "@heroicons/react/solid";
 import AssignModule from "components/problems/AssignModule";
+import RootCauseCard from "components/problems/RootCauseCard";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -307,7 +308,7 @@ function ProblemDetail({ user, problem, idProblem }) {
       })
       .catch((err) => toast.error(`Follow Up ${err}`));
   }, []);
-
+  
   return (
     <>
       <Layout key={`LayoutProblemDetail-${problem.id}`} session={user}>
@@ -683,6 +684,11 @@ function ProblemDetail({ user, problem, idProblem }) {
 
                 {/* Condition Incident Table */}
                 <RelatedIncidentTables problem={problem} />
+
+                {/* Condition RootCause Done */}
+                {problem.rootCauses.length > 0 ? (
+                  <RootCauseCard rootcause={problem.rootCauses[0]} />
+                ) : null}
               </div>
 
               <section

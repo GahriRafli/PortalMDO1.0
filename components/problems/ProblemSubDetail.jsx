@@ -6,7 +6,7 @@ const ProblemSubDetail = ({ problem }) => {
   return (
     <>
       <dt className="my-1 text-sm font-medium text-gray-500">
-        Criticality : {problem.app.criticalityApp}
+        Criticality Application : {problem.app.criticalityApp}
       </dt>
       <dt className="my-1 text-sm font-medium text-gray-500">
         Status :{" "}

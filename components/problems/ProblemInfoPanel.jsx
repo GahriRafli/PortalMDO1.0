@@ -12,7 +12,7 @@ const ProblemInfoPanel = ({ problem }) => {
               />
             </div>
             <div className="ml-3.5 text-sm font-medium text-gray-900">
-              Priority : {problem.priorityMatrix.mapping}
+              Problem Priority : {problem.priorityMatrix.mapping}
             </div>
           </div>{" "}
         </li>
