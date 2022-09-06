@@ -323,12 +323,10 @@ function IncidentDetail({ user, incident }) {
     const checked = e.target.checked;
 
     if (checked === true) {
-      console.log("Oncek");
       setValue("endTime", null);
       unregister("endTime");
       setIsOngoing(true);
     } else {
-      console.log("Not Cek");
       setIsOngoing(false);
     }
   };
@@ -378,7 +376,6 @@ function IncidentDetail({ user, incident }) {
         toast.error(`Failed to update: ${error.response.data.message}`);
       });
 
-    console.log(data);
   };
 
   return (
@@ -796,7 +793,7 @@ function IncidentDetail({ user, incident }) {
                                     aria-describedby="comments-description"
                                     name="comments"
                                     type="checkbox"
-                                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                     onChange={handleStillOngoing}
                                     checked={isOnGoing}
                                   />
@@ -1301,7 +1298,7 @@ function IncidentDetail({ user, incident }) {
                               <div className="flex space-x-3">
                                 <div className="flex-shrink-0">
                                   <img
-                                    className="h-10 w-10 rounded-full"
+                                    className="w-10 h-10 rounded-full"
                                     src={`https://images.unsplash.com/photo-${comment.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                                     alt=""
                                   />
@@ -1323,16 +1320,16 @@ function IncidentDetail({ user, incident }) {
                                     />
                                     <p>{comment.body}</p>
                                   </div>
-                                  <div className="mt-2 text-sm space-x-2">
-                                    <span className="text-gray-500 font-medium">
+                                  <div className="mt-2 space-x-2 text-sm">
+                                    <span className="font-medium text-gray-500">
                                       {comment.date}
                                     </span>{" "}
-                                    <span className="text-gray-500 font-medium">
+                                    <span className="font-medium text-gray-500">
                                       &middot;
                                     </span>{" "}
                                     <button
                                       type="button"
-                                      className="text-gray-900 font-medium"
+                                      className="font-medium text-gray-900"
                                     >
                                       Reply
                                     </button>
@@ -1344,16 +1341,16 @@ function IncidentDetail({ user, incident }) {
                         </ul>
                       </div>
                     </div>
-                    <div className="bg-gray-50 px-4 py-6 sm:px-6">
+                    <div className="px-4 py-6 bg-gray-50 sm:px-6">
                       <div className="flex space-x-3">
                         <div className="flex-shrink-0">
                           <img
-                            className="h-10 w-10 rounded-full"
+                            className="w-10 h-10 rounded-full"
                             src={user.imageUrl}
                             alt=""
                           />
                         </div>
-                        <div className="min-w-0 flex-1">
+                        <div className="flex-1 min-w-0">
                           <form action="#">
                             <div>
                               <label htmlFor="comment" className="sr-only">
@@ -1363,25 +1360,25 @@ function IncidentDetail({ user, incident }) {
                                 id="comment"
                                 name="comment"
                                 rows={3}
-                                className="shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500 sm:text-sm border border-gray-300 rounded-md"
+                                className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                 placeholder="Add a note"
                                 defaultValue={""}
                               />
                             </div>
-                            <div className="mt-3 flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-3">
                               <a
                                 href="#"
-                                className="group inline-flex items-start text-sm space-x-2 text-gray-500 hover:text-gray-900"
+                                className="inline-flex items-start space-x-2 text-sm text-gray-500 group hover:text-gray-900"
                               >
                                 <QuestionMarkCircleIcon
-                                  className="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  className="flex-shrink-0 w-5 h-5 text-gray-400 group-hover:text-gray-500"
                                   aria-hidden="true"
                                 />
                                 <span>Some HTML is okay.</span>
                               </a>
                               <button
                                 type="submit"
-                                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                               >
                                 Comment
                               </button>
@@ -1542,13 +1539,13 @@ function IncidentDetail({ user, incident }) {
                         </h2>
                         {/* Tampilan yang di atas */}
                         <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
-                          ID Problem : {""}
+                           Problem Number : {""}
                           {incident.data.problemDetail.problemNumber === null
                             ? "-"
                             : incident.data.problemDetail.problemNumber}
                         </div>
                         <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
-                          Assigned AES : {""}
+                          Assigned to : {""}
                           {incident.data.problemDetail.paramAssignedTo === null
                             ? "-"
                             : incident.data.problemDetail.paramAssignedTo
@@ -1562,9 +1559,11 @@ function IncidentDetail({ user, incident }) {
                             aria-hidden="true"
                           />
                           <div className="ml-3.5 text-sm font-medium text-gray-600">
-                            {incident.data.paramProblemType
-                              ? `Type : ${incident.data.paramProblemType.problemType}`
-                              : "Problem Type Not yet"}
+                            Type : {""}
+                            {incident.data.paramProblemType === null
+                              ? "Not Yet"
+                              : incident.data.paramProblemType
+                                .problemType}
                           </div>
                         </div>
                         <div className="inline-flex ml-3.5 mt-3 text-sm font-medium relative text-gray-600  px-3 py-0.5 items-center ">
@@ -1610,65 +1609,76 @@ function IncidentDetail({ user, incident }) {
                           </li>
                         </ul>
                         {/* Link */}
-                        <h2 className="mt-2 text-sm font-medium text-gray-900">
+                       <h2 className="mt-2 text-sm font-medium text-gray-900">
                           Link
                         </h2>
                         <ul className="mt-2 leading-8">
+                          
+                          {/* Link Jira*/}
+                            <li className="inline">
+                              {incident.data.problemDetail.jiraProblem !== null && (
+                              <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-2 py-0.5 ml-2">                         
+                                <div className="ml-1.5 mr-1.5 text-sm font-medium">
+                                  {incident.data.problemDetail.jiraProblem ===
+                                    null ? (
+                                    <span
+                                      href="#"
+                                      className="text-white">
+                                      Jira
+                                    </span>
+                                  ) : (
+                                  <div>
+                                    <a
+                                      className="ml-6 text-white hover:text-blue-800 hover:transition hover:duration-300"
+                                      href={
+                                        incident.data.problemDetail.jiraProblem
+                                      }
+                                    >
+                                    <ExternalLinkIcon
+                                      className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5 text-white hover:text-blue-800 hover:transition hover:duration-300"
+                                      aria-hidden="true"
+                                    />
+                                      Jira
+                                    </a>
+                                  </div>
+                                  )}
+                                </div>
+                              </div>
+                              )}
+                            </li>
+                          
+                          
+                          {/* Link Change Management*/}
                           <li className="inline">
-                            <a
-                              href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-3 py-0.5 ml-2"
-                            >
-                              <div className="absolute flex items-center justify-center flex-shrink-0">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full bg-gray-500"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <div className="ml-3.5 text-sm font-medium">
-                                {incident.data.problemDetail.jiraProblem ===
-                                null ? (
-                                  <span className="text-white">None</span>
-                                ) : (
-                                  <a
-                                    className="text-white hover:text-blue-800 hover:transition hover:duration-300"
-                                    href={
-                                      incident.data.problemDetail.jiraProblem
-                                    }
-                                  >
-                                    Jira
-                                  </a>
-                                )}
-                              </div>
-                            </a>{" "}
-                          </li>
-                          <li className="inline">
-                            <a
-                              href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-3 py-0.5 ml-2"
-                            >
-                              <div className="absolute flex items-center justify-center flex-shrink-0">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full bg-gray-400"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <div className="ml-3.5 text-sm font-medium">
+                            {incident.data.problemDetail.followUpCM !== null && (
+                            <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-2 py-0.5 ml-2">                          
+                              <div className="ml-1.5 mr-1.5 text-sm font-medium">
                                 {incident.data.problemDetail.followUpCM ===
-                                null ? (
-                                  <span className="text-white">None</span>
+                                  null ? (
+                                  <span
+                                    href="#"
+                                    className="text-white">
+                                    Change Management
+                                  </span>
                                 ) : (
+                                <div>
                                   <a
-                                    className="text-white hover:text-black hover:transition hover:duration-300"
+                                    className="ml-6 text-white hover:text-black hover:transition hover:duration-300"
                                     href={
                                       incident.data.problemDetail.followUpCM
                                     }
                                   >
+                                  <ExternalLinkIcon
+                                    className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5 text-white hover:text-black hover:transition hover:duration-300"
+                                    aria-hidden="true"
+                                  />
                                     Change Management
                                   </a>
+                                </div>
                                 )}
                               </div>
-                            </a>{" "}
+                            </div>
+                            )}
                           </li>
                         </ul>
                       </div>
