@@ -15,6 +15,14 @@ const RootCauseCard = ({ rootcause }) => {
               </dd>
             </div>
             <div className="sm:col-span-2">
+              <dt className="text-sm font-medium text-gray-500">Impacted System</dt>
+              <dd className="mt-1 text-sm text-gray-900 text-justify">
+                {rootcause.impactSystem
+                  ? rootcause.impactSystem
+                  : "Not defined yet"}
+              </dd>
+            </div>
+            <div className="sm:col-span-2">
               <dt className="text-sm font-medium text-gray-500">Root Cause Analysis</dt>
               <dd className="mt-1 text-sm text-gray-900 text-justify">
                 {rootcause.rca
