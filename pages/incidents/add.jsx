@@ -13,11 +13,7 @@ import format from "date-fns/format";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout";
 import { Input } from "../../components/ui/forms";
-import {
-  classNames,
-  styledReactSelect,
-  styledReactSelectAdd,
-} from "../../components/utils";
+import { classNames, styledReactSelect } from "../../components/utils";
 import { PrimaryButton } from "../../components/ui/button/primary-button";
 import { SecondaryButton } from "../../components/ui/button/secondary-button";
 import { Spinner } from "../../components/ui/spinner";
@@ -349,7 +345,7 @@ function addIncident({ user }) {
                               {...field}
                               isClearable
                               loadOptions={loadApplications}
-                              styles={styledReactSelectAdd}
+                              styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Search for application"
                               components={{ NoOptionsMessage }}
@@ -470,6 +466,7 @@ function addIncident({ user }) {
                               options={urgencyOptions}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                              menuPlacement="auto"
                             />
                           )}
                         />

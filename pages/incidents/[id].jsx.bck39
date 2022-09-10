@@ -5,14 +5,13 @@ import Select from "react-select";
 import DatePicker from "components/ui/datepicker";
 import withSession from "lib/session";
 import incidentStatus from "public/incident-status.json";
-import { format, parseISO, formatDistanceToNowStrict } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useRouter } from "next/router";
 import { Fragment, useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CardTitle } from "components/ui/card-title";
 import { CardContent } from "components/ui/card-content";
-import { PrimaryButton } from "../../components/ui/button/primary-button";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import { classNames, styledReactSelect } from "components/utils";
 import { Spinner } from "components/ui/spinner";
@@ -28,24 +27,33 @@ import {
   LockOpenIcon,
   ClockIcon,
   QuestionMarkCircleIcon,
-  PaperClipIcon,
 } from "@heroicons/react/solid";
-import {
-  DocumentTextIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/outline";
-import {
-  message,
-  Image as AntdImage,
-  Modal,
-  Space,
-  Tooltip,
-  Upload,
-} from "antd";
-import { ReloadOutlined } from "@ant-design/icons";
+import { message, Image as AntdImage } from "antd";
 import { data } from "autoprefixer";
-import { async } from "regenerator-runtime";
-import { InputFile } from "components/ui/forms";
+
+const comments = [
+  {
+    id: 1,
+    name: "Leslie Alexander",
+    date: "4d ago",
+    imageId: "1494790108377-be9c29b29330",
+    body: "Ducimus quas delectus ad maxime totam doloribus reiciendis ex. Tempore dolorem maiores. Similique voluptatibus tempore non ut.",
+  },
+  {
+    id: 2,
+    name: "Michael Foster",
+    date: "4d ago",
+    imageId: "1519244703995-f4e0f30006d5",
+    body: "Et ut autem. Voluptatem eum dolores sint necessitatibus quos. Quis eum qui dolorem accusantium voluptas voluptatem ipsum. Quo facere iusto quia accusamus veniam id explicabo et aut.",
+  },
+  {
+    id: 3,
+    name: "Dries Vincent",
+    date: "4d ago",
+    imageId: "1506794778202-cad84cf45f1d",
+    body: "Expedita consequatur sit ea voluptas quo ipsam recusandae. Ab sint et voluptatem repudiandae voluptatem et eveniet. Nihil quas consequatur autem. Perferendis rerum et.",
+  },
+];
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -67,22 +75,12 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
   );
   const data = await res.json();
 
-  // get data incident comment
-  const getComment = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/incidents/${params.id}/comment`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
-  const comment = await getComment.json();
-
   if (res.status === 200) {
     // Pass data to the page via props
     return {
       props: {
         user: req.session.get("user"),
         incident: data,
-        comments: comment,
       },
     };
   } else if (res.status === 401) {
@@ -105,14 +103,10 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
   }
 });
 
-function IncidentDetail({ user, incident, comments }) {
+function IncidentDetail({ user, incident }) {
   const router = useRouter();
   const [editMode, setEditMode] = useState(false);
   const [spinner, setSpinner] = useState(false);
-
-  const refreshData = () => {
-    router.replace(router.asPath);
-  };
 
   // get data incident type
   const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
@@ -202,7 +196,6 @@ function IncidentDetail({ user, incident, comments }) {
       );
   }, []);
 
-  // react hook form for incident
   const {
     register,
     unregister,
@@ -251,71 +244,34 @@ function IncidentDetail({ user, incident, comments }) {
     },
   });
 
-  // react hook form for comment
-  const {
-    register: register2,
-    formState: { errors: errors2, isSubmitting: isSubmitting2 },
-    handleSubmit: handleSubmit2,
-    reset: reset2,
-  } = useForm({
-    mode: "onBlur",
-  });
-
   // handle change on incident status dropdown
   const [selectedStatus, setSelectedStatus] = useState(
     incident.data.incidentStatus
   );
   const onStatusChange = (value) => {
-    const body =
-      value !== "Open" ? (
-        <>
-          All of this data will be send to Whatsapp and Telegram. This action
-          cannot be undone.
-          <div className="mt-2">
-            <Space>
-              <img src="/whatsapp.svg" alt="" className="h-4 w-4" />
-              <img src="/telegram.svg" alt="" className="h-4 w-4" />
-            </Space>
-          </div>
-        </>
-      ) : (
-        ""
-      );
-
-    Modal.confirm({
-      title: `${value} this Incident ?`,
-      content: body,
-      okText: "Yes",
-      okType: "danger",
-      cancelText: "No",
-      onOk() {
-        setSpinner(true);
-        axios
-          .patch(
-            `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
-            { incidentStatus: value },
-            {
-              headers: { Authorization: `Bearer ${user.accessToken}` },
-            }
-          )
-          .then(function (response) {
-            setSpinner(false);
-            if (response.status === 200) {
-              setSelectedStatus(response.data.data.incidentStatus);
-              toast.success(
-                `Incident set to ${response.data.data.incidentStatus}`
-              );
-            } else {
-              toast.error(`Failed to update: ${response.data.message}`);
-            }
-          })
-          .catch(function (error) {
-            // Error 😨
-            setSpinner(false);
-            toast.error(`${error.response.data.message}`);
-          });
-      },
-    });
+    setSpinner(true);
+    axios
+      .patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
+        { incidentStatus: value },
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
+      .then(function (response) {
+        setSpinner(false);
+        if (response.status === 200) {
+          setSelectedStatus(response.data.data.incidentStatus);
+          toast.success(`Incident set to ${response.data.data.incidentStatus}`);
+        } else {
+          toast.error(`Failed to update: ${response.data.message}`);
+        }
+      })
+      .catch(function (error) {
+        // Error 😨
+        setSpinner(false);
+        toast.error(`${error.response.data.message}`);
+      });
   };
 
   // Handle validate datetime
@@ -367,46 +323,17 @@ function IncidentDetail({ user, incident, comments }) {
     const checked = e.target.checked;
 
     if (checked === true) {
+      console.log("Oncek");
       setValue("endTime", null);
       unregister("endTime");
       setIsOngoing(true);
     } else {
+      console.log("Not Cek");
       setIsOngoing(false);
     }
   };
 
-  // Handle modal delete
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const showDeleteConfirm = (id) => {
-    Modal.confirm({
-      title: "Are you sure to delete this comment?",
-      content: "",
-      okText: "Yes",
-      okType: "danger",
-      cancelText: "No",
-
-      onOk() {
-        axios
-          .delete(
-            `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}/comment/${id}`,
-            {
-              headers: { Authorization: `Bearer ${user.accessToken}` },
-            }
-          )
-          .then((res) => {
-            if (res.status < 300) {
-              refreshData();
-              toast.success("Comment sussessfullt deteled");
-            } else {
-              toast.error(`Delete failed: ${res.data.message}`);
-            }
-          })
-          .catch((err) => toast.error(err));
-      },
-
-      onCancel() {},
-    });
-  };
+  // Handle Problem Detail Info
 
   // handle form submit
   const onSubmit = async (data) => {
@@ -441,9 +368,7 @@ function IncidentDetail({ user, incident, comments }) {
         !isSubmitting;
         if (response.status === 200) {
           toast.success("Incident updated");
-          // setTimeout(() => router.reload(), 500);
-          refreshData();
-          setEditMode(false);
+          setTimeout(() => router.reload(), 500);
         } else {
           toast.error(`Failed to update: ${response.data.message}`);
         }
@@ -452,47 +377,8 @@ function IncidentDetail({ user, incident, comments }) {
         // Error 😨
         toast.error(`Failed to update: ${error.response.data.message}`);
       });
-  };
 
-  // handle on comment submit
-  const [fileList, setFileList] = useState([]);
-  const [showList, setShowList] = useState(true);
-  const onSubmitComment = async (data) => {
-    const formData = new FormData();
-    formData.append("messages", data.comment);
-    formData.append("attachment", fileList);
-
-    data.file?.length > 0
-      ? formData.append("attachment", data.file[0])
-      : formData.append("attachment", "");
-
-    // for (const pair of formData.entries()) {
-    //   console.log(`${pair[0]}, ${pair[1]}`);
-    // }
-
-    await axios
-      .post(
-        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}/comment`,
-        formData,
-        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-      )
-      .then((res) => {
-        if (res.status === 201) {
-          toast.success("Successfully submitted");
-          reset2({
-            comment: "",
-            file: null,
-          });
-          setFileList([]);
-          setShowList(false);
-          refreshData();
-        } else {
-          toast.error(`Failed submit ${res.data.message}`);
-        }
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
+    console.log(data);
   };
 
   return (
@@ -682,7 +568,7 @@ function IncidentDetail({ user, incident, comments }) {
               <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                 {/* Incident Detail */}
                 {editMode ? (
-                  <form key={2} onSubmit={handleSubmit(onSubmit)}>
+                  <form onSubmit={handleSubmit(onSubmit)}>
                     <section aria-labelledby="incident-detail">
                       <div className="bg-white shadow sm:rounded-lg">
                         <CardTitle
@@ -1272,21 +1158,17 @@ function IncidentDetail({ user, incident, comments }) {
                       >
                         <div className="flex px-4">
                           {user.grant != "viewer" && (
-                            <Tooltip title="Edit data">
-                              <span>
-                                <ButtonCircle
-                                  action={() => {
-                                    setEditMode(true);
-                                  }}
-                                  className="text-gray-700 bg-gray-100 border-gray-300 hover:bg-gray-50"
-                                >
-                                  <PencilIcon
-                                    className="w-5 h-5"
-                                    aria-hidden="true"
-                                  />
-                                </ButtonCircle>
-                              </span>
-                            </Tooltip>
+                            <ButtonCircle
+                              action={() => {
+                                setEditMode(true);
+                              }}
+                              className="text-gray-700 bg-gray-100 border-gray-300 hover:bg-gray-50"
+                            >
+                              <PencilIcon
+                                className="w-5 h-5"
+                                aria-hidden="true"
+                              />
+                            </ButtonCircle>
                           )}
                         </div>
                       </CardTitle>
@@ -1404,35 +1286,24 @@ function IncidentDetail({ user, incident, comments }) {
                 <section aria-labelledby="notes-title">
                   <div className="bg-white shadow sm:rounded-lg sm:overflow-hidden">
                     <div className="divide-y divide-gray-200">
-                      <div className="px-4 py-5 sm:px-6 flex items-center justify-between">
+                      <div className="px-4 py-5 sm:px-6">
                         <h2
                           id="notes-title"
                           className="text-lg font-medium text-gray-900"
                         >
                           Notes
                         </h2>
-                        <Tooltip title="Reload data">
-                          <span>
-                            <ButtonCircle
-                              action={() => {
-                                refreshData();
-                              }}
-                              className="text-gray-700 bg-gray-100 border-gray-300 hover:bg-gray-50"
-                            >
-                              <ReloadOutlined />
-                            </ButtonCircle>
-                          </span>
-                        </Tooltip>
                       </div>
                       <div className="px-4 py-6 sm:px-6">
                         <ul className="space-y-8">
-                          {comments.data.map((comment) => (
+                          {comments.map((comment) => (
                             <li key={comment.id}>
                               <div className="flex space-x-3">
                                 <div className="flex-shrink-0">
-                                  <UserCircleIcon
-                                    className="w-10 h-10 text-gray-500"
-                                    aria-hidden="true"
+                                  <img
+                                    className="h-10 w-10 rounded-full"
+                                    src={`https://images.unsplash.com/photo-${comment.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                                    alt=""
                                   />
                                 </div>
                                 <div>
@@ -1441,82 +1312,30 @@ function IncidentDetail({ user, incident, comments }) {
                                       href="#"
                                       className="font-medium text-gray-900"
                                     >
-                                      {
-                                        comment.incidentCommentCreatedBy
-                                          .fullname
-                                      }
+                                      {comment.name}
                                     </a>
                                   </div>
                                   <div className="mt-1 text-sm text-gray-700">
-                                    {comment.attachmentType === "image" ? (
-                                      <AntdImage
-                                        width={200}
-                                        className="rounded-md"
-                                        src={comment.attachment}
-                                        alt=""
-                                      />
-                                    ) : comment.attachmentType ===
-                                      "document" ? (
-                                      <div className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                                        <div className="w-80 pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                          <div className="w-0 flex-1 flex items-center">
-                                            <DocumentTextIcon
-                                              className="flex-shrink-0 h-5 w-5 text-gray-400"
-                                              aria-hidden="true"
-                                            />
-                                            <span className="ml-2 flex-1 w-0 truncate">
-                                              {comment.originalAttachmentName}
-                                            </span>
-                                          </div>
-                                          <div className="ml-4 flex-shrink-0">
-                                            <a
-                                              href={comment.attachment}
-                                              className="font-medium text-blue-600 hover:text-blue-500"
-                                            >
-                                              Download
-                                            </a>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      ""
-                                    )}
-
-                                    <p className="mt-2">{comment.messages}</p>
+                                    <AntdImage
+                                      className="rounded-md"
+                                      src={`https://images.unsplash.com/photo-${comment.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                                      alt=""
+                                    />
+                                    <p>{comment.body}</p>
                                   </div>
-                                  <div className="mt-2 text-xs space-x-2">
-                                    <Tooltip
-                                      placement="left"
-                                      title={format(
-                                        new Date(comment.createdAt),
-                                        "dd MMM yyyy HH:mm"
-                                      )}
+                                  <div className="mt-2 text-sm space-x-2">
+                                    <span className="text-gray-500 font-medium">
+                                      {comment.date}
+                                    </span>{" "}
+                                    <span className="text-gray-500 font-medium">
+                                      &middot;
+                                    </span>{" "}
+                                    <button
+                                      type="button"
+                                      className="text-gray-900 font-medium"
                                     >
-                                      <span className="text-gray-500 font-medium">
-                                        {formatDistanceToNowStrict(
-                                          new Date(comment.createdAt)
-                                        )}{" "}
-                                        ago
-                                      </span>
-                                    </Tooltip>
-                                    {user.username ===
-                                      comment.incidentCommentCreatedBy
-                                        .username && (
-                                      <>
-                                        <span className="text-gray-500 font-medium">
-                                          &middot;
-                                        </span>{" "}
-                                        <button
-                                          type="button"
-                                          className="text-red-500 font-medium"
-                                          onClick={() =>
-                                            showDeleteConfirm(comment.id)
-                                          }
-                                        >
-                                          Delete
-                                        </button>
-                                      </>
-                                    )}
+                                      Reply
+                                    </button>
                                   </div>
                                 </div>
                               </div>
@@ -1525,93 +1344,52 @@ function IncidentDetail({ user, incident, comments }) {
                         </ul>
                       </div>
                     </div>
-                    {/* Footer section of comment */}
-                    {user.grant != "viewer" && (
-                      <div className="bg-gray-50 px-4 py-6 sm:px-6">
-                        <div className="flex space-x-3">
-                          <div className="flex-shrink-0">
-                            <UserCircleIcon
-                              className="w-10 h-10 text-gray-500"
-                              aria-hidden="true"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <form
-                              key={2}
-                              onSubmit={handleSubmit2(onSubmitComment)}
-                            >
-                              <div>
-                                <label htmlFor="comment" className="sr-only">
-                                  About
-                                </label>
-                                <textarea
-                                  {...register2("comment")}
-                                  id="comment"
-                                  name="comment"
-                                  rows={3}
-                                  className="shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500 sm:text-sm border border-gray-300 rounded-md"
-                                  placeholder="Add a note"
-                                  defaultValue={""}
+                    <div className="bg-gray-50 px-4 py-6 sm:px-6">
+                      <div className="flex space-x-3">
+                        <div className="flex-shrink-0">
+                          <img
+                            className="h-10 w-10 rounded-full"
+                            src={user.imageUrl}
+                            alt=""
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <form action="#">
+                            <div>
+                              <label htmlFor="comment" className="sr-only">
+                                About
+                              </label>
+                              <textarea
+                                id="comment"
+                                name="comment"
+                                rows={3}
+                                className="shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500 sm:text-sm border border-gray-300 rounded-md"
+                                placeholder="Add a note"
+                                defaultValue={""}
+                              />
+                            </div>
+                            <div className="mt-3 flex items-center justify-between">
+                              <a
+                                href="#"
+                                className="group inline-flex items-start text-sm space-x-2 text-gray-500 hover:text-gray-900"
+                              >
+                                <QuestionMarkCircleIcon
+                                  className="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  aria-hidden="true"
                                 />
-                              </div>
-                              <div className="mt-2">
-                                {/* <InputFile /> */}
-                                <Upload
-                                  beforeUpload={(file) => {
-                                    setShowList(true);
-                                    setFileList(file);
-                                  }}
-                                  onRemove={() => setFileList([])}
-                                  listType="picture"
-                                  maxCount={1}
-                                  showUploadList={showList}
-                                >
-                                  <button
-                                    type="button"
-                                    className="inline-flex items-center px-4 py-2 border-dashed border-2 border-gray-400 text-sm italic rounded-md text-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                                  >
-                                    <PaperClipIcon
-                                      className="w-5 h-5 mr-2 -ml-1 rotate-45 text-gray-400"
-                                      aria-hidden="true"
-                                    />
-                                    Attach a file or drag here
-                                  </button>
-                                </Upload>
-                              </div>
-                              <div className="mt-3 flex items-center justify-between">
-                                <Tooltip
-                                  title="You can send text or images at the same time, or one of them"
-                                  placement="left"
-                                >
-                                  <a
-                                    href="#"
-                                    className="group inline-flex items-start text-sm space-x-2 text-gray-500 hover:text-gray-900"
-                                  >
-                                    <QuestionMarkCircleIcon
-                                      className="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
-                                      aria-hidden="true"
-                                    />
-                                    <span>One of them is okay.</span>
-                                  </a>
-                                </Tooltip>
-                                <PrimaryButton
-                                  type="submit"
-                                  className={
-                                    isSubmitting2
-                                      ? "disabled:opacity-50 cursor-not-allowed"
-                                      : ""
-                                  }
-                                  disabled={isSubmitting2}
-                                >
-                                  {isSubmitting2 && <Spinner />}
-                                  Comment
-                                </PrimaryButton>
-                              </div>
-                            </form>
-                          </div>
+                                <span>Some HTML is okay.</span>
+                              </a>
+                              <button
+                                type="submit"
+                                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                              >
+                                Comment
+                              </button>
+                            </div>
+                          </form>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </section>
               </div>
