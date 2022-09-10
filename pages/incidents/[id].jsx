@@ -493,6 +493,7 @@ function IncidentDetail({ user, incident, comments }) {
       .catch((err) => {
         toast.error(err.response.data.message);
       });
+
   };
 
   return (
@@ -910,7 +911,7 @@ function IncidentDetail({ user, incident, comments }) {
                                     aria-describedby="comments-description"
                                     name="comments"
                                     type="checkbox"
-                                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                     onChange={handleStillOngoing}
                                     checked={isOnGoing}
                                   />
@@ -1484,6 +1485,7 @@ function IncidentDetail({ user, incident, comments }) {
 
                                     <p className="mt-2">{comment.messages}</p>
                                   </div>
+
                                   <div className="mt-2 text-xs space-x-2">
                                     <Tooltip
                                       placement="left"
@@ -1525,6 +1527,7 @@ function IncidentDetail({ user, incident, comments }) {
                         </ul>
                       </div>
                     </div>
+
                     {/* Footer section of comment */}
                     {user.grant != "viewer" && (
                       <div className="bg-gray-50 px-4 py-6 sm:px-6">
@@ -1764,13 +1767,13 @@ function IncidentDetail({ user, incident, comments }) {
                         </h2>
                         {/* Tampilan yang di atas */}
                         <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
-                          ID Problem : {""}
+                           Problem Number : {""}
                           {incident.data.problemDetail.problemNumber === null
                             ? "-"
                             : incident.data.problemDetail.problemNumber}
                         </div>
                         <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
-                          Assigned AES : {""}
+                          Assigned to : {""}
                           {incident.data.problemDetail.paramAssignedTo === null
                             ? "-"
                             : incident.data.problemDetail.paramAssignedTo
@@ -1784,9 +1787,11 @@ function IncidentDetail({ user, incident, comments }) {
                             aria-hidden="true"
                           />
                           <div className="ml-3.5 text-sm font-medium text-gray-600">
-                            {incident.data.paramProblemType
-                              ? `Type : ${incident.data.paramProblemType.problemType}`
-                              : "Problem Type Not yet"}
+                            Type : {""}
+                            {incident.data.paramProblemType === null
+                              ? "Not Yet"
+                              : incident.data.paramProblemType
+                                .problemType}
                           </div>
                         </div>
                         <div className="inline-flex ml-3.5 mt-3 text-sm font-medium relative text-gray-600  px-3 py-0.5 items-center ">
@@ -1832,65 +1837,76 @@ function IncidentDetail({ user, incident, comments }) {
                           </li>
                         </ul>
                         {/* Link */}
-                        <h2 className="mt-2 text-sm font-medium text-gray-900">
+                       <h2 className="mt-2 text-sm font-medium text-gray-900">
                           Link
                         </h2>
                         <ul className="mt-2 leading-8">
+                          
+                          {/* Link Jira*/}
+                            <li className="inline">
+                              {incident.data.problemDetail.jiraProblem !== null && (
+                              <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-2 py-0.5 ml-2">                         
+                                <div className="ml-1.5 mr-1.5 text-sm font-medium">
+                                  {incident.data.problemDetail.jiraProblem ===
+                                    null ? (
+                                    <span
+                                      href="#"
+                                      className="text-white">
+                                      Jira
+                                    </span>
+                                  ) : (
+                                  <div>
+                                    <a
+                                      className="ml-6 text-white hover:text-blue-800 hover:transition hover:duration-300"
+                                      href={
+                                        incident.data.problemDetail.jiraProblem
+                                      }
+                                    >
+                                    <ExternalLinkIcon
+                                      className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5 text-white hover:text-blue-800 hover:transition hover:duration-300"
+                                      aria-hidden="true"
+                                    />
+                                      Jira
+                                    </a>
+                                  </div>
+                                  )}
+                                </div>
+                              </div>
+                              )}
+                            </li>
+                          
+                          
+                          {/* Link Change Management*/}
                           <li className="inline">
-                            <a
-                              href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-3 py-0.5 ml-2"
-                            >
-                              <div className="absolute flex items-center justify-center flex-shrink-0">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full bg-gray-500"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <div className="ml-3.5 text-sm font-medium">
-                                {incident.data.problemDetail.jiraProblem ===
-                                null ? (
-                                  <span className="text-white">None</span>
-                                ) : (
-                                  <a
-                                    className="text-white hover:text-blue-800 hover:transition hover:duration-300"
-                                    href={
-                                      incident.data.problemDetail.jiraProblem
-                                    }
-                                  >
-                                    Jira
-                                  </a>
-                                )}
-                              </div>
-                            </a>{" "}
-                          </li>
-                          <li className="inline">
-                            <a
-                              href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-3 py-0.5 ml-2"
-                            >
-                              <div className="absolute flex items-center justify-center flex-shrink-0">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full bg-gray-400"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <div className="ml-3.5 text-sm font-medium">
+                            {incident.data.problemDetail.followUpCM !== null && (
+                            <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-2 py-0.5 ml-2">                          
+                              <div className="ml-1.5 mr-1.5 text-sm font-medium">
                                 {incident.data.problemDetail.followUpCM ===
-                                null ? (
-                                  <span className="text-white">None</span>
+                                  null ? (
+                                  <span
+                                    href="#"
+                                    className="text-white">
+                                    Change Management
+                                  </span>
                                 ) : (
+                                <div>
                                   <a
-                                    className="text-white hover:text-black hover:transition hover:duration-300"
+                                    className="ml-6 text-white hover:text-black hover:transition hover:duration-300"
                                     href={
                                       incident.data.problemDetail.followUpCM
                                     }
                                   >
+                                  <ExternalLinkIcon
+                                    className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5 text-white hover:text-black hover:transition hover:duration-300"
+                                    aria-hidden="true"
+                                  />
                                     Change Management
                                   </a>
+                                </div>
                                 )}
                               </div>
-                            </a>{" "}
+                            </div>
+                            )}
                           </li>
                         </ul>
                       </div>

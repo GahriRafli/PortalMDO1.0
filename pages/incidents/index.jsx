@@ -30,14 +30,48 @@ import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button"
 import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
 import { ReactSelect } from "components/ui/forms";
 import AsyncSelect from "react-select/async";
-import { styledReactSelectAdd } from "components/utils";
+import { styledReactSelectAdd, createParam } from "components/utils";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAsyncDebounce } from "react-table";
 import "regenerator-runtime";
 
-export const getServerSideProps = withSession(async function ({ req, res }) {
+
+import { useRouter } from "next/router";
+import ReactPaginate from "react-paginate";
+
+export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
+    let url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/incidents`);
+
+    const page = query.page || 1;
+    const perPage = query.perPage || "";
+    const apps = query.idApps || "";
+    const incidentType = query.idIncidentType || "";
+    const incidentStatus = query.incidentStatus || "";
+    const startTime = query.filterStartTime || "";
+    const endTime = query.filterEndTime || "";
+    const irNumber = query.incidentNumber || "";
+
+    if (query.page || query.perPage || query.idApps || query.idIncidentType || query.incidentStatus || query.filterStartTime || query.filterEndTime || query.incidentNumber) {
+      url.searchParams.append("page", page)
+      url.searchParams.append("perPage", perPage)
+      url.searchParams.append("idApps", apps)
+      url.searchParams.append("idIncidentType", incidentType)
+      url.searchParams.append("incidentStatus", incidentStatus)
+      url.searchParams.append("filterStartTime", startTime)
+      url.searchParams.append("filterEndTime", endTime)
+      url.searchParams.append("incidentNumber", irNumber)
+    } else {
+      url.searchParams.append("page", page)
+    }
+    
+    const res = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    });
+    const data = await res.json();
+
+
   if (!user) {
     return {
       redirect: {
@@ -47,17 +81,17 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
-    headers: { Authorization: `Bearer ${user.accessToken}` },
-  });
-  const data = await res.json();
-
   if (res.status === 200) {
     // Pass data to the page via props
     return {
       props: {
-        user: req.session.get("user"),
+        user: user,
         data: data.data,
+        totalCount: data.incidentPaging.totalData,
+        pageCount: Math.ceil(data.incidentPaging.totalData / data.incidentPaging.perPage),
+        currentPage: data.incidentPaging.page,
+        perPage: data.incidentPaging.perPage,
+        isLoading: false,
       },
     };
   } else if (res.status === 401) {
@@ -70,7 +104,9 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       };
     } else if (data.code === 401) {
       return {
-        notFound: true,
+        user: user,
+        search: data.code,
+        isLoading: false,
       };
     }
   } else if (res.status === 404) {
@@ -80,7 +116,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   }
 });
 
-function IncidentList({ user, data }) {
+function IncidentList(props) {
   const [tableData, setTableData] = useState([]);
   const [irNumber, setIRNumber] = useState("");
   const [apps, setApps] = useState("");
@@ -89,6 +125,36 @@ function IncidentList({ user, data }) {
   const [incidentStatus, setIncidentStatus] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+
+  //  nambah
+  const [isLoading, setLoading] = useState(false);
+  const [selectedPage, setSelectedPage] = useState("");
+  const startLoading = () => setLoading(true);
+  const stopLoading = () => setLoading(false);
+  const router = useRouter();
+
+  //Nambah Pagination
+  useEffect(() => {
+    router.events.on("routeChangeStart", startLoading);
+    router.events.on("routeChangeComplete", stopLoading);
+
+    return () => {
+      router.events.off("routeChangeStart", startLoading);
+      router.events.off("routeChangeComplete", stopLoading);
+    };
+  }, []);
+
+  const paginationHandler = (page) => {
+    const currentPath = router.pathname; // '/incidents/search'
+    const currentQuery = { ...router.query };
+    currentQuery.page = page.selected + 1;
+    setSelectedPage(currentQuery.page);
+
+    router.push({
+      pathname: currentPath,
+      query: currentQuery,
+    });
+  };
 
   const incidentStatusOptions = [
     { value: "Open", label: "Open" },
@@ -137,77 +203,122 @@ function IncidentList({ user, data }) {
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
 
-  // Get filter
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/incidents?idApps=${apps}&idIncidentType=${incidentType}&incidentStatus=${incidentStatus}&filterStartTime=${startTime}&filterEndTime=${endTime}&incidentNumber=${irNumber}`,
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      );
-
-      const result = await response.data.data;
-      setTableData(result);
-    };
-
-    if (
-      irNumber ||
-      apps ||
-      incidentType ||
-      incidentStatus ||
-      startTime ||
-      endTime
-    ) {
-      fetchData();
-    } else {
-      setTableData(data);
-    }
-  }, [irNumber, apps, incidentType, incidentStatus, startTime, endTime, data]);
-
+  
   // to hanlde if clearable button clicked
   const handleIRNumChange = (value) => {
-    if (value === "") {
-      setIRNumber("");
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
+
+    if (value === "" ) {
+      let param = new URLSearchParams(currentQuery)
+      param.delete('incidentNumber')
+      router.push({
+        pathname: currentPath,
+        query: createParam(param.toString()),
+      });
+    } else {
+      currentQuery.incidentNumber = value;;
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
+      });
+
+    } 
+  };
+
+
+  const handleAppChange = (e, { action }) => {
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
+
+    if (action === 'select-option') {
+      currentQuery.idApps = e.value;;
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
+      });
+    } else if (action === 'clear') {
+      let param = new URLSearchParams(currentQuery)
+      param.delete('idApps')
+      router.push({
+        pathname: currentPath,
+        query: createParam(param.toString()),
+      });
+
+    } else {
+      return false;
+
     }
   };
 
-  const handleIRNumEnter = (value) => {
-    setIRNumber(value);
-  };
+  const handleIncidentTypeChange = (e, { action }) => {
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
 
-  const handleAppChange = (event) => {
-    if (event == null) {
-      setApps("");
+    if (action === 'select-option') {
+      currentQuery.idIncidentType = e.value;;
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
+      });
+    } else if (action === 'clear') {
+      let param = new URLSearchParams(currentQuery)
+      param.delete('idIncidentType')
+      router.push({
+        pathname: currentPath,
+        query: createParam(param.toString()),
+      });
+
     } else {
-      setApps(event.value);
+      return false;
+
     }
   };
 
-  const handleIncidentTypeChange = (event) => {
-    if (event == null) {
-      setIncidentType("");
-    } else {
-      setIncidentType(event.value);
-    }
-  };
+  const handleIncidentStatusChange = (e, { action }) => {
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
 
-  const handleIncidentStatusChange = (event) => {
-    if (event == null) {
-      setIncidentStatus("");
+    if (action === 'select-option') {
+      currentQuery.incidentStatus = e.value;;
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
+      });
+    } else if (action === 'clear') {
+      let param = new URLSearchParams(currentQuery)
+      param.delete('incidentStatus')
+      router.push({
+        pathname: currentPath,
+        query: createParam(param.toString()),
+      });
+
     } else {
-      setIncidentStatus(event.value);
+      return false;
+
     }
   };
 
   const handleDateChange = (value, dateString) => {
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
+
     if (value == null) {
-      setStartTime("");
-      setEndTime("");
+      let param = new URLSearchParams(currentQuery)
+      param.delete('filterStartTime')
+      param.delete('filterEndTime')
+      router.push({
+        pathname: currentPath,
+        query: createParam(param.toString()),
+      });
     } else {
-      setStartTime(dateString[0]);
-      setEndTime(dateString[1]);
-    }
+      currentQuery.filterStartTime = dateString[0];
+      currentQuery.filterEndTime = dateString[1];
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
+      });
+    } 
   };
 
   const tableInstance = useRef(null);
@@ -299,7 +410,7 @@ function IncidentList({ user, data }) {
 
   return (
     <>
-      <Layout session={user}>
+      <Layout session={props.user}>
         <Head>
           <title>Incident Report</title>
         </Head>
@@ -362,7 +473,7 @@ function IncidentList({ user, data }) {
                   </label>
                   <InputTag
                     allowClear
-                    onPressEnter={(e) => handleIRNumEnter(e.target.value)}
+                    onPressEnter={(e) => handleIRNumChange(e.target.value)}
                     onChange={(e) => handleIRNumChange(e.target.value)}
                     placeholder="IR-____-______"
                     suffix={
@@ -443,7 +554,49 @@ function IncidentList({ user, data }) {
                   <DateRangeFilter onChange={handleDateChange} />
                 </div>
               </div>
-              <Table columns={columns} data={tableData} ref={tableInstance} />
+              <Table columns={columns} data={props.data} ref={tableInstance} />
+            {/* Awal coba pagination */}
+            <div className="hidden mt-3 sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Showing{" "}
+                      <span className="font-medium">{props.currentPage}</span>{" "}
+                      to <span className="font-medium">{props.pageCount}</span>{" "}
+                      of <span className="font-medium">{props.totalCount}</span>{" "}
+                      results
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <ReactPaginate
+                    initialPage={props.currentPage - 1}
+                    pageCount={props.pageCount} //page count
+                    previousLabel={"Prev"}
+                    onPageChange={paginationHandler}
+                    containerClassName={
+                      "relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                    }
+                    pageLinkClassName={
+                      "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                    }
+                    previousLinkClassName={
+                      "relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    }
+                    nextLinkClassName={
+                      "relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    }
+                    breakLabel={"..."}
+                    breakLinkClassName={
+                      "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                    }
+                    activeLinkClassName={
+                      "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                    }
+                  />
+                </div>
+              </div>
+              {/* Akhir coba pagination */}
             </div>
           </div>
         </section>

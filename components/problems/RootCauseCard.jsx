@@ -1,7 +1,7 @@
 const RootCauseCard = ({ rootcause }) => {
   return (
     <>
-      <h1 className="text-2xl font-bold text-gray-400">Root Cause</h1>
+      <h1 className="text-2xl font-bold text-gray-400">Known Error</h1>
       <section aria-labelledby="final-rootcause">
         <div className="bg-white shadow sm:rounded-lg">
           {/* Inside Card */}

@@ -37,6 +37,11 @@ const styledReactSelectAdd = {
   },
 };
 
+function createParam(queryParam) {
+  const newParam = JSON.parse('{"' + decodeURI(queryParam).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}')
+  return newParam;
+}
+
 const DisclosureOpen = ({ item, router, session }) => {
   return (
     <Disclosure as="div" defaultOpen key={item.name} className="space-y-1">
@@ -209,4 +214,4 @@ const DisclosureDefault = ({ item, router, session }) => {
   );
 };
 
-export { classNames, styledReactSelect, styledReactSelectAdd, DisclosureOpen, DisclosureDefault };
+export { classNames, styledReactSelect, styledReactSelectAdd, DisclosureOpen, DisclosureDefault, createParam };
