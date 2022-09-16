@@ -34,7 +34,6 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     } else if (paramLength === 2) {
       if (query.q && query.perPage) {
         url.searchParams.append("q", query.q);
-        // url.searchParams.append("page", page);
         url.searchParams.append("perPage", query.perPage);
       } else if (query.q && query.page) {
         url.searchParams.append("q", query.q);
@@ -89,7 +88,6 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   }
 });
 
-// const ProblemSearch = ({ user, search }) => {
 const ProblemSearch = (props) => {
   const [isLoading, setLoading] = useState(false);
   const [selectedPage, setSelectedPage] = useState("");
@@ -139,9 +137,10 @@ const ProblemSearch = (props) => {
     <>
       <Spin
         style={{
-          marginTop: "10vh",
-          marginBottom: "10vh",
+          top: "50%",
+          left: "50%",
           display: "block",
+          position: "fixed",
           justifyContent: "center",
         }}
         size="large"
@@ -251,7 +250,10 @@ const ProblemSearch = (props) => {
         <Head>
           <title>Problem Search</title>
         </Head>
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div
+          className="flex-1 flex flex-col overflow-hidden"
+          id="problem-matching-section"
+        >
           <div className="mt-10 mb-5 max-w-full sm:px-6 lg:max-w-full lg:px-12">
             <div className="flex gap-x-2">
               <div className="flex-auto">
@@ -335,8 +337,8 @@ const ProblemSearch = (props) => {
               </div>
             ) : (
               <>
+                {/* Ini Component Content Dinamis nya */}
                 {content}
-
                 {props.keyword !== undefined ? (
                   <div className="mt-3 hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
@@ -359,7 +361,7 @@ const ProblemSearch = (props) => {
                     <div>
                       <ReactPaginate
                         initialPage={props.search.paging.Page - 1}
-                        pageCount={props.search.paging.totalPages} //page count
+                        pageCount={props.search.paging.totalPages}
                         previousLabel={"Prev"}
                         onPageChange={paginationHandler}
                         containerClassName={
@@ -380,6 +382,11 @@ const ProblemSearch = (props) => {
                         }
                         activeLinkClassName={
                           "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                        }
+                        onClick={() =>
+                          document
+                            .getElementById("problem-matching-section")
+                            .scrollIntoView()
                         }
                       />
                     </div>
