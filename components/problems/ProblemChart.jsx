@@ -33,17 +33,15 @@ ChartJS.register(
 
 export const ProblemChart = ({ chartData, title, chartType, onDisplay }) => {
   return (
-    <div>
-      <Chart
-        data={chartData}
-        options={{
-          plugins: {
-            title: { display: onDisplay, text: `${title}` },
-            legend: { display: onDisplay, position: "bottom" },
-          },
-        }}
-        type={chartType}
-      />
-    </div>
+    <Chart
+      data={chartData}
+      options={{
+        plugins: {
+          title: { display: onDisplay, text: `${title}` },
+          legend: { display: onDisplay, position: "bottom" },
+        },
+      }}
+      type={chartType}
+    />
   );
 };
