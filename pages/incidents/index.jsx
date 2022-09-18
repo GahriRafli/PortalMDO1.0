@@ -30,7 +30,7 @@ import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button"
 import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
 import { ReactSelect } from "components/ui/forms";
 import AsyncSelect from "react-select/async";
-import { styledReactSelectAdd } from "components/utils";
+import { styledReactSelect } from "components/utils";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAsyncDebounce } from "react-table";
@@ -107,7 +107,7 @@ function IncidentList({ user, data }) {
     const timeoutId = setTimeout(() => {
       axios
         .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}&status=A`
         )
         .then((res) => {
           const cachedOptions = res.data.data.map((d) => ({
@@ -393,7 +393,7 @@ function IncidentList({ user, data }) {
                     instanceId={"application"}
                     defaultValue={""}
                     loadOptions={loadApplications}
-                    styles={styledReactSelectAdd}
+                    styles={styledReactSelect}
                     className="text-sm focus:ring-blue-300 focus:border-blue-300 w-60 md:w-40 lg:w-40"
                     placeholder="Search App"
                     onChange={handleAppChange}

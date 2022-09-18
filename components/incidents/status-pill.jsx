@@ -1,9 +1,3 @@
-import {
-  ChevronDownIcon,
-  MenuAlt4Icon,
-  ChevronUpIcon,
-  ChevronDoubleUpIcon,
-} from "@heroicons/react/solid";
 import { BadgesWithDot } from "../ui/badges";
 
 const StatusPill = ({ value }) => {
@@ -11,22 +5,38 @@ const StatusPill = ({ value }) => {
 
   return priority.startsWith("low") ? (
     <p className="mt-2 flex items-center text-sm text-gray-500">
-      <ChevronDownIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-blue-500" />
+      <img
+        src="/icon-priority/low.svg"
+        alt=""
+        className="flex-shrink-0 mr-1.5 h-5 w-5"
+      />
       Low
     </p>
   ) : priority.startsWith("medium") ? (
     <p className="mt-2 flex items-center text-sm text-gray-500">
-      <MenuAlt4Icon className="flex-shrink-0 mr-1.5 h-4 w-4 text-yellow-500" />
+      <img
+        src="/icon-priority/medium.svg"
+        alt=""
+        className="flex-shrink-0 mr-1.5 h-5 w-5"
+      />
       Medium
     </p>
   ) : priority.startsWith("high") ? (
     <p className="mt-2 flex items-center text-sm text-gray-500">
-      <ChevronUpIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-red-500" />
+      <img
+        src="/icon-priority/high.svg"
+        alt=""
+        className="flex-shrink-0 mr-1.5 h-5 w-5"
+      />
       High
     </p>
   ) : priority.startsWith("critical") ? (
     <p className="mt-2 flex items-center text-sm text-gray-500">
-      <ChevronDoubleUpIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-red-500" />
+      <img
+        src="/icon-priority/highest.svg"
+        alt=""
+        className="flex-shrink-0 mr-1.5 h-5 w-5"
+      />
       Critical
     </p>
   ) : (
