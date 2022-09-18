@@ -279,4 +279,5 @@ export {
   ValueOption,
   DisclosureOpen,
   DisclosureDefault,
+  createParam,
 };
