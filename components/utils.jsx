@@ -2,9 +2,26 @@ import Link from "next/link";
 import { Transition, Disclosure } from "@headlessui/react";
 import { ChevronRightIcon } from "@heroicons/react/outline";
 import { checkMemberAES } from "./problems/ProblemHelper";
+import { components } from "react-select";
+const { Option, SingleValue } = components;
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
+}
+
+function getCriticalityIcon(criticality) {
+  let iconName;
+  criticality.startsWith("low")
+    ? (iconName = "low.svg")
+    : criticality.startsWith("medium")
+    ? (iconName = "medium.svg")
+    : criticality.startsWith("high")
+    ? (iconName = "high.svg")
+    : criticality.startsWith("critical")
+    ? (iconName = "highest.svg")
+    : (iconName = "trivial.svg");
+
+  return iconName;
 }
 
 const styledReactSelect = {
@@ -14,7 +31,6 @@ const styledReactSelect = {
       boxShadow: "none",
     },
   }),
-
   menu: (base) => ({
     ...base,
     fontSize: "0.875rem",
@@ -37,8 +53,49 @@ const styledReactSelectAdd = {
   },
 };
 
+const IconOption = (props) => {
+  const criticality = props.data.criticality
+    ? props.data.criticality.toLowerCase()
+    : "";
+
+  return (
+    <Option {...props}>
+      <img
+        src={`/icon-priority/${getCriticalityIcon(criticality)}`}
+        alt=""
+        className="mr-1.5 h-5 w-5"
+      />{" "}
+      {props.data.label}
+    </Option>
+  );
+};
+
+const ValueOption = (props) => {
+  const criticality = props.data.criticality
+    ? props.data.criticality.toLowerCase()
+    : "";
+
+  return (
+    <SingleValue {...props}>
+      <img
+        src={`/icon-priority/${getCriticalityIcon(criticality)}`}
+        alt=""
+        className="mr-1.5 h-5 w-5"
+      />{" "}
+      {props.data.label}
+    </SingleValue>
+  );
+};
+
 function createParam(queryParam) {
-  const newParam = JSON.parse('{"' + decodeURI(queryParam).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}')
+  const newParam = JSON.parse(
+    '{"' +
+      decodeURI(queryParam)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"') +
+      '"}'
+  );
   return newParam;
 }
 
@@ -214,4 +271,13 @@ const DisclosureDefault = ({ item, router, session }) => {
   );
 };
 
-export { classNames, styledReactSelect, styledReactSelectAdd, DisclosureOpen, DisclosureDefault, createParam };
+export {
+  classNames,
+  styledReactSelect,
+  styledReactSelectAdd,
+  IconOption,
+  ValueOption,
+  DisclosureOpen,
+  DisclosureDefault,
+  createParam,
+};

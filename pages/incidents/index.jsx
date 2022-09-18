@@ -30,47 +30,54 @@ import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button"
 import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
 import { ReactSelect } from "components/ui/forms";
 import AsyncSelect from "react-select/async";
-import { styledReactSelectAdd, createParam } from "components/utils";
+import { styledReactSelect, createParam } from "components/utils";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAsyncDebounce } from "react-table";
 import "regenerator-runtime";
-
 
 import { useRouter } from "next/router";
 import ReactPaginate from "react-paginate";
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
-    let url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/incidents`);
+  let url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/incidents`);
 
-    const page = query.page || 1;
-    const perPage = query.perPage || "";
-    const apps = query.idApps || "";
-    const incidentType = query.idIncidentType || "";
-    const incidentStatus = query.incidentStatus || "";
-    const startTime = query.filterStartTime || "";
-    const endTime = query.filterEndTime || "";
-    const irNumber = query.incidentNumber || "";
+  const page = query.page || 1;
+  const perPage = query.perPage || "";
+  const apps = query.idApps || "";
+  const incidentType = query.idIncidentType || "";
+  const incidentStatus = query.incidentStatus || "";
+  const startTime = query.filterStartTime || "";
+  const endTime = query.filterEndTime || "";
+  const irNumber = query.incidentNumber || "";
 
-    if (query.page || query.perPage || query.idApps || query.idIncidentType || query.incidentStatus || query.filterStartTime || query.filterEndTime || query.incidentNumber) {
-      url.searchParams.append("page", page)
-      url.searchParams.append("perPage", perPage)
-      url.searchParams.append("idApps", apps)
-      url.searchParams.append("idIncidentType", incidentType)
-      url.searchParams.append("incidentStatus", incidentStatus)
-      url.searchParams.append("filterStartTime", startTime)
-      url.searchParams.append("filterEndTime", endTime)
-      url.searchParams.append("incidentNumber", irNumber)
-    } else {
-      url.searchParams.append("page", page)
-    }
-    
-    const res = await fetch(url.toString(), {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    });
-    const data = await res.json();
+  if (
+    query.page ||
+    query.perPage ||
+    query.idApps ||
+    query.idIncidentType ||
+    query.incidentStatus ||
+    query.filterStartTime ||
+    query.filterEndTime ||
+    query.incidentNumber
+  ) {
+    url.searchParams.append("page", page);
+    url.searchParams.append("perPage", perPage);
+    url.searchParams.append("idApps", apps);
+    url.searchParams.append("idIncidentType", incidentType);
+    url.searchParams.append("incidentStatus", incidentStatus);
+    url.searchParams.append("filterStartTime", startTime);
+    url.searchParams.append("filterEndTime", endTime);
+    url.searchParams.append("incidentNumber", irNumber);
+  } else {
+    url.searchParams.append("page", page);
+  }
 
+  const res = await fetch(url.toString(), {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
+  const data = await res.json();
 
   if (!user) {
     return {
@@ -88,7 +95,9 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
         user: user,
         data: data.data,
         totalCount: data.incidentPaging.totalData,
-        pageCount: Math.ceil(data.incidentPaging.totalData / data.incidentPaging.perPage),
+        pageCount: Math.ceil(
+          data.incidentPaging.totalData / data.incidentPaging.perPage
+        ),
         currentPage: data.incidentPaging.page,
         perPage: data.incidentPaging.perPage,
         isLoading: false,
@@ -173,7 +182,7 @@ function IncidentList(props) {
     const timeoutId = setTimeout(() => {
       axios
         .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}&status=A`
         )
         .then((res) => {
           const cachedOptions = res.data.data.map((d) => ({
@@ -203,51 +212,46 @@ function IncidentList(props) {
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
 
-  
   // to hanlde if clearable button clicked
   const handleIRNumChange = (value) => {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
 
-    if (value === "" ) {
-      let param = new URLSearchParams(currentQuery)
-      param.delete('incidentNumber')
+    if (value === "") {
+      let param = new URLSearchParams(currentQuery);
+      param.delete("incidentNumber");
       router.push({
         pathname: currentPath,
         query: createParam(param.toString()),
       });
     } else {
-      currentQuery.incidentNumber = value;;
+      currentQuery.incidentNumber = value;
       router.push({
         pathname: currentPath,
         query: currentQuery,
       });
-
-    } 
+    }
   };
-
 
   const handleAppChange = (e, { action }) => {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
 
-    if (action === 'select-option') {
-      currentQuery.idApps = e.value;;
+    if (action === "select-option") {
+      currentQuery.idApps = e.value;
       router.push({
         pathname: currentPath,
         query: currentQuery,
       });
-    } else if (action === 'clear') {
-      let param = new URLSearchParams(currentQuery)
-      param.delete('idApps')
+    } else if (action === "clear") {
+      let param = new URLSearchParams(currentQuery);
+      param.delete("idApps");
       router.push({
         pathname: currentPath,
         query: createParam(param.toString()),
       });
-
     } else {
       return false;
-
     }
   };
 
@@ -255,23 +259,21 @@ function IncidentList(props) {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
 
-    if (action === 'select-option') {
-      currentQuery.idIncidentType = e.value;;
+    if (action === "select-option") {
+      currentQuery.idIncidentType = e.value;
       router.push({
         pathname: currentPath,
         query: currentQuery,
       });
-    } else if (action === 'clear') {
-      let param = new URLSearchParams(currentQuery)
-      param.delete('idIncidentType')
+    } else if (action === "clear") {
+      let param = new URLSearchParams(currentQuery);
+      param.delete("idIncidentType");
       router.push({
         pathname: currentPath,
         query: createParam(param.toString()),
       });
-
     } else {
       return false;
-
     }
   };
 
@@ -279,23 +281,21 @@ function IncidentList(props) {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
 
-    if (action === 'select-option') {
-      currentQuery.incidentStatus = e.value;;
+    if (action === "select-option") {
+      currentQuery.incidentStatus = e.value;
       router.push({
         pathname: currentPath,
         query: currentQuery,
       });
-    } else if (action === 'clear') {
-      let param = new URLSearchParams(currentQuery)
-      param.delete('incidentStatus')
+    } else if (action === "clear") {
+      let param = new URLSearchParams(currentQuery);
+      param.delete("incidentStatus");
       router.push({
         pathname: currentPath,
         query: createParam(param.toString()),
       });
-
     } else {
       return false;
-
     }
   };
 
@@ -304,9 +304,9 @@ function IncidentList(props) {
     const currentQuery = { ...router.query };
 
     if (value == null) {
-      let param = new URLSearchParams(currentQuery)
-      param.delete('filterStartTime')
-      param.delete('filterEndTime')
+      let param = new URLSearchParams(currentQuery);
+      param.delete("filterStartTime");
+      param.delete("filterEndTime");
       router.push({
         pathname: currentPath,
         query: createParam(param.toString()),
@@ -318,7 +318,7 @@ function IncidentList(props) {
         pathname: currentPath,
         query: currentQuery,
       });
-    } 
+    }
   };
 
   const tableInstance = useRef(null);
@@ -504,7 +504,7 @@ function IncidentList(props) {
                     instanceId={"application"}
                     defaultValue={""}
                     loadOptions={loadApplications}
-                    styles={styledReactSelectAdd}
+                    styles={styledReactSelect}
                     className="text-sm focus:ring-blue-300 focus:border-blue-300 w-60 md:w-40 lg:w-40"
                     placeholder="Search App"
                     onChange={handleAppChange}
@@ -555,20 +555,18 @@ function IncidentList(props) {
                 </div>
               </div>
               <Table columns={columns} data={props.data} ref={tableInstance} />
-            {/* Awal coba pagination */}
-            <div className="hidden mt-3 sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              {/* Awal coba pagination */}
+              <div className="hidden mt-3 sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing{" "}
-                      <span className="font-medium">{props.currentPage}</span>{" "}
-                      to <span className="font-medium">{props.pageCount}</span>{" "}
-                      of <span className="font-medium">{props.totalCount}</span>{" "}
-                      results
-                    </p>
-                  </div>
+                  <p className="text-sm text-gray-700">
+                    Showing{" "}
+                    <span className="font-medium">{props.currentPage}</span> to{" "}
+                    <span className="font-medium">{props.pageCount}</span> of{" "}
+                    <span className="font-medium">{props.totalCount}</span>{" "}
+                    results
+                  </p>
                 </div>
-                <div>
+                <div className="mb-5">
                   <ReactPaginate
                     initialPage={props.currentPage - 1}
                     pageCount={props.pageCount} //page count

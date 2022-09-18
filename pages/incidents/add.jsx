@@ -13,7 +13,12 @@ import format from "date-fns/format";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout";
 import { Input } from "../../components/ui/forms";
-import { classNames, styledReactSelect } from "../../components/utils";
+import {
+  classNames,
+  styledReactSelect,
+  IconOption,
+  ValueOption,
+} from "../../components/utils";
 import { PrimaryButton } from "../../components/ui/button/primary-button";
 import { SecondaryButton } from "../../components/ui/button/secondary-button";
 import { Spinner } from "../../components/ui/spinner";
@@ -122,12 +127,13 @@ function addIncident({ user }) {
     const timeoutId = setTimeout(() => {
       axios
         .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}&status=A`
         )
         .then((res) => {
           const cachedOptions = res.data.data.map((d) => ({
             value: d.id,
             label: d.subName,
+            criticality: d.criticalityApp,
           }));
 
           callback(cachedOptions);
@@ -344,14 +350,21 @@ function addIncident({ user }) {
                             <AsyncSelect
                               {...field}
                               isClearable
+                              instanceId={"idApps"}
                               loadOptions={loadApplications}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Search for application"
-                              components={{ NoOptionsMessage }}
+                              components={{
+                                Option: IconOption,
+                                SingleValue: ValueOption,
+                              }}
                             />
                           )}
                         />
+                        <span className="mt-2 text-xs italic font-normal text-gray-500">
+                          Type at least 3 letters of application name
+                        </span>
                         {errors.idApps && (
                           <p className="mt-2 text-sm text-red-600">
                             {errors.idApps.message}
@@ -463,10 +476,11 @@ function addIncident({ user }) {
                             <Select
                               {...field}
                               isClearable
+                              instanceId={"idUrgency"}
                               options={urgencyOptions}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                              menuPlacement="auto"
+                              menuPlacement="top"
                             />
                           )}
                         />
@@ -482,6 +496,7 @@ function addIncident({ user }) {
                         </label>
                         <Controller
                           name="idImpact"
+                          id="idImpact"
                           control={control}
                           rules={{
                             required: "This is required",
@@ -490,10 +505,11 @@ function addIncident({ user }) {
                             <Select
                               {...field}
                               isClearable
+                              instanceId={"idImpact"}
                               options={impactOptions}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                              menuPlacement="auto"
+                              menuPlacement="top"
                             />
                           )}
                         />
@@ -582,6 +598,7 @@ function addIncident({ user }) {
                               render={({ field }) => (
                                 <Select
                                   {...field}
+                                  instanceId={"idIncidentType"}
                                   isClearable={true}
                                   isSearchable={false}
                                   options={incidentTypeOptions}

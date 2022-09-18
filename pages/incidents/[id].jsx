@@ -28,12 +28,8 @@ import {
   LockOpenIcon,
   ClockIcon,
   QuestionMarkCircleIcon,
-  PaperClipIcon,
 } from "@heroicons/react/solid";
-import {
-  DocumentTextIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/outline";
+import { DocumentTextIcon, PaperClipIcon } from "@heroicons/react/outline";
 import {
   message,
   Image as AntdImage,
@@ -41,6 +37,8 @@ import {
   Space,
   Tooltip,
   Upload,
+  Typography,
+  Spin,
 } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import { data } from "autoprefixer";
@@ -267,7 +265,8 @@ function IncidentDetail({ user, incident, comments }) {
   );
   const onStatusChange = (value) => {
     const body =
-      value !== "Open" ? (
+      (selectedStatus === "Open" && value === "Investigate") ||
+      (selectedStatus === "Open" && value === "Resolved") ? (
         <>
           All of this data will be send to Whatsapp and Telegram. This action
           cannot be undone.
@@ -316,6 +315,46 @@ function IncidentDetail({ user, incident, comments }) {
           });
       },
     });
+  };
+
+  // Handle Editable Title incident
+  // const [incidentName, setIncidentName] = useState(incident.data.incidentName);
+
+  const [editableData, setEditableData] = useState({
+    incidentName: incident.data.incidentName,
+    titleLoading: false,
+  });
+
+  const handleEditableTitle = (value) => {
+    editableData.incidentName !== value &&
+      setEditableData((editableData) => ({
+        ...editableData,
+        titleLoading: true,
+      }));
+    axios
+      .patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
+        { incidentName: value },
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
+      .then(function (response) {
+        if (response.status === 200) {
+          // setIncidentName(value);
+          setEditableData((editableData) => ({
+            ...editableData,
+            incidentName: value,
+            titleLoading: false,
+          }));
+        } else {
+          toast.error(`Failed to update: ${response.data.message}`);
+        }
+      })
+      .catch(function (error) {
+        // Error 😨
+        toast.error(`${error.response.data.message}`);
+      });
   };
 
   // Handle validate datetime
@@ -512,9 +551,30 @@ function IncidentDetail({ user, incident, comments }) {
               {/* Page header, contain incident title */}
               <div className="flex items-center space-x-5">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  {/* <h1 className="text-2xl font-bold text-gray-900">
                     {incident.data.incidentName}
-                  </h1>
+                  </h1> */}
+                  <Typography.Title
+                    editable={{
+                      triggerType: "text",
+                      onChange: handleEditableTitle,
+                      icon:
+                        editableData.titleLoading === false ? (
+                          <PencilIcon
+                            className="w-5 h-5 text-gray-50 hover:text-gray-500"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <Spin />
+                        ),
+                    }}
+                    level={3}
+                    style={{
+                      margin: 0,
+                    }}
+                  >
+                    {editableData.incidentName}
+                  </Typography.Title>
                   <p className="text-sm font-medium text-gray-500">
                     Reported by{" "}
                     <a href="#" className="text-gray-900">
@@ -1273,7 +1333,7 @@ function IncidentDetail({ user, incident, comments }) {
                       >
                         <div className="flex px-4">
                           {user.grant != "viewer" && (
-                            <Tooltip title="Edit data">
+                            <Tooltip title="Edit">
                               <span>
                                 <ButtonCircle
                                   action={() => {
@@ -1412,7 +1472,7 @@ function IncidentDetail({ user, incident, comments }) {
                         >
                           Notes
                         </h2>
-                        <Tooltip title="Reload data">
+                        <Tooltip title="Refresh">
                           <span>
                             <ButtonCircle
                               action={() => {
@@ -1571,10 +1631,10 @@ function IncidentDetail({ user, incident, comments }) {
                                 >
                                   <button
                                     type="button"
-                                    className="inline-flex items-center px-4 py-2 border-dashed border-2 border-gray-400 text-sm italic rounded-md text-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
+                                    className="inline-flex items-center px-4 py-2 text-sm italic rounded-md text-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
                                   >
                                     <PaperClipIcon
-                                      className="w-5 h-5 mr-2 -ml-1 rotate-45 text-gray-400"
+                                      className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2"
                                       aria-hidden="true"
                                     />
                                     Attach a file or drag here

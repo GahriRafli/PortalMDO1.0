@@ -66,6 +66,8 @@ figure {
 img {
   vertical-align: middle;
   border-style: none;
+  /* Custom untuk image preview */
+  display: initial !important;
 }
 svg:not(:root) {
   overflow: hidden;
@@ -19229,6 +19231,7 @@ textarea.ant-input {
   -ms-user-select: none;
   user-select: none;
   pointer-events: auto;
+  z-index: 0;
 }
 .ant-image-preview-img-wrapper {
   position: absolute;
