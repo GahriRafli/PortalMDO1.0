@@ -51,7 +51,7 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
   return (
     <>
       <div className="flex flex-col mt-3">
-        <div className="align-middle min-w-full overflow-x-auto shadow overflow-hidden sm:rounded-lg">
+        <div className="min-w-full overflow-hidden overflow-x-auto align-middle shadow sm:rounded-lg">
           <table
             {...getTableProps()}
             className="min-w-full divide-y divide-gray-200 table-fixed"
@@ -60,7 +60,7 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
               {headerGroups.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()}>
                   {headerGroup.headers.map((column) => (
-                    // <th {...column.getHeaderProps(column.getSortByToggleProps())} className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    // <th {...column.getHeaderProps(column.getSortByToggleProps())} className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
                       className={classNames(
@@ -68,7 +68,7 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
                         column.Header === "Incident Name" && "w-1/3"
                       )}
                     >
-                      <div className="group flex items-center justify-between">
+                      <div className="flex items-center justify-between group">
                         {column.render("Header")}
                         <span>
                           {column.isSorted ? (
@@ -114,69 +114,6 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
           </table>
         </div>
       </div>
-      {/* START Pagination */}
-      <div className="py-3 flex items-center justify-between">
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div className="flex gap-x-2 items-baseline">
-            <span className="text-sm text-gray-700">
-              Page <span className="font-medium">{pageIndex + 1}</span> of{" "}
-              <span className="font-medium">{pageOptions.length}</span>{" "}
-            </span>
-            <select
-              id="page-size"
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="mt-1 ml-1 block text-base text-gray-700 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              defaultValue={10}
-            >
-              {[10, 25, 50].map((pageSize) => (
-                <option key={pageSize} value={pageSize}>
-                  Show {pageSize}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <nav
-              className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-              aria-label="Pagination"
-            >
-              <PageButton
-                onClick={() => gotoPage(0)}
-                disabled={!canPreviousPage}
-                className="rounded-l-md"
-              >
-                <span className="sr-only">First</span>
-                <ChevronDoubleLeftIcon className="h-5 w-5" aria-hidden="true" />
-              </PageButton>
-              <PageButton
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-              >
-                <span className="sr-only">Previous</span>
-                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-              </PageButton>
-              <PageButton onClick={() => nextPage()} disabled={!canNextPage}>
-                <span className="sr-only">Next</span>
-                <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-              </PageButton>
-              <PageButton
-                onClick={() => gotoPage(pageCount - 1)}
-                disabled={!canNextPage}
-                className="rounded-r-md"
-              >
-                <span className="sr-only">Last</span>
-                <ChevronDoubleRightIcon
-                  className="h-5 w-5"
-                  aria-hidden="true"
-                />
-              </PageButton>
-            </nav>
-          </div>
-        </div>
-      </div>
-      {/* END of Pagination */}
     </>
   );
 });

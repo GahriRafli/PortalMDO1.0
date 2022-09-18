@@ -11,6 +11,7 @@ import {
   ArcElement,
   LineController,
   BarController,
+  PieController,
 } from "chart.js";
 
 import { Chart } from "react-chartjs-2";
@@ -20,6 +21,7 @@ ChartJS.register(
   LinearScale,
   LineController,
   BarController,
+  PieController,
   PointElement,
   LineElement,
   BarElement,

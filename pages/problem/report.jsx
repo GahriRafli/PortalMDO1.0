@@ -166,7 +166,7 @@ export default function Report({ user, data }) {
   const [handlerChartTypeTop, sethandlerChartTypeTop] = useState("bar");
 
   const [chartDataType, setChartDataType] = useState(initialChartDataType);
-  // const [handlerChartTypeType, sethandlerChartTypeType] = useState("pie");
+  const [handlerChartTypeType, sethandlerChartTypeType] = useState("pie");
 
   // SKIP DULU DARI SINI. SKIP DULU DARI SINI. SKIP DULU DARI SINI.
   const [Filter, setFilter] = useState(false);
@@ -272,7 +272,7 @@ export default function Report({ user, data }) {
 
           <div className="grid grid-cols-1 py-2 gap-x-4 gap-y-8 px-4 sm:px-6 lg:px-12 sm:grid-cols-2">
             {/* Card Problem Type Pie */}
-            {/* <div className="sm:col-span-1">
+            <div className="sm:col-span-1">
               <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-8 py-8">
                   <div id="formHitPeriod" name="formHitPeriod">
@@ -291,7 +291,7 @@ export default function Report({ user, data }) {
                   />
                 </div>
               </div>
-            </div> */}
+            </div>
           </div>
         </section>
       </Layout>
