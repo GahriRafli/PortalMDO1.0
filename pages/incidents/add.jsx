@@ -362,6 +362,9 @@ function addIncident({ user }) {
                             />
                           )}
                         />
+                        <span className="mt-2 text-xs italic font-normal text-gray-500">
+                          Type at least 3 letters of application name
+                        </span>
                         {errors.idApps && (
                           <p className="mt-2 text-sm text-red-600">
                             {errors.idApps.message}

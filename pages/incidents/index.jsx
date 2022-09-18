@@ -558,17 +558,15 @@ function IncidentList(props) {
               {/* Awal coba pagination */}
               <div className="hidden mt-3 sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing{" "}
-                      <span className="font-medium">{props.currentPage}</span>{" "}
-                      to <span className="font-medium">{props.pageCount}</span>{" "}
-                      of <span className="font-medium">{props.totalCount}</span>{" "}
-                      results
-                    </p>
-                  </div>
+                  <p className="text-sm text-gray-700">
+                    Showing{" "}
+                    <span className="font-medium">{props.currentPage}</span> to{" "}
+                    <span className="font-medium">{props.pageCount}</span> of{" "}
+                    <span className="font-medium">{props.totalCount}</span>{" "}
+                    results
+                  </p>
                 </div>
-                <div>
+                <div className="mb-5">
                   <ReactPaginate
                     initialPage={props.currentPage - 1}
                     pageCount={props.pageCount} //page count
