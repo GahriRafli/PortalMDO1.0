@@ -87,6 +87,18 @@ const ValueOption = (props) => {
   );
 };
 
+function createParam(queryParam) {
+  const newParam = JSON.parse(
+    '{"' +
+      decodeURI(queryParam)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"') +
+      '"}'
+  );
+  return newParam;
+}
+
 const DisclosureOpen = ({ item, router, session }) => {
   return (
     <Disclosure as="div" defaultOpen key={item.name} className="space-y-1">
