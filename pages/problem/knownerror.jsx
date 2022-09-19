@@ -108,12 +108,12 @@ const KnownError = ({ user, kedb }) => {
                                 />{" "}
                                 {result.app.subname}
                               </p>
-                              <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                              {/* <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                 {result.problemType
                                   ? result.problemType
                                   : "Not Defined Problem Type"}
-                              </p>
-                              <p
+                              </p> */}
+                              {/* <p
                                 className={classNames(
                                   result.problemStatus === "Unassigned"
                                     ? "bg-red-100 text-gray-800"
@@ -131,7 +131,7 @@ const KnownError = ({ user, kedb }) => {
                                 {result.problemStatus == null
                                   ? "Problem Status Not Defined"
                                   : result.problemStatus}
-                              </p>
+                              </p> */}
                             </div>
                           </a>
                         </Link>
@@ -143,25 +143,76 @@ const KnownError = ({ user, kedb }) => {
                         {result.createdAt}
                       </time>
                     </div>
-                    <div className="mt-4">
-                      <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                        Impacted System :{" "}
-                        {result.impactSystem != null
-                          ? result.impactSystem
-                          : "Not Defined Yet/Recorded"}
-                      </p>
-                      <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                        Root Cause :
-                        {result.rca != null
-                          ? result.rca
-                          : "Not Defined Yet/Recorded"}
-                      </p>
-                      <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                        Action :
-                        {result.resolution != null
-                          ? result.resolution
-                          : "Not Defined Yet/Recorded"}
-                      </p>
+
+                    <div className="grid grid-cols-5">
+                      <div className="mt-2 col-span-1">
+                        <p className="text-sm font-medium text-gray-500">
+                          Description
+                        </p>
+                      </div>
+                      <div className="mt-2 col-span-4">
+                        <p className="text-sm text-justify text-gray-900">
+                          {result.description != null
+                            ? result.description
+                            : ": Not Defined Yet/Recorded"}
+                        </p>
+                      </div>
+
+                      <div className="mt-2 col-span-1">
+                        <p className="text-sm font-medium text-gray-500">
+                          Impacted System
+                        </p>
+                      </div>
+                      <div className="mt-2 col-span-4">
+                        <p className="text-sm text-justify text-gray-900">
+                          {result.impactSystem != null
+                            ? result.impactSystem
+                            : ": Not Defined Yet/Recorded"}
+                        </p>
+                      </div>
+
+                      <div className="mt-2 col-span-1">
+                        <p className="text-sm font-medium text-gray-500">
+                          <b>Root Cause</b>
+                        </p>
+                      </div>
+                      <div className="mt-2 col-span-4">
+                        <p className="text-sm text-justify text-gray-900">
+                          <b>
+                            {result.rca != null
+                              ? result.rca
+                              : ": Not Defined Yet/Recorded"}
+                          </b>
+                        </p>
+                      </div>
+
+                      <div className="mt-2 col-span-1">
+                        <p className="text-sm font-medium text-gray-500">
+                          Resolution
+                        </p>
+                      </div>
+                      <div className="mt-2 col-span-4">
+                        <p className="text-sm text-justify text-gray-900">
+                          {result.resolution != null
+                            ? result.resolution
+                            : ": Not Defined Yet/Recorded"}
+                        </p>
+                      </div>
+
+                      <div className="mt-2 col-span-1">
+                        <p className="text-sm font-medium text-gray-500">
+                          <b>Lesson Learned</b>
+                        </p>
+                      </div>
+                      <div className="mt-2 col-span-4">
+                        <p className="text-sm text-justify text-gray-900">
+                          <b>
+                            {result.lessonLearned != null
+                              ? result.lessonLearned
+                              : ": Not Defined Yet/Recorded"}
+                          </b>
+                        </p>
+                      </div>
                     </div>
                   </li>
                 ))}
