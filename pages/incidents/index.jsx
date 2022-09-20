@@ -359,20 +359,6 @@ function IncidentList(props) {
         Cell: StatusText,
       },
       {
-        Header: "Priority",
-        accessor: "paramPriorityMatrix.mapping",
-        Cell: StatusPill,
-        disableSortBy: true,
-      },
-      {
-        Header: "Status",
-        accessor: "incidentStatus",
-        Cell: StatusIncident,
-        Filter: StatusFilter,
-        filter: "includes",
-        disableSortBy: true,
-      },
-      {
         Header: "Started At",
         accessor: "logStartTime",
         // Filter: DateRangeFilter,
@@ -397,6 +383,20 @@ function IncidentList(props) {
             </div>
           );
         },
+      },
+      {
+        Header: "Priority",
+        accessor: "paramPriorityMatrix.mapping",
+        Cell: StatusPill,
+        disableSortBy: true,
+      },
+      {
+        Header: "Status",
+        accessor: "incidentStatus",
+        Cell: StatusIncident,
+        Filter: StatusFilter,
+        filter: "includes",
+        disableSortBy: true,
       },
       {
         Header: "Reporter",
