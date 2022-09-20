@@ -24,8 +24,8 @@ const navigation = [
     href: "/problem",
     children: [
       {
-        name: "Report",
-        href: "/problem/report",
+        name: "Monitoring",
+        href: "/problem/monitoring",
         permission: "all",
       },
       {
@@ -50,7 +50,7 @@ const navigation = [
       },
       {
         name: "Known Error",
-        href: "#",
+        href: "/problem/knownerror",
         permission: "all",
       },
     ],
