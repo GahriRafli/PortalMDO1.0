@@ -6,7 +6,7 @@ import withSession from "lib/session";
 import { ProblemChart } from "components/problems/ProblemChart";
 import { DatePicker } from "antd";
 import palette from "google-palette";
-import { get, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import ProblemCounter from "components/problems/ProblemCounter";
 
 import axios from "axios";
@@ -29,74 +29,20 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     }
   );
 
-  const getPeriode = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/periode`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
+  const dashboardData = await getDashboardAll.json();
 
-  const getTop = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/toptenproblem`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
-
-  const getType = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/toptenimpacted`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
-
-  const getCountFUP = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/topfollowup`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
-
-  const getCountAssignee = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/topassignee`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
-  
-  const dashboardData = await getDashboardAll.json()
-  const periodeData = await getPeriode.json();
-  const topData = await getTop.json();
-  const typeData = await getType.json();
-  const fupData = await getCountFUP.json();
-  const assigneeData = await getCountAssignee.json();
-
-  if (dashboardData.status === 200 && assigneeData.status === 200) {
+  if (dashboardData.status === 200) {
     return {
       props: {
         user: user,
-        data: {
-          // periode: periodeData.data,
-          // top: topData.data,
-          // type: typeData.data.slice(0, 5),
-          // fup: fupData.data,
-          dashboard: dashboardData.data,
-          assignee: assigneeData.data,
-        },
+        data: dashboardData.data,
       },
     };
-  } else if (dashboardData.status === 202 && assigneeData.status === 202) {
+  } else if (dashboardData.status === 202) {
     return {
       props: {
         user: user,
-        data: {
-          // periode: periodeData.data,
-          // top: topData.data,
-          // type: typeData.data.slice(0, 5),
-          // fup: fupData.data,
-          dashboard: dashboardData.data,
-          assignee: assigneeData.data,
-        },
+        data: dashboardData.data,
       },
     };
   } else {
@@ -111,66 +57,90 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
 
 export default function Report({ user, data }) {
   const RangePicker = DatePicker.RangePicker;
-  const { handleSubmit } = useForm();
-  const lblChartYTD = [];
-  const lblChartTop = [];
-  const lblChartType = [];
+  const lblChartProblems = [];
+  const lblChartImpacted = [];
+  const lblChartFUP = [];
 
   // ini jumlah problem nya
-  data.dashboard.topYeartoDate.map((getLabel) => {
+  data.problemsByPeriod.map((getLabel) => {
     if (getLabel.hasOwnProperty("TotalProblemPerPeriode")) {
-      lblChartYTD.push(getLabel.DateStringPeriode);
+      lblChartProblems.push(getLabel.DateStringPeriode);
     }
   });
 
   // ini app impact nya
-  data.dashboard.topTen.map((getLabel) => {
+  data.impactedByPeriod.map((getLabel) => {
     if (getLabel.app.subName != "Others") {
-      // lblChartTop.push(getLabel.app.name);
-      lblChartTop.push(getLabel.app.subName);
+      lblChartImpacted.push(getLabel.app.subName);
     }
   });
 
-  const initialChartDataYTD = {
-    labels: lblChartYTD,
+  // ini follow up plan nya
+  data.fupByPeriod.map((getLabel) => {
+    if (getLabel.hasOwnProperty("followUp")) {
+      lblChartFUP.push(getLabel.followUp.label);
+    }
+  });
+
+  const initialChartDataProblems = {
+    labels: lblChartProblems,
     datasets: [
       {
-        label: "Total Problem Year to Date",
-        data: data.dashboard.topYeartoDate.map((d) => d.TotalProblemPerPeriode),
-        backgroundColor: palette("tol-dv", lblChartYTD.length).map(function (
+        label: "Total Problems",
+        data: data.problemsByPeriod.map((d) => d.TotalProblemPerPeriode),
+        backgroundColor: palette("tol-dv", lblChartProblems.length).map(
+          function (hex) {
+            return "#" + hex;
+          }
+        ),
+        borderColor: "#afafaf8c",
+        // tension: 0.2,
+      },
+    ],
+  };
+
+  const initialChartDataImpacted = {
+    labels: lblChartImpacted,
+    datasets: [
+      {
+        label: "Total Problems Impacted",
+        data: data.impactedByPeriod.map((d) => d.TotalProblemPerApp),
+        backgroundColor: palette("cb-RdYlBu", lblChartImpacted.length).map(
+          function (hex) {
+            return "#" + hex;
+          }
+        ),
+      },
+    ],
+  };
+
+  const initialChartDataFUP = {
+    labels: lblChartFUP,
+    datasets: [
+      {
+        label: "Total Follow Up",
+        data: data.fupByPeriod.map((d) => d.TotalProblemPerFollowup),
+        backgroundColor: palette("sol-base", lblChartFUP.length).map(function (
           hex
         ) {
           return "#" + hex;
         }),
         borderColor: "#afafaf8c",
-        tension: 0.2,
       },
     ],
   };
 
-  const initialChartDataTop = {
-    labels: lblChartTop,
-    datasets: [
-      {
-        label: `Top Ten Impacted Apps Year to Date`,
-        data: data.dashboard.topTen.map((d) => d.TotalProblemPerApp),
-        backgroundColor: palette("tol-dv", lblChartTop.length).map(function (
-          hex
-        ) {
-          return "#" + hex;
-        }),
-      },
-    ],
-  };
+  const initialDataAssignee = data.assigneeByPeriod;
 
-  const [chartDataYTD, setChartDataYTD] = useState(initialChartDataYTD);
-  const [handlerChartTypeYTD, sethandlerChartTypeYTD] = useState("line");
+  const [chartDataProblems, setChartDataProblems] = useState(
+    initialChartDataProblems
+  );
+  const [chartDataImpacted, setChartDataImpacted] = useState(
+    initialChartDataImpacted
+  );
+  const [chartDataFUP, setChartDataFUP] = useState(initialChartDataFUP);
 
-  const [chartDataTop, setChartDataTop] = useState(initialChartDataTop);
-  const [handlerChartTypeTop, sethandlerChartTypeTop] = useState("bar");
-
-  // const [chartDataType, setChartDataType] = useState(initialChartDataType);
-  const [handlerChartTypeType, sethandlerChartTypeType] = useState("pie");
+  const [countDataAssignee, setDataAssignee] = useState(initialDataAssignee);
 
   // SKIP DULU DARI SINI. SKIP DULU DARI SINI. SKIP DULU DARI SINI.
   const [hit, setHit] = useState(false);
@@ -189,78 +159,104 @@ export default function Report({ user, data }) {
     }
   };
 
-  const hitPeriod = async (data, event, value, dateString) => {
-    if (value == null) {
-      sethandlerStartPeriodOptions("");
-      sethandlerEndPeriodOptions("");
-    } else {
-      sethandlerStartPeriodOptions(dateString[0]);
-      sethandlerEndPeriodOptions(dateString[1]);
-    }
-    let objPeriod = {
-      start: handlerStartPeriodOptions,
-      end: handlerEndPeriodOptions,
-    };
-    // objPeriod dah mashookk
-  };
   // SKIP SAMPAI SINI. SKIP SAMPAI SINI. SKIP SAMPAI SINI.
   useEffect(() => {
     if (hit == true) {
-      const hitPeriode = axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/all?startDate=${handlerStartPeriodOptions}&endDate=${handlerEndPeriodOptions}`
-        )
-        .then((res) => {
-          const lblChartYTD = [];
-          const lblChartTop = [];
-          if (res.status == 200) {
-            res.data.data.topYeartoDate.map((getLabel) => {
-              if (getLabel.hasOwnProperty("DateStringPeriode")) {
-                lblChartYTD.push(getLabel.DateStringPeriode);
-              }
-            });
+      if (handlerStartPeriodOptions == "" || handlerEndPeriodOptions == "") {
+        toast.info("Insert Date Period!");
+      } else {
+        const hitPeriode = axios
+          .get(
+            `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/all?startDate=${handlerStartPeriodOptions}&endDate=${handlerEndPeriodOptions}`
+          )
+          .then((res) => {
+            const dataHit = res.data.data;
+            const lblChartProblems = [];
+            const lblChartImpacted = [];
+            const lblChartFUP = [];
+            countDataAssignee = [];
+            if (res.status == 200) {
+              dataHit.problemsByPeriod.map((getLabel) => {
+                if (getLabel.hasOwnProperty("DateStringPeriode")) {
+                  lblChartProblems.push(getLabel.DateStringPeriode);
+                }
+              });
 
-            res.data.data.topTen.map((getLabel) => {
-              if (getLabel.app.subName != "Others") {
-                lblChartTop.push(getLabel.app.subName);
-              }
-            });
+              dataHit.impactedByPeriod.map((getLabel) => {
+                if (getLabel.app.subName != "Others") {
+                  lblChartImpacted.push(getLabel.app.subName);
+                }
+              });
 
-            setChartDataYTD({
-              labels: lblChartYTD,
-              datasets: [
-                {
-                  label: "Total Problems with Period",
-                  data: res.data.data.topYeartoDate.map(
-                    (d) => d.TotalProblemPerPeriode
-                  ),
-                  backgroundColor: palette(
-                    "tol-rainbow",
-                    lblChartYTD.length
-                  ).map(function (hex) {
-                    return "#" + hex;
-                  }),
-                },
-              ],
-            });
+              dataHit.fupByPeriod.map((getLabel) => {
+                if (getLabel.hasOwnProperty("followUp")) {
+                  lblChartFUP.push(getLabel.followUp.label);
+                }
+              });
 
-            setChartDataTop({
-              labels: lblChartTop,
-              datasets: [
-                {
-                  label: `Top Ten Impacted Apps Year to Date`,
-                  data: res.data.data.topTen.map((d) => d.TotalProblemPerApp),
-                  backgroundColor: palette("tol-dv", lblChartTop.length).map(
-                    function (hex) {
+              setChartDataProblems({
+                labels: lblChartProblems,
+                datasets: [
+                  {
+                    label: "Total Problems",
+                    data: dataHit.problemsByPeriod.map(
+                      (d) => d.TotalProblemPerPeriode
+                    ),
+                    backgroundColor: palette(
+                      "tol-dv",
+                      lblChartProblems.length
+                    ).map(function (hex) {
                       return "#" + hex;
-                    }
-                  ),
-                },
-              ],
-            });
+                    }),
+                    borderColor: "#afafaf8c",
+                    // tension: 0.2,
+                  },
+                ],
+              });
 
-          }
-        });
+              setChartDataImpacted({
+                labels: lblChartImpacted,
+                datasets: [
+                  {
+                    label: "Total Problems Impacted",
+                    data: dataHit.impactedByPeriod.map(
+                      (d) => d.TotalProblemPerApp
+                    ),
+                    backgroundColor: palette(
+                      "cb-RdYlBu",
+                      lblChartImpacted.length
+                    ).map(function (hex) {
+                      return "#" + hex;
+                    }),
+                  },
+                ],
+              });
+
+              setChartDataFUP({
+                labels: lblChartFUP,
+                datasets: [
+                  {
+                    label: "Total Follow Up",
+                    data: dataHit.fupByPeriod.map(
+                      (d) => d.TotalProblemPerFollowup
+                    ),
+                    backgroundColor: palette(
+                      "sol-base",
+                      lblChartFUP.length
+                    ).map(function (hex) {
+                      return "#" + hex;
+                    }),
+                    borderColor: "#afafaf8c",
+                  },
+                ],
+              });
+
+              setDataAssignee(dataHit.assigneeByPeriod);
+            } else {
+              toast.info("Data not updated for that Period");
+            }
+          });
+      }
       setHit(false);
     }
   });
@@ -295,7 +291,7 @@ export default function Report({ user, data }) {
               </button>
             </div>
 
-            {/* Card Problem Year to Date */}
+            {/* Card Problems By Period */}
             <div className="col-span-1">
               <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-8 py-8">
@@ -306,16 +302,17 @@ export default function Report({ user, data }) {
                     Total Problems with Period
                   </label>
                   <ProblemChart
-                    chartData={chartDataYTD}
+                    chartData={chartDataProblems}
                     title={"Total Problem Year to Date"}
-                    chartType={handlerChartTypeYTD}
+                    chartType={"line"}
                     onDisplay={false}
+                    stringLimit={10}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Card Problem Top Ten */}
+            {/* Card Most Impacted Apps */}
             <div className="col-span-1">
               <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-8 py-8">
@@ -328,16 +325,17 @@ export default function Report({ user, data }) {
                     </label>
                   </div>
                   <ProblemChart
-                    chartData={chartDataTop}
+                    chartData={chartDataImpacted}
                     title={"Top Ten Impacted Apps Year to Date"}
-                    chartType={handlerChartTypeTop}
+                    chartType={"bar"}
                     onDisplay={false}
+                    stringLimit={5}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Follow Up Plan */}
+            {/* Card Follow Up Plan */}
             <div className="col-span-1">
               <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-8 py-8">
@@ -349,27 +347,18 @@ export default function Report({ user, data }) {
                       Most Follow Up Plan
                     </label>
                   </div>
-                  {console.log(data.dashboard.topFollowup)}
-                  {data.dashboard.topFollowup.map((result, index) => (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 text-md text-gray-500">
-                      <div className="col-span-1">
-                        <span className="font-bold">
-                          {/* {result.followUp.label} */}
-                        </span>
-                      </div>
-                      <div className="col-span-1 text-right">
-                        <ProblemCounter
-                          key={index}
-                          end={result.TotalProblemPerFollowUp}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                  <ProblemChart
+                    chartData={chartDataFUP}
+                    title={"Most Follow Up Plan"}
+                    chartType={"bar"}
+                    onDisplay={false}
+                    indexAxis={"y"}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Assignee */}
+            {/* Card Assignee */}
             <div className="col-span-1">
               <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-8 py-8">
@@ -382,19 +371,24 @@ export default function Report({ user, data }) {
                     </label>
                   </div>
 
-                  {data.assignee.map((result, index) => (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 text-md text-gray-500">
+                  {countDataAssignee.map((result, index) => (
+                    <div
+                      className="grid grid-cols-1 sm:grid-cols-2 text-md text-gray-500"
+                      key={index}
+                    >
                       <div className="col-span-1 font-bold">
                         {result.assigned_to.fullName}
                       </div>
                       <div className="col-span-1 text-right">
-                        <span>
+                        {result.TotalProblemPerAssignee} (
+                        {result.PercentageOfAssignee})
+                        {/* <span>
                           <ProblemCounter
                             key={index}
                             end={result.TotalProblemPerAssignee}
                           />
-                          {` (${result.PercentageOfAssignee})`}
-                        </span>
+                          {` `}
+                        </span> */}
                       </div>
                     </div>
                   ))}
