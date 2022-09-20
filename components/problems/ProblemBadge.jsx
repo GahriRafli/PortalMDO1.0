@@ -69,12 +69,12 @@ const SourcePill = ({ value }) => {
 const StatusPill = ({ value }) => {
   const status = value ? value.toLowerCase() : "-";
 
-  return status.startsWith("wowow") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+  return status.includes("assigned to") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
   ) : status.startsWith("waiting") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+    <span className="px-2 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">
       {value}
     </span>
   ) : status.startsWith("unassigned") ? (
@@ -85,16 +85,8 @@ const StatusPill = ({ value }) => {
     <span className="px-2 text-xs font-semibold rounded-full bg-red-100 text-gray-800">
       {value}
     </span>
-  ) : status.startsWith("analyzing rca") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
-      {value}
-    </span>
-  ) : status.startsWith("approval rca") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
-      {value}
-    </span>
-  ) : status.startsWith("priority queue") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
+  ) : status.includes("rejected") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-red-100 text-red-800">
       {value}
     </span>
   ) : status.startsWith("ongoing") ? (
@@ -102,15 +94,7 @@ const StatusPill = ({ value }) => {
       {value}
     </span>
   ) : status.startsWith("done") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-green-100 text-gray-800">
-      {value}
-    </span>
-  ) : status.startsWith("investigate") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-blue-100 text-gray-800">
-      {value}
-    </span>
-  ) : status.startsWith("request re-investigate") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
+    <span className="px-2 text-xs font-semibold rounded-full bg-green-100 text-green-800">
       {value}
     </span>
   ) : (

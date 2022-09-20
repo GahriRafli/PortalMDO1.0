@@ -138,7 +138,12 @@ const ProblemTables = React.forwardRef(({ columns, data }, ref) => {
               aria-label="Pagination"
             >
               <PageButton
-                onClick={() => gotoPage(0)}
+                onClick={() => [
+                  gotoPage(0),
+                  document
+                    .getElementById("problem-list-section")
+                    .scrollIntoView(),
+                ]}
                 disabled={!canPreviousPage}
                 className="rounded-l-md"
               >
@@ -146,18 +151,36 @@ const ProblemTables = React.forwardRef(({ columns, data }, ref) => {
                 <ChevronDoubleLeftIcon className="h-5 w-5" aria-hidden="true" />
               </PageButton>
               <PageButton
-                onClick={() => previousPage()}
+                onClick={() => [
+                  previousPage(),
+                  document
+                    .getElementById("problem-list-section")
+                    .scrollIntoView(),
+                ]}
                 disabled={!canPreviousPage}
               >
                 <span className="sr-only">Previous</span>
                 <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
               </PageButton>
-              <PageButton onClick={() => nextPage()} disabled={!canNextPage}>
+              <PageButton
+                onClick={() => [
+                  nextPage(),
+                  document
+                    .getElementById("problem-list-section")
+                    .scrollIntoView(),
+                ]}
+                disabled={!canNextPage}
+              >
                 <span className="sr-only">Next</span>
                 <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
               </PageButton>
               <PageButton
-                onClick={() => gotoPage(pageCount - 1)}
+                onClick={() => [
+                  gotoPage(pageCount - 1),
+                  document
+                    .getElementById("problem-list-section")
+                    .scrollIntoView(),
+                ]}
                 disabled={!canNextPage}
                 className="rounded-r-md"
               >

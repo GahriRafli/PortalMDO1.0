@@ -25,7 +25,7 @@ const ProblemInfoPanel = ({ problem }) => {
               />
             </div>
             <div className="ml-3.5 text-sm font-medium text-gray-900">
-              Type : {problem.paramType.type}
+              Problem Type : {problem.paramType.type}
             </div>
           </div>{" "}
         </li>

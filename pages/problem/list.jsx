@@ -376,7 +376,7 @@ export default function ProblemList({ user, problems, countAssign }) {
         <Head>
           <title>All Problem List</title>
         </Head>
-        <section>
+        <section id="problem-list-section">
           {/* Page title & actions */}
           <PageHeader title="Problem List">
             <Link href="/problem/search" passHref>

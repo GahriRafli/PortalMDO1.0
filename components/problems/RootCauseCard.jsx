@@ -15,11 +15,21 @@ const RootCauseCard = ({ rootcause }) => {
               </dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-sm font-medium text-gray-500">Root Cause Analysis</dt>
+              <dt className="text-sm font-medium text-gray-500">
+                Impacted System
+              </dt>
               <dd className="mt-1 text-sm text-gray-900 text-justify">
-                {rootcause.rca
-                  ? rootcause.rca
+                {rootcause.impactSystem
+                  ? rootcause.impactSystem
                   : "Not defined yet"}
+              </dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-sm font-medium text-gray-500">
+                <b>Root Cause</b>
+              </dt>
+              <dd className="mt-1 text-sm text-gray-900 text-justify">
+                <b>{rootcause.rca ? rootcause.rca : "Not defined yet"}</b>
               </dd>
             </div>
             <div className="sm:col-span-2">
@@ -31,11 +41,15 @@ const RootCauseCard = ({ rootcause }) => {
               </dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-sm font-medium text-gray-500">Lesson Learned</dt>
+              <dt className="text-sm font-medium text-gray-500">
+                <b>Lesson Learned</b>
+              </dt>
               <dd className="mt-1 text-sm text-gray-900 text-justify">
-                {rootcause.lessonLearned
-                  ? rootcause.lessonLearned
-                  : "Not defined yet"}
+                <b>
+                  {rootcause.lessonLearned
+                    ? rootcause.lessonLearned
+                    : "Not defined yet"}
+                </b>
               </dd>
             </div>
           </dl>
