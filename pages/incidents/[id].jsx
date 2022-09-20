@@ -28,6 +28,7 @@ import {
   LockOpenIcon,
   ClockIcon,
   QuestionMarkCircleIcon,
+  ExternalLinkIcon,
 } from "@heroicons/react/solid";
 import { DocumentTextIcon, PaperClipIcon } from "@heroicons/react/outline";
 import {
@@ -354,6 +355,10 @@ function IncidentDetail({ user, incident, comments }) {
       .catch(function (error) {
         // Error 😨
         toast.error(`${error.response.data.message}`);
+        setEditableData((editableData) => ({
+          ...editableData,
+          titleLoading: false,
+        }));
       });
   };
 
@@ -532,7 +537,6 @@ function IncidentDetail({ user, incident, comments }) {
       .catch((err) => {
         toast.error(err.response.data.message);
       });
-
   };
 
   return (
@@ -1827,7 +1831,7 @@ function IncidentDetail({ user, incident, comments }) {
                         </h2>
                         {/* Tampilan yang di atas */}
                         <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
-                           Problem Number : {""}
+                          Problem Number : {""}
                           {incident.data.problemDetail.problemNumber === null
                             ? "-"
                             : incident.data.problemDetail.problemNumber}
@@ -1850,8 +1854,7 @@ function IncidentDetail({ user, incident, comments }) {
                             Type : {""}
                             {incident.data.paramProblemType === null
                               ? "Not Yet"
-                              : incident.data.paramProblemType
-                                .problemType}
+                              : incident.data.paramProblemType.problemType}
                           </div>
                         </div>
                         <div className="inline-flex ml-3.5 mt-3 text-sm font-medium relative text-gray-600  px-3 py-0.5 items-center ">
@@ -1897,75 +1900,72 @@ function IncidentDetail({ user, incident, comments }) {
                           </li>
                         </ul>
                         {/* Link */}
-                       <h2 className="mt-2 text-sm font-medium text-gray-900">
+                        <h2 className="mt-2 text-sm font-medium text-gray-900">
                           Link
                         </h2>
                         <ul className="mt-2 leading-8">
-                          
                           {/* Link Jira*/}
-                            <li className="inline">
-                              {incident.data.problemDetail.jiraProblem !== null && (
-                              <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-2 py-0.5 ml-2">                         
+                          <li className="inline">
+                            {incident.data.problemDetail.jiraProblem !==
+                              null && (
+                              <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-2 py-0.5 ml-2">
                                 <div className="ml-1.5 mr-1.5 text-sm font-medium">
                                   {incident.data.problemDetail.jiraProblem ===
-                                    null ? (
-                                    <span
-                                      href="#"
-                                      className="text-white">
-                                      Jira
-                                    </span>
+                                  null ? (
+                                    <span className="text-white">Jira</span>
                                   ) : (
-                                  <div>
-                                    <a
-                                      className="ml-6 text-white hover:text-blue-800 hover:transition hover:duration-300"
-                                      href={
-                                        incident.data.problemDetail.jiraProblem
-                                      }
-                                    >
-                                    <ExternalLinkIcon
-                                      className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5 text-white hover:text-blue-800 hover:transition hover:duration-300"
-                                      aria-hidden="true"
-                                    />
-                                      Jira
-                                    </a>
-                                  </div>
+                                    <div>
+                                      <a
+                                        className="ml-6 text-white"
+                                        href={
+                                          incident.data.problemDetail
+                                            .jiraProblem
+                                        }
+                                        target="_blank"
+                                      >
+                                        <ExternalLinkIcon
+                                          className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5"
+                                          aria-hidden="true"
+                                        />
+                                        Jira
+                                      </a>
+                                    </div>
                                   )}
                                 </div>
                               </div>
-                              )}
-                            </li>
-                          
-                          
+                            )}
+                          </li>
+
                           {/* Link Change Management*/}
                           <li className="inline">
-                            {incident.data.problemDetail.followUpCM !== null && (
-                            <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-2 py-0.5 ml-2">                          
-                              <div className="ml-1.5 mr-1.5 text-sm font-medium">
-                                {incident.data.problemDetail.followUpCM ===
+                            {incident.data.problemDetail.followUpCM !==
+                              null && (
+                              <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-2 py-0.5 ml-2">
+                                <div className="ml-1.5 mr-1.5 text-sm font-medium">
+                                  {incident.data.problemDetail.followUpCM ===
                                   null ? (
-                                  <span
-                                    href="#"
-                                    className="text-white">
-                                    Change Management
-                                  </span>
-                                ) : (
-                                <div>
-                                  <a
-                                    className="ml-6 text-white hover:text-black hover:transition hover:duration-300"
-                                    href={
-                                      incident.data.problemDetail.followUpCM
-                                    }
-                                  >
-                                  <ExternalLinkIcon
-                                    className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5 text-white hover:text-black hover:transition hover:duration-300"
-                                    aria-hidden="true"
-                                  />
-                                    Change Management
-                                  </a>
+                                    <span className="text-white">
+                                      Change Management
+                                    </span>
+                                  ) : (
+                                    <div>
+                                      <a
+                                        className="ml-6 text-white"
+                                        href={
+                                          incident.data.problemDetail.followUpCM
+                                        }
+                                        target="_blank"
+                                      >
+                                        <ExternalLinkIcon
+                                          className="absolute flex items-center justify-center flex-shrink-0 w-5 h-5"
+                                          aria-hidden="true"
+                                        />
+                                        Change Management
+                                      </a>
+                                    </div>
+                                  )}
                                 </div>
-                                )}
                               </div>
-                            </div>
                             )}
                           </li>
                         </ul>
