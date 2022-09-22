@@ -1,5 +1,4 @@
-import { Tooltip as TooltipTag } from "antd";
-import { Input as InputTag } from "antd";
+import { Input as InputTag, Tooltip as TooltipTag, Space } from "antd";
 import DateRangeFilter from "components/incidents/daterange-filter";
 import Head from "next/head";
 import Link from "next/link";
@@ -25,6 +24,7 @@ import {
   SearchIcon,
   DocumentSearchIcon,
   InformationCircleIcon,
+  AdjustmentsIcon,
 } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
 import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
@@ -35,9 +35,10 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAsyncDebounce } from "react-table";
 import "regenerator-runtime";
-
+import { Disclosure } from "@headlessui/react";
 import { useRouter } from "next/router";
 import ReactPaginate from "react-paginate";
+import { classNames } from "components/utils";
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
@@ -134,6 +135,7 @@ function IncidentList(props) {
   const [incidentStatus, setIncidentStatus] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [portalTarget, setPortalTarget] = useState("");
 
   //  nambah
   const [isLoading, setLoading] = useState(false);
@@ -141,6 +143,14 @@ function IncidentList(props) {
   const startLoading = () => setLoading(true);
   const stopLoading = () => setLoading(false);
   const router = useRouter();
+
+  // Handle react-select dropdown position
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // browser code
+      setPortalTarget(document.querySelector("body"));
+    }
+  }, []);
 
   //Nambah Pagination
   useEffect(() => {
@@ -435,126 +445,159 @@ function IncidentList(props) {
           </PageHeader>
           <div className="hidden mt-3 sm:block">
             <div className="max-w-full px-4 mx-auto sm:px-6 lg:px-12">
-              <div className="flex gap-x-2">
-                <div>
-                  <label
-                    htmlFor="search"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Search
-                  </label>
-                  <InputTag
-                    allowClear
-                    value={value || ""}
-                    onChange={(e) => {
-                      setValue(e.target.value);
-                      handleGlobalChange(e.target.value);
-                    }}
-                    placeholder={`${count} records...`}
-                    prefix={
-                      <SearchIcon
-                        className="w-5 h-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    }
-                    style={{
-                      borderRadius: "0.375rem",
-                      width: "100%",
-                      height: "38px",
-                    }}
-                  />
+              {/* Start Filter Panel */}
+              <section
+                aria-labelledby="filter-incident"
+                className="lg:col-start-3 lg:col-span-1 mb-5"
+              >
+                <div className="px-4 py-5 bg-white shadow sm:rounded-lg sm:px-6">
+                  <Disclosure as="div">
+                    {({ open }) => (
+                      <>
+                        <Disclosure.Button className="flex items-start justify-between w-full text-base text-left text-gray-400">
+                          <Space>
+                            <SearchIcon
+                              className="w-5 h-5 text-gray-400"
+                              aria-hidden="true"
+                            />
+                            <span className="font-normal text-base">
+                              Search in Incident
+                            </span>
+                          </Space>
+                          <span className="flex items-center ml-6 h-7">
+                            <AdjustmentsIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          </span>
+                        </Disclosure.Button>
+                        <Disclosure.Panel className="mt-3">
+                          <hr className="mb-3 divide-y divide-gray-200" />
+                          <div className="grid grid-cols-6 gap-4 ">
+                            <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
+                              <label
+                                htmlFor="thirdPartyName"
+                                className="block mb-1 text-sm font-medium text-gray-700"
+                              >
+                                Name
+                              </label>
+                              <InputTag
+                                allowClear
+                                value={value || ""}
+                                onChange={(e) => {
+                                  setValue(e.target.value);
+                                  handleGlobalChange(e.target.value);
+                                }}
+                                placeholder="Name of Incidents"
+                                style={{
+                                  borderRadius: "0.375rem",
+                                  height: "38px",
+                                }}
+                              />
+                            </div>
+                            <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
+                              <label
+                                htmlFor="date-filter"
+                                className="block mb-1 text-sm font-medium text-gray-700"
+                              >
+                                IR Number
+                              </label>
+                              <InputTag
+                                allowClear
+                                onPressEnter={(e) =>
+                                  handleIRNumChange(e.target.value)
+                                }
+                                onChange={(e) =>
+                                  handleIRNumChange(e.target.value)
+                                }
+                                placeholder="IR-____-______"
+                                suffix={
+                                  <TooltipTag title="Press Enter to Search">
+                                    <InformationCircleIcon
+                                      className="w-5 h-5 text-gray-400"
+                                      aria-hidden="true"
+                                    />
+                                  </TooltipTag>
+                                }
+                                style={{
+                                  borderRadius: "0.375rem",
+                                  height: "38px",
+                                }}
+                              />
+                            </div>
+                            <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
+                              <label
+                                htmlFor="date-filter"
+                                className="block mb-1 text-sm font-medium text-gray-700"
+                              >
+                                Application
+                              </label>
+                              <AsyncSelect
+                                isClearable
+                                id="application"
+                                instanceId={"application"}
+                                defaultValue={""}
+                                loadOptions={loadApplications}
+                                styles={styledReactSelect}
+                                className="text-sm focus:ring-blue-300 focus:border-blue-300"
+                                onChange={handleAppChange}
+                                menuPortalTarget={portalTarget}
+                              />
+                            </div>
+                            <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
+                              <label
+                                htmlFor="date-filter"
+                                className="block mb-1 text-sm font-medium text-gray-700"
+                              >
+                                Incident Type
+                              </label>
+                              <ReactSelect
+                                id="IncidentTypeOptions"
+                                instanceId={"IncidentTypeOptions"}
+                                defaultValue={""}
+                                options={IncidentTypeOptions}
+                                isClearable
+                                onChange={handleIncidentTypeChange}
+                                menuPortalTarget={portalTarget}
+                              />
+                            </div>
+                            <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
+                              <label
+                                htmlFor="date-filter"
+                                className="block mb-1 text-sm font-medium text-gray-700"
+                              >
+                                Status
+                              </label>
+                              <ReactSelect
+                                id="IncidentStatus"
+                                instanceId={"IncidentStatus"}
+                                defaultValue={""}
+                                options={incidentStatusOptions}
+                                isClearable
+                                onChange={handleIncidentStatusChange}
+                                menuPortalTarget={portalTarget}
+                              />
+                            </div>
+                            <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
+                              <label
+                                htmlFor="date-filter"
+                                className="block mb-1 text-sm font-medium text-gray-700"
+                              >
+                                Date
+                              </label>
+                              <DateRangeFilter onChange={handleDateChange} />
+                            </div>
+                          </div>
+                        </Disclosure.Panel>
+                      </>
+                    )}
+                  </Disclosure>
                 </div>
-                <div>
-                  <label
-                    htmlFor="incidentNumber"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    IR Number
-                  </label>
-                  <InputTag
-                    allowClear
-                    onPressEnter={(e) => handleIRNumChange(e.target.value)}
-                    onChange={(e) => handleIRNumChange(e.target.value)}
-                    placeholder="IR-____-______"
-                    suffix={
-                      <TooltipTag title="Press Enter to Search">
-                        <InformationCircleIcon
-                          className="w-5 h-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </TooltipTag>
-                    }
-                    style={{
-                      borderRadius: "0.375rem",
-                      width: "11rem",
-                      height: "38px",
-                    }}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="application"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Application
-                  </label>
-                  <AsyncSelect
-                    isClearable
-                    id="application"
-                    instanceId={"application"}
-                    defaultValue={""}
-                    loadOptions={loadApplications}
-                    styles={styledReactSelect}
-                    className="text-sm focus:ring-blue-300 focus:border-blue-300 w-60 md:w-40 lg:w-40"
-                    placeholder="Search App"
-                    onChange={handleAppChange}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="IncidentTypeOptions"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Incident Type
-                  </label>
-                  <ReactSelect
-                    id="IncidentTypeOptions"
-                    instanceId={"IncidentTypeOptions"}
-                    defaultValue={""}
-                    options={IncidentTypeOptions}
-                    isClearable
-                    className="block w-auto lg:w-40"
-                    onChange={handleIncidentTypeChange}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="IncidentStatus"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Status
-                  </label>
-                  <ReactSelect
-                    id="IncidentStatus"
-                    instanceId={"IncidentStatus"}
-                    defaultValue={""}
-                    options={incidentStatusOptions}
-                    isClearable
-                    className="block w-auto lg:w-32"
-                    onChange={handleIncidentStatusChange}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="date-filter"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Date
-                  </label>
-                  <DateRangeFilter onChange={handleDateChange} />
-                </div>
-              </div>
+              </section>
+              {/* End of Filter Panel */}
+
               <Table columns={columns} data={props.data} ref={tableInstance} />
+
               {/* Awal coba pagination */}
               <div className="hidden mt-3 sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
