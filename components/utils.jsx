@@ -65,7 +65,12 @@ const IconOption = (props) => {
         alt=""
         className="mr-1.5 h-5 w-5"
       />{" "}
-      {props.data.label}
+      {props.data.label} |{" "}
+      {criticality === "critical severity 1"
+        ? "CS 1"
+        : criticality === "critical severity 2"
+        ? "CS 2"
+        : props.data.criticality}
     </Option>
   );
 };
@@ -82,7 +87,12 @@ const ValueOption = (props) => {
         alt=""
         className="mr-1.5 h-5 w-5"
       />{" "}
-      {props.data.label}
+      {props.data.label} |{" "}
+      {criticality === "critical severity 1"
+        ? "CS 1"
+        : criticality === "critical severity 2"
+        ? "CS 2"
+        : props.data.criticality}
     </SingleValue>
   );
 };
