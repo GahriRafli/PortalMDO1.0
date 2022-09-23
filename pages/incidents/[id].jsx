@@ -40,6 +40,7 @@ import {
   Upload,
   Typography,
   Spin,
+  Empty,
 } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import { data } from "autoprefixer";
@@ -501,18 +502,12 @@ function IncidentDetail({ user, incident, comments }) {
   // handle on comment submit
   const [fileList, setFileList] = useState([]);
   const [showList, setShowList] = useState(true);
+
   const onSubmitComment = async (data) => {
     const formData = new FormData();
     formData.append("messages", data.comment);
-    formData.append("attachment", fileList);
-
-    data.file?.length > 0
-      ? formData.append("attachment", data.file[0])
-      : formData.append("attachment", "");
-
-    // for (const pair of formData.entries()) {
-    //   console.log(`${pair[0]}, ${pair[1]}`);
-    // }
+    // cek jika ada file yang diupload
+    fileList.length !== 0 && formData.append("attachment", fileList);
 
     await axios
       .post(
@@ -522,20 +517,22 @@ function IncidentDetail({ user, incident, comments }) {
       )
       .then((res) => {
         if (res.status === 201) {
-          toast.success("Successfully submitted");
-          reset2({
-            comment: "",
-            file: null,
-          });
-          setFileList([]);
-          setShowList(false);
-          refreshData();
+          toast.success(res.data.message);
         } else {
           toast.error(`Failed submit ${res.data.message}`);
         }
       })
       .catch((err) => {
         toast.error(err.response.data.message);
+      })
+      .finally(() => {
+        reset2({
+          comment: "",
+          file: null,
+        });
+        setFileList([]);
+        setShowList(false);
+        refreshData();
       });
   };
 
@@ -1491,103 +1488,107 @@ function IncidentDetail({ user, incident, comments }) {
                       </div>
                       <div className="px-4 py-6 sm:px-6">
                         <ul className="space-y-8">
-                          {comments.data.map((comment) => (
-                            <li key={comment.id}>
-                              <div className="flex space-x-3">
-                                <div className="flex-shrink-0">
-                                  <UserCircleIcon
-                                    className="w-10 h-10 text-gray-500"
-                                    aria-hidden="true"
-                                  />
-                                </div>
-                                <div>
-                                  <div className="text-sm">
-                                    <a
-                                      href="#"
-                                      className="font-medium text-gray-900"
-                                    >
-                                      {
-                                        comment.incidentCommentCreatedBy
-                                          .fullname
-                                      }
-                                    </a>
+                          {!comments.data.length ? (
+                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                          ) : (
+                            comments.data.map((comment) => (
+                              <li key={comment.id}>
+                                <div className="flex space-x-3">
+                                  <div className="flex-shrink-0">
+                                    <UserCircleIcon
+                                      className="w-10 h-10 text-gray-500"
+                                      aria-hidden="true"
+                                    />
                                   </div>
-                                  <div className="mt-1 text-sm text-gray-700">
-                                    {comment.attachmentType === "image" ? (
-                                      <AntdImage
-                                        width={200}
-                                        className="rounded-md"
-                                        src={comment.attachment}
-                                        alt=""
-                                      />
-                                    ) : comment.attachmentType ===
-                                      "document" ? (
-                                      <div className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                                        <div className="w-80 pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                          <div className="w-0 flex-1 flex items-center">
-                                            <DocumentTextIcon
-                                              className="flex-shrink-0 h-5 w-5 text-gray-400"
-                                              aria-hidden="true"
-                                            />
-                                            <span className="ml-2 flex-1 w-0 truncate">
-                                              {comment.originalAttachmentName}
-                                            </span>
-                                          </div>
-                                          <div className="ml-4 flex-shrink-0">
-                                            <a
-                                              href={comment.attachment}
-                                              className="font-medium text-blue-600 hover:text-blue-500"
-                                            >
-                                              Download
-                                            </a>
+                                  <div>
+                                    <div className="text-sm">
+                                      <a
+                                        href="#"
+                                        className="font-medium text-gray-900"
+                                      >
+                                        {
+                                          comment.incidentCommentCreatedBy
+                                            .fullname
+                                        }
+                                      </a>
+                                    </div>
+                                    <div className="mt-1 text-sm text-gray-700">
+                                      {comment.attachmentType === "image" ? (
+                                        <AntdImage
+                                          width={200}
+                                          className="rounded-md"
+                                          src={comment.attachment}
+                                          alt=""
+                                        />
+                                      ) : comment.attachmentType ===
+                                        "document" ? (
+                                        <div className="border border-gray-200 rounded-md divide-y divide-gray-200">
+                                          <div className="w-80 pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                                            <div className="w-0 flex-1 flex items-center">
+                                              <DocumentTextIcon
+                                                className="flex-shrink-0 h-5 w-5 text-gray-400"
+                                                aria-hidden="true"
+                                              />
+                                              <span className="ml-2 flex-1 w-0 truncate">
+                                                {comment.originalAttachmentName}
+                                              </span>
+                                            </div>
+                                            <div className="ml-4 flex-shrink-0">
+                                              <a
+                                                href={comment.attachment}
+                                                className="font-medium text-blue-600 hover:text-blue-500"
+                                              >
+                                                Download
+                                              </a>
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    ) : (
-                                      ""
-                                    )}
-
-                                    <p className="mt-2">{comment.messages}</p>
-                                  </div>
-
-                                  <div className="mt-2 text-xs space-x-2">
-                                    <Tooltip
-                                      placement="left"
-                                      title={format(
-                                        new Date(comment.createdAt),
-                                        "dd MMM yyyy HH:mm"
+                                      ) : (
+                                        ""
                                       )}
-                                    >
-                                      <span className="text-gray-500 font-medium">
-                                        {formatDistanceToNowStrict(
-                                          new Date(comment.createdAt)
-                                        )}{" "}
-                                        ago
-                                      </span>
-                                    </Tooltip>
-                                    {user.username ===
-                                      comment.incidentCommentCreatedBy
-                                        .username && (
-                                      <>
+
+                                      <p className="mt-2">{comment.messages}</p>
+                                    </div>
+
+                                    <div className="mt-2 text-xs space-x-2">
+                                      <Tooltip
+                                        placement="left"
+                                        title={format(
+                                          new Date(comment.createdAt),
+                                          "dd MMM yyyy HH:mm"
+                                        )}
+                                      >
                                         <span className="text-gray-500 font-medium">
-                                          &middot;
-                                        </span>{" "}
-                                        <button
-                                          type="button"
-                                          className="text-red-500 font-medium"
-                                          onClick={() =>
-                                            showDeleteConfirm(comment.id)
-                                          }
-                                        >
-                                          Delete
-                                        </button>
-                                      </>
-                                    )}
+                                          {formatDistanceToNowStrict(
+                                            new Date(comment.createdAt)
+                                          )}{" "}
+                                          ago
+                                        </span>
+                                      </Tooltip>
+                                      {user.username ===
+                                        comment.incidentCommentCreatedBy
+                                          .username && (
+                                        <>
+                                          <span className="text-gray-500 font-medium">
+                                            &middot;
+                                          </span>{" "}
+                                          <button
+                                            type="button"
+                                            className="text-red-500 font-medium"
+                                            onClick={() =>
+                                              showDeleteConfirm(comment.id)
+                                            }
+                                          >
+                                            Delete
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </li>
-                          ))}
+                              </li>
+                            ))
+                          )}
                         </ul>
                       </div>
                     </div>
