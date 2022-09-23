@@ -7,6 +7,7 @@ import { ProblemChart } from "components/problems/ProblemChart";
 import { DatePicker } from "antd";
 import palette from "google-palette";
 import { toast } from "react-toastify";
+import { UserCircleIcon } from "@heroicons/react/solid";
 import ProblemCounter from "components/problems/ProblemCounter";
 
 import axios from "axios";
@@ -299,14 +300,16 @@ export default function Report({ user, data }) {
                     htmlFor="TotalProblems"
                     className="block mb-1 text-lg text-center font-medium text-gray-700"
                   >
-                    Total Problems with Period
+                    Total Problems per Month
                   </label>
                   <ProblemChart
                     chartData={chartDataProblems}
                     title={"Total Problem Year to Date"}
                     chartType={"line"}
                     onDisplay={false}
-                    stringLimit={10}
+                    stringLimit={
+                      chartDataProblems.datasets[0].data.length > 6 ? 5 : 100
+                    }
                   />
                 </div>
               </div>
@@ -329,7 +332,9 @@ export default function Report({ user, data }) {
                     title={"Top Ten Impacted Apps Year to Date"}
                     chartType={"bar"}
                     onDisplay={false}
-                    stringLimit={5}
+                    stringLimit={
+                      chartDataImpacted.datasets[0].data.length > 5 ? 5 : 100
+                    }
                   />
                 </div>
               </div>
@@ -367,7 +372,7 @@ export default function Report({ user, data }) {
                       htmlFor="EachAssignee"
                       className="block mb-1 text-lg text-center font-medium text-gray-700"
                     >
-                      Total Problem Each Member
+                      Total Problems per Assignee
                     </label>
                   </div>
 
@@ -376,8 +381,16 @@ export default function Report({ user, data }) {
                       className="grid grid-cols-1 sm:grid-cols-2 text-md text-gray-500"
                       key={index}
                     >
-                      <div className="col-span-1 font-bold">
-                        {result.assigned_to.fullName}
+                      <div className="col-span-1 font-medium">
+                        <span className="flex items-center justify-between min-w-0 space-x-3">
+                          <UserCircleIcon
+                            className="w-7 h-7"
+                            aria-hidden="true"
+                          />
+                          <span className="flex flex-col flex-1 min-w-0">
+                            {result.assigned_to.fullName}
+                          </span>
+                        </span>
                       </div>
                       <div className="col-span-1 text-right">
                         {result.TotalProblemPerAssignee} (

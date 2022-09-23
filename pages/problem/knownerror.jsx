@@ -72,7 +72,7 @@ const KnownError = ({ user, kedb }) => {
         <Head>
           <title>Known Error</title>
         </Head>
-        <section>
+        <section id="known-error-section">
           {/* Page title & actions */}
           <PageHeader title="Known Error"></PageHeader>
           <div className="flex-1 flex flex-col overflow-hidden">
@@ -255,6 +255,11 @@ const KnownError = ({ user, kedb }) => {
                     }
                     activeLinkClassName={
                       "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                    }
+                    onClick={() =>
+                      document
+                        .getElementById("known-error-section")
+                        .scrollIntoView()
                     }
                   />
                 </div>
