@@ -159,7 +159,7 @@ function ProblemDetail({ user, problem, idProblem }) {
     }
   };
 
-  const onSubmit = async (data) => {
+  const onSubmitUpdateData = async (data) => {
     let matrixChanged = "N";
     if (
       problem.impact.id !== data.idImpact.value ||
@@ -362,7 +362,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                   <div className="bg-white shadow sm:rounded-lg">
                     {editMode ? (
                       <>
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form onSubmit={handleSubmit(onSubmitUpdateData)}>
                           <section aria-labelledby="edit-problem">
                             <CardTitle
                               title={
@@ -386,7 +386,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                                   />
                                 </ButtonCircle>
                                 <ButtonCircle
-                                  action={handleSubmit(onSubmit)}
+                                  action={handleSubmit(onSubmitUpdateData)}
                                   className={classNames(
                                     spinner
                                       ? "px-4 disabled:opacity-50 cursor-not-allowed"

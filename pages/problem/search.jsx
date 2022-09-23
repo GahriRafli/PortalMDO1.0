@@ -312,11 +312,18 @@ const ProblemSearch = (props) => {
               props.search.data.count === 0 ? (
               <div className="relative mx-auto">
                 <div className="relative">
-                  <img
-                    className="mx-auto w-2/5"
-                    src="/nodata-rafiki.svg"
-                    alt="Workcation"
-                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <img
+                      className="w-2/5"
+                      src="/nodata-rafiki.svg"
+                      alt="Workcation"
+                    />
+                  </div>
                   <div className="-mt-16 mb-3 max-w-3xl mx-auto text-center leading-9">
                     <p className="text-2xl font-bold text-gray-900">
                       Oops, Problems not found

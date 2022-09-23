@@ -247,7 +247,7 @@ export default function TaskList({ user, data }) {
             <Link href="/problem/create" passHref>
               <PrimaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                New Problem
+                Problem Non-Incident
               </PrimaryAnchorButton>
             </Link>
           </PageHeader>
