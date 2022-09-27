@@ -40,12 +40,9 @@ import {
   Upload,
   Typography,
   Spin,
-  Empty,
 } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
-import { data } from "autoprefixer";
 import { async } from "regenerator-runtime";
-import { InputFile } from "components/ui/forms";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -113,6 +110,31 @@ function IncidentDetail({ user, incident, comments }) {
   const refreshData = () => {
     router.replace(router.asPath);
   };
+
+  const [newComments, setNewComments] = useState(comments);
+  const getComments = async () => {
+    try {
+      const userComments = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}/comment`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      );
+      setNewComments(userComments.data);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getComments();
+
+    const interval = setInterval(() => {
+      getComments();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // get data incident type
   const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
@@ -1488,10 +1510,8 @@ function IncidentDetail({ user, incident, comments }) {
                       </div>
                       <div className="px-4 py-6 sm:px-6">
                         <ul className="space-y-8">
-                          {!comments.data.length ? (
-                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                          ) : (
-                            comments.data.map((comment) => (
+                          {newComments.data.length > 0 &&
+                            newComments.data.map((comment) => (
                               <li key={comment.id}>
                                 <div className="flex space-x-3">
                                   <div className="flex-shrink-0">
@@ -1587,8 +1607,7 @@ function IncidentDetail({ user, incident, comments }) {
                                   </div>
                                 </div>
                               </li>
-                            ))
-                          )}
+                            ))}
                         </ul>
                       </div>
                     </div>
@@ -1623,7 +1642,6 @@ function IncidentDetail({ user, incident, comments }) {
                                 />
                               </div>
                               <div className="mt-2">
-                                {/* <InputFile /> */}
                                 <Upload
                                   beforeUpload={(file) => {
                                     setShowList(true);
@@ -1682,6 +1700,7 @@ function IncidentDetail({ user, incident, comments }) {
                     )}
                   </div>
                 </section>
+                {/* End of Comments */}
               </div>
 
               <section
