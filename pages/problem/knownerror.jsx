@@ -151,7 +151,7 @@ const KnownError = ({ user, kedb }) => {
                         </p>
                       </div>
                       <div className="mt-2 col-span-4">
-                        <p className="text-sm text-justify text-gray-900">
+                        <p className="text-sm whitespace-pre-wrap text-gray-900">
                           {result.description != null
                             ? result.description
                             : ": Not Defined Yet/Recorded"}
@@ -164,7 +164,7 @@ const KnownError = ({ user, kedb }) => {
                         </p>
                       </div>
                       <div className="mt-2 col-span-4">
-                        <p className="text-sm text-justify text-gray-900">
+                        <p className="text-sm whitespace-pre-wrap text-gray-900">
                           {result.impactSystem != null
                             ? result.impactSystem
                             : ": Not Defined Yet/Recorded"}
@@ -177,7 +177,7 @@ const KnownError = ({ user, kedb }) => {
                         </p>
                       </div>
                       <div className="mt-2 col-span-4">
-                        <p className="text-sm text-justify text-gray-900">
+                        <p className="text-sm whitespace-pre-wrap text-gray-900">
                           <b>
                             {result.rca != null
                               ? result.rca
@@ -192,7 +192,7 @@ const KnownError = ({ user, kedb }) => {
                         </p>
                       </div>
                       <div className="mt-2 col-span-4">
-                        <p className="text-sm text-justify text-gray-900">
+                        <p className="text-sm whitespace-pre-wrap text-gray-900">
                           {result.resolution != null
                             ? result.resolution
                             : ": Not Defined Yet/Recorded"}
@@ -205,7 +205,7 @@ const KnownError = ({ user, kedb }) => {
                         </p>
                       </div>
                       <div className="mt-2 col-span-4">
-                        <p className="text-sm text-justify text-gray-900">
+                        <p className="text-sm whitespace-pre-wrap text-gray-900">
                           <b>
                             {result.lessonLearned != null
                               ? result.lessonLearned

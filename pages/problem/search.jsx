@@ -210,12 +210,12 @@ const ProblemSearch = (props) => {
                       </a>
                     </Link>
                   </div>
-                  <time
-                    dateTime={result.problemCreatedAt}
-                    className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
-                  >
-                    {result.problemCreatedAt}
-                  </time>
+                  <div className="grid whitespace-pre-wrap text-sm text-gray-500">
+                    <span className="text-right">{result.problemAssignee}</span>
+                    <time dateTime={result.problemCreatedAt}>
+                      {result.problemCreatedAt}
+                    </time>
+                  </div>
                 </div>
                 <div className="mt-4">
                   <p className="line-clamp-2 text-sm text-gray-600 truncate">
@@ -268,7 +268,7 @@ const ProblemSearch = (props) => {
                     onKeyPress={onSearch}
                     disabled={false}
                     allowClear
-                    placeholder="Search problem name, root cause &amp; action"
+                    placeholder="Search problem name, problem assignee, root cause &amp; action"
                     prefix={
                       <SearchIcon
                         className="h-5 w-5 text-gray-400"
