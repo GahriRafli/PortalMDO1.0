@@ -25,8 +25,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
-);
+  ArcElement,
+  );
 
 export const ShowChart = ({ chartData, title, chartType }) => {
   return (
