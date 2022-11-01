@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo, useRef } from "react";
+import { Area } from '@ant-design/plots';
 import Head from "next/head";
 import { ShowChart } from "components/chart";
 import axios from "axios";
 import withSession from "lib/session";
-import { async } from "regenerator-runtime";
 import Layout from "components/layout";
 import PageHeader from "components/incidents/page-header";
 import DateRangeFilter from "components/incidents/daterange-filter";
@@ -13,13 +13,13 @@ import Select, { components } from "react-select";
 import { ReactSelect } from "components/ui/forms";
 import { toast } from "react-toastify";
 import format from "date-fns/format";
-import getUnixTime from "date-fns/getUnixTime";
 import palette from "google-palette";
 import Table from "components/ui/table";
 import { Spinner } from "components/ui/spinner";
 import { classNames } from "components/utils";
 import { Spin } from "antd";
 import { useReactToPrint } from "react-to-print";
+import { CustomChart } from "components/custom-chart";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -38,6 +38,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     },
   };
 });
+
 
 export default function ThirdParty({ user }) {
   const [portalTarget, setPortalTarget] = useState("");
@@ -70,8 +71,46 @@ export default function ThirdParty({ user }) {
       },
     ],
   };
-  const [incidentChartData, setIncidentChartData] = useState(initialChartData);
-  const [downtimeChartData, setDowntimeChartData] = useState(initialChartData);
+
+ 
+  const config = {
+    data: [],
+    smooth : true,
+    xField: 'metric',
+    yField: 'value',
+    xAxis: {
+      range: [0, 1],
+      tickCount: 5,
+    },
+    areaStyle: () => {
+      return {
+        fill: 'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff',
+      };
+    },
+  };
+
+  const config2 = {
+    data: [],
+    smooth : true,
+    xField: 'metric',
+    yField: 'value',
+    xAxis: {
+      range: [0, 1],
+      tickCount: 5,
+    },
+    areaStyle: () => {
+      return {
+        fill: 'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff',
+      };
+    },
+  };
+
+  const [incidentChartData, setIncidentChartData] = useState(config);
+  // const [downtimeChartData, setDowntimeChartData] = useState(initialChartData);
+  const [downtimeChartData, setDowntimeChartData] = useState(config2);
+  //console.log(downtimeChartData);
+
+
   const stats = [
     {
       id: 1,
@@ -110,6 +149,8 @@ export default function ThirdParty({ user }) {
       icon: "Wallet.png",
     },
   ];
+
+
   const [tableData, setTableData] = useState([]);
   const componentRef = useRef(null);
 
@@ -203,9 +244,9 @@ export default function ThirdParty({ user }) {
         partnerLogo: data.data.thirdPartyLogo,
         startTime: startTime,
         endTime: endTime,
-        totalInq: data.transactionSummary.totalInquiry,
+        totalInq: data.transactionSummary.totalInquiry.startsWith('0.00') ? null : data.transactionSummary.totalInquiry,
         totalPay: data.transactionSummary.totalPayment,
-        successRateInq: data.transactionSummary.successRateInquiry.slice(0, -1),
+        successRateInq: data.transactionSummary.successRateInquiry.startsWith('0.00') ? null : data.transactionSummary.successRateInquiry.slice(0, -1),
         successRatePay: data.transactionSummary.sucessRatePayment.slice(0, -1),
         salesVolume: data.transactionSummary.totalSalesVolume,
       }));
@@ -219,27 +260,44 @@ export default function ThirdParty({ user }) {
       );
 
       // Change bar chart dashboard
+      // setIncidentChartData((incidentChartData) => ({
+      //  ...incidentChartData,
+      //  labels: chartLabels,
+      //  datasets: [
+      //    {
+      //      data: data.incidentSummaryData.map((d) => d.numberOfIncident),
+      //      backgroundColor: chartBgColor,
+      //    },
+      //  ],
+      // }));
+
       setIncidentChartData((incidentChartData) => ({
         ...incidentChartData,
         labels: chartLabels,
-        datasets: [
-          {
-            data: data.incidentSummaryData.map((d) => d.numberOfIncident),
-            backgroundColor: chartBgColor,
-          },
-        ],
+        data: data.incidentSummaryData.map((d) => ({
+          metric : d.incidentDate,
+          value : d.numberOfIncident
+        }))
       }));
 
       // Change line chart dashboard
+      // setDowntimeChartData((downtimeChartData) => ({
+      //   ...downtimeChartData,
+      //   labels: chartLabels,
+      //   datasets: [
+      //     {
+      //       data: data.incidentSummaryData.map((d) => d.totalDowntime),
+      //       backgroundColor: chartBgColor,
+      //     },
+      //   ],
+      // }));
+
       setDowntimeChartData((downtimeChartData) => ({
         ...downtimeChartData,
-        labels: chartLabels,
-        datasets: [
-          {
-            data: data.incidentSummaryData.map((d) => d.totalDowntime),
-            backgroundColor: chartBgColor,
-          },
-        ],
+        data: data.incidentSummaryData.map((d) => ({
+          metric: d.incidentDate,
+          value: d.totalDowntime
+        }))
       }));
 
       setTableData(data.incidentDetailData);
@@ -300,7 +358,7 @@ export default function ThirdParty({ user }) {
       </Head>
       <PageHeader title={"Third Party Report"}></PageHeader>
       <div className="mt-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="mb-3 text-lg leading-6 font-medium text-gray-900">
             Filter
           </h2>
@@ -399,7 +457,8 @@ export default function ThirdParty({ user }) {
                           </p>
                         </dt>
                         <dd className="pb-6 flex items-baseline sm:pb-7">
-                          {item.id == 2 || item.id == 3 ? (
+                          {item.id == 2 || item.id == 3 ?  (
+                            item.stat.totalInq !== null ? (
                             <>
                               <div className="bg-blue-100 rounded px-1 py-0">
                                 <span className="text-blue-700 text-xs">
@@ -428,6 +487,16 @@ export default function ThirdParty({ user }) {
                                 {item.stat.totalPay}
                               </p>
                             </>
+                            ) : (
+                              <p
+                              className={classNames(
+                                "text-2xl font-semibold",
+                                item.color
+                              )}
+                            >
+                              {item.stat.totalPay}
+                            </p>
+                            )
                           ) : (
                             <p
                               className={classNames(
@@ -446,49 +515,27 @@ export default function ThirdParty({ user }) {
                 {/* End of Stats */}
 
                 {/* Card */}
-                <div className="mb-3 bg-white shadow overflow-hidden sm:rounded-lg">
-                  <div className="px-4 py-5 sm:px-6">
-                    <div className="absolute bg-gray-100 rounded-md p-3 mr-3">
-                      <img
-                        src={statsData.partnerLogo}
-                        className="h-6"
-                        alt="logo"
-                      />
-                    </div>
-                    <div className="ml-20">
-                      <h3 className="text-lg leading-6 font-medium text-gray-900">
-                        {statsData.partner}
-                      </h3>
-                      {statsData.startTime !== null && (
-                        <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                          From{" "}
-                          {format(new Date(statsData.startTime), "dd MMM yyyy")}{" "}
-                          until{" "}
-                          {format(new Date(statsData.endTime), "dd MMM yyyy")}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                    <dl className="grid grid-cols-1 gap-x-4 gap-y-8 print:grid-cols-2 sm:grid-cols-2">
-                      <div className="sm:col-span-1">
-                        <ShowChart
-                          chartData={incidentChartData}
-                          title={"Total Incident"}
-                          chartType={"bar"}
-                        />
-                      </div>
-                      <div className="sm:col-span-1">
-                        <ShowChart
-                          chartData={downtimeChartData}
-                          title={"Total Downtime (minutes)"}
-                          chartType={"line"}
-                        />
-                      </div>
-                    </dl>
+               
+                {/* End of Card */}
+
+                <div className="grid grid-cols-6 gap-6 print:grid-cols-6 print:gap-6">
+                  <div className="col-span-3 print:col-span-3">
+    {/* New Card */}
+    <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
+                  <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
+                      <Area {...incidentChartData} />
                   </div>
                 </div>
-                {/* End of Card */}
+                  </div>
+                  <div className="col-span-3 print:col-span-3">
+                        {/* New Card */}
+    <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
+                  <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
+                      <Area {...downtimeChartData} />
+                  </div>
+                </div>
+                  </div>
+                </div>
 
                 {/* Start Table */}
                 <div className="mt-6 print:mt-96">
