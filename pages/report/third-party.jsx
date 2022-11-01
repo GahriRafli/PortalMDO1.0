@@ -518,22 +518,36 @@ export default function ThirdParty({ user }) {
                
                 {/* End of Card */}
 
-                <div className="grid grid-cols-6 gap-6 print:grid-cols-6 print:gap-6">
-                  <div className="col-span-3 print:col-span-3">
-    {/* New Card */}
-    <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
-                  <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
-                      <Area {...incidentChartData} />
+                <div className="grid grid-cols-6 gap-6 print:grid-cols-1">
+                  <div className="col-span-3 print:col-span-1">
+                    {/* New Card */}
+                    <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
+                      <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
+                        <div className="px-1 py-2 sm:px-6 sm:flex-1">
+                          <h2 className="text-sm leading-6 font-medium text-gray-900">
+                            Total Incident 
+                          </h2>
+                        </div>
+                      </div>
+                      <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
+                          <Area {...incidentChartData} />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                  </div>
-                  <div className="col-span-3 print:col-span-3">
-                        {/* New Card */}
-    <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
-                  <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
-                      <Area {...downtimeChartData} />
-                  </div>
-                </div>
+                  <div className="col-span-3 print:col-span-1">
+                      {/* New Card */}
+                      <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
+                        <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
+                          <div className="px-1 py-2 sm:px-6 sm:flex-1">
+                            <h2 className="text-sm leading-6 font-medium text-gray-900">
+                              Total Downtime (minutes) 
+                            </h2>
+                          </div>
+                        </div>
+                        <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
+                            <Area {...downtimeChartData} />
+                        </div>
+                      </div>
                   </div>
                 </div>
 
