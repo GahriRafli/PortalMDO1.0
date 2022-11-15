@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import format from "date-fns/format";
 import palette from "google-palette";
 import Table from "components/ui/table";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { classNames } from "components/utils";
 import { Spin } from "antd";
 import { useReactToPrint } from "react-to-print";
@@ -430,6 +430,10 @@ export default function ThirdParty({ user }) {
             </form>
           </div>
           {/* Form Filter End */}
+
+          {/* <div className="mb-5">
+            <CustomChart />
+          </div> */}
 
           {showDashboard && (
             <div ref={componentRef} className="print:a4-screen-sized">

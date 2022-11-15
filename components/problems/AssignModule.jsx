@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
 import axios from "axios";
 import * as ProblemHelper from "components/problems/ProblemHelper";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import { toast } from "react-toastify";
 import { PencilIcon, UserCircleIcon, BanIcon } from "@heroicons/react/solid";
@@ -138,10 +138,9 @@ const AssignModule = ({ problem, user, idProblem }) => {
         {/* Beginning of Kondisional reassign untuk TL */}
         {ProblemHelper.checkTLAES(user) &&
         problem.problemStatus.id !== 4 &&
-        problem.assigned_to !== null
-        // && problem.incidents.length > 0
-        // && [...problem.incidents].shift().isProblem != "R"
-        ? (
+        problem.assigned_to !== null ? (
+          // && problem.incidents.length > 0
+          // && [...problem.incidents].shift().isProblem != "R"
           <span className="text-yellow-600 text-sm ml-auto mr-0">
             <ButtonCircle
               action={() => {
