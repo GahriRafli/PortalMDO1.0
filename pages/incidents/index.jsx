@@ -52,6 +52,8 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   const startTime = query.filterStartTime || "";
   const endTime = query.filterEndTime || "";
   const irNumber = query.incidentNumber || "";
+  const incidentName = query.incidentName || "";
+
 
   if (
     query.page ||
@@ -61,7 +63,8 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     query.incidentStatus ||
     query.filterStartTime ||
     query.filterEndTime ||
-    query.incidentNumber
+    query.incidentNumber ||
+    query.incidentName 
   ) {
     url.searchParams.append("page", page);
     url.searchParams.append("perPage", perPage);
@@ -71,6 +74,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     url.searchParams.append("filterStartTime", startTime);
     url.searchParams.append("filterEndTime", endTime);
     url.searchParams.append("incidentNumber", irNumber);
+    url.searchParams.append("incidentName", incidentName);
   } else {
     url.searchParams.append("page", page);
   }
@@ -129,15 +133,8 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
 function IncidentList(props) {
   const [tableData, setTableData] = useState([]);
   const [irNumber, setIRNumber] = useState("");
-  const [apps, setApps] = useState("");
-  const [incidentType, setIncidentType] = useState("");
   const [IncidentTypeOptions, setIncidentTypeOptions] = useState([]);
-  const [incidentStatus, setIncidentStatus] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [portalTarget, setPortalTarget] = useState("");
-
-  //  nambah
   const [isLoading, setLoading] = useState(false);
   const [selectedPage, setSelectedPage] = useState("");
   const startLoading = () => setLoading(true);
@@ -181,6 +178,12 @@ function IncidentList(props) {
     { value: "Investigate", label: "Investigate" },
   ];
 
+  const perPageOptions = [
+    { value: "10", label: "Showing 10" },
+    { value: "25", label: "Showing 25" },
+    { value: "50", label: "Showing 50" },
+  ];
+  
   // Get data aplikai async
   const loadApplications = (value, callback) => {
     clearTimeout(timeoutId);
@@ -243,6 +246,28 @@ function IncidentList(props) {
     }
   };
 
+  const handleSearchChange = (value) => {
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
+
+    if (value === "") {
+      let param = new URLSearchParams(currentQuery);
+      param.delete("incidentName");
+      router.push({
+        pathname: currentPath,
+        query: createParam(param.toString()),
+      });
+    } else if (value.length >= 3) {
+      currentQuery.incidentName = value;
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
+      });
+    } else {
+      return false;
+    }
+  };
+
   const handleAppChange = (e, { action }) => {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
@@ -300,6 +325,28 @@ function IncidentList(props) {
     } else if (action === "clear") {
       let param = new URLSearchParams(currentQuery);
       param.delete("incidentStatus");
+      router.push({
+        pathname: currentPath,
+        query: createParam(param.toString()),
+      });
+    } else {
+      return false;
+    }
+  };
+
+  const handleperPageChange = (e, { action }) => {
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
+    
+    if (action === "select-option") {
+      currentQuery.perPage = e.value;
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
+      });
+    } else if (action === "clear") {
+      let param = new URLSearchParams(currentQuery);
+      param.delete("perPage");
       router.push({
         pathname: currentPath,
         query: createParam(param.toString()),
@@ -448,7 +495,7 @@ function IncidentList(props) {
               {/* Start Filter Panel */}
               <section
                 aria-labelledby="filter-incident"
-                className="lg:col-start-3 lg:col-span-1 mb-5"
+                className="mb-5 lg:col-start-3 lg:col-span-1"
               >
                 <div className="px-4 py-5 bg-white shadow sm:rounded-lg sm:px-6">
                   <Disclosure as="div">
@@ -460,13 +507,13 @@ function IncidentList(props) {
                               className="w-5 h-5 text-gray-400"
                               aria-hidden="true"
                             />
-                            <span className="font-normal text-base">
+                            <span className="text-base font-normal">
                               Search in Incident
                             </span>
                           </Space>
                           <span className="flex items-center ml-6 h-7">
                             <AdjustmentsIcon
-                              className="h-5 w-5"
+                              className="w-5 h-5"
                               aria-hidden="true"
                             />
                           </span>
@@ -476,21 +523,24 @@ function IncidentList(props) {
                           <div className="grid grid-cols-6 gap-4 ">
                             <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
                               <label
-                                htmlFor="thirdPartyName"
+                                htmlFor="search"
                                 className="block mb-1 text-sm font-medium text-gray-700"
                               >
                                 Name
                               </label>
                               <InputTag
                                 allowClear
-                                value={value || ""}
-                                onChange={(e) => {
-                                  setValue(e.target.value);
-                                  handleGlobalChange(e.target.value);
-                                }}
-                                placeholder="Name of Incidents"
+                                onChange={(e) => handleSearchChange(e.target.value)}
+                                placeholder={`${count} records...`}
+                                prefix={
+                                  <SearchIcon
+                                    className="w-5 h-5 text-gray-400"
+                                    aria-hidden="true"
+                                  />
+                                }
                                 style={{
                                   borderRadius: "0.375rem",
+                                  width: "100%",
                                   height: "38px",
                                 }}
                               />
@@ -598,18 +648,33 @@ function IncidentList(props) {
 
               <Table columns={columns} data={props.data} ref={tableInstance} />
 
-              {/* Awal coba pagination */}
-              <div className="hidden mt-3 sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              {/* Awal pagination */}
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-gray-700">
-                    Showing{" "}
-                    <span className="font-medium">{props.currentPage}</span> to{" "}
-                    <span className="font-medium">{props.pageCount}</span> of{" "}
-                    <span className="font-medium">{props.totalCount}</span>{" "}
-                    results
-                  </p>
+                  <div className="text-sm ">
+                    {/* Showing{" "} */}
+                    <div className="flex gap-x-1">
+                    <div>
+                        <ReactSelect
+                          id="perPage"
+                          instanceId={"perPage"}
+                          defaultValue={10}
+                          options={perPageOptions}
+                          placeholder="Shows"
+                          className="ml-1 text-base text-gray-700 border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          onChange={handleperPageChange}
+                        />
+                      </div>
+                      <div className="mt-2 ml-2">
+                        <span className="font-medium">Page {props.currentPage}</span> to{" "}
+                        <span className="font-medium">{props.pageCount}</span> of{" "} 
+                        <span className="font-medium">{props.totalCount}</span>{" "}
+                          results
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="mb-5">
+                <div className="mt-4 mb-5">
                   <ReactPaginate
                     initialPage={props.currentPage - 1}
                     pageCount={props.pageCount} //page count
@@ -637,7 +702,7 @@ function IncidentList(props) {
                   />
                 </div>
               </div>
-              {/* Akhir coba pagination */}
+              {/* Akhir pagination */}
             </div>
           </div>
         </section>

@@ -98,6 +98,12 @@ function ProblemDetail({ user, problem, idProblem }) {
             value: problem.impact.id,
           }
         : false,
+      idType: problem.paramType
+        ? {
+            label: problem.paramType.type,
+            value: problem.paramType.id,
+          }
+        : false,
       idSource: problem.problemSource
         ? {
             label: problem.problemSource.label,
@@ -159,7 +165,7 @@ function ProblemDetail({ user, problem, idProblem }) {
     }
   };
 
-  const onSubmit = async (data) => {
+  const onSubmitUpdateData = async (data) => {
     let matrixChanged = "N";
     if (
       problem.impact.id !== data.idImpact.value ||
@@ -236,6 +242,21 @@ function ProblemDetail({ user, problem, idProblem }) {
       </components.NoOptionsMessage>
     );
   };
+
+  // Get Data Problem Type
+  const [typeOptions, setTypeOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/type/all`)
+      .then((response) => {
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.type,
+        }));
+        setTypeOptions(data);
+      })
+      .catch((err) => toast.error(`Type ${err}`));
+  }, []);
 
   // Get data Urgency
   const [urgencyOptions, setUrgencyOptions] = useState([]);
@@ -362,7 +383,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                   <div className="bg-white shadow sm:rounded-lg">
                     {editMode ? (
                       <>
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form onSubmit={handleSubmit(onSubmitUpdateData)}>
                           <section aria-labelledby="edit-problem">
                             <CardTitle
                               title={
@@ -386,7 +407,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                                   />
                                 </ButtonCircle>
                                 <ButtonCircle
-                                  action={handleSubmit(onSubmit)}
+                                  action={handleSubmit(onSubmitUpdateData)}
                                   className={classNames(
                                     spinner
                                       ? "px-4 disabled:opacity-50 cursor-not-allowed"
@@ -450,6 +471,38 @@ function ProblemDetail({ user, problem, idProblem }) {
                                   </p>
                                 </div>
 
+                                <div className="sm:col-span-2">
+                                  <label className="block text-sm font-medium text-gray-700">
+                                    Link JIRA
+                                  </label>
+                                  <div className="pt-1">
+                                    <textarea
+                                      id="jiraProblem"
+                                      name="jiraProblem"
+                                      {...register("jiraProblem", {
+                                        required: "This is required!",
+                                      })}
+                                      rows={1}
+                                      style={{
+                                        resize: "none",
+                                      }}
+                                      className={classNames(
+                                        errors.jiraProblem
+                                          ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                          : "focus:ring-blue-500 focus:border-blue-500",
+                                        "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                      )}
+                                      placeholder="Link JIRA"
+                                      defaultValue={problem.jiraProblem}
+                                    />
+                                    {errors.jiraProblem && (
+                                      <p className="mt-1 text-sm text-red-600">
+                                        {errors.jiraProblem.message}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+
                                 <div className="sm:col-span-1">
                                   <label className="block text-sm font-medium text-gray-700">
                                     Application
@@ -480,34 +533,27 @@ function ProblemDetail({ user, problem, idProblem }) {
 
                                 <div className="sm:col-span-1">
                                   <label className="block text-sm font-medium text-gray-700">
-                                    Link JIRA
+                                    Type
                                   </label>
-                                  <div className="pt-1">
-                                    <textarea
-                                      id="jiraProblem"
-                                      name="jiraProblem"
-                                      {...register("jiraProblem", {
-                                        required: "This is required!",
-                                      })}
-                                      rows={1}
-                                      style={{
-                                        resize: "none",
-                                      }}
-                                      className={classNames(
-                                        errors.jiraProblem
-                                          ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                          : "focus:ring-blue-500 focus:border-blue-500",
-                                        "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                      )}
-                                      placeholder="Link JIRA"
-                                      defaultValue={problem.jiraProblem}
-                                    />
-                                    {errors.jiraProblem && (
-                                      <p className="mt-1 text-sm text-red-600">
-                                        {errors.jiraProblem.message}
-                                      </p>
+                                  <Controller
+                                    name="idType"
+                                    control={control}
+                                    rules={{ required: "This is required" }}
+                                    render={({ field }) => (
+                                      <Select
+                                        {...field}
+                                        isClearable
+                                        options={typeOptions}
+                                        styles={styledReactSelect}
+                                        className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                      />
                                     )}
-                                  </div>
+                                  />
+                                  {errors.idType && (
+                                    <p className="pt-2 text-sm text-red-600">
+                                      {errors.idType.message}
+                                    </p>
+                                  )}
                                 </div>
 
                                 <div className="sm:col-span-2">

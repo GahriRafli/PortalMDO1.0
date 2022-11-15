@@ -16,12 +16,12 @@ const CreateInformation = () => {
           </div>
           <div className="pt-3 text-center sm:pt-0 sm:pl-4 sm:text-left">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Create New Problem Ticket
+              Create Problem Non-Incident Ticket
             </h3>
             <div className="pt-2">
               <p className="text-sm text-gray-500">
                 <b>
-                  Before you created the new problem ticket, make sure it can be
+                  Before you created the new problem non-incident ticket, make sure it can be
                   categorized as followup from one of the activity below :
                 </b>
                 <ul className="pl-5 list-disc">

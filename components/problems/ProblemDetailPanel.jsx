@@ -11,7 +11,7 @@ const ProblemDetailPanel = ({ problem }) => {
           </dd>
         </div>
         <div className="sm:col-span-1">
-          <dt className="text-sm font-medium text-gray-500">Link JIRA</dt>
+          <dt className="text-sm font-medium text-gray-500">Link JIRA PM</dt>
           <dd className="mt-1 text-sm text-gray-900">
             {problem.problemStatus.label.includes("Agile") ||
             problem.problemStatus.label.includes("OPA") ? (
