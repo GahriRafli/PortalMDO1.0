@@ -16,10 +16,11 @@ import format from "date-fns/format";
 import getUnixTime from "date-fns/getUnixTime";
 import palette from "google-palette";
 import Table from "components/ui/table";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { classNames } from "components/utils";
 import { Spin } from "antd";
 import { useReactToPrint } from "react-to-print";
+import { CustomChart } from "components/custom-chart";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -372,6 +373,10 @@ export default function ThirdParty({ user }) {
             </form>
           </div>
           {/* Form Filter End */}
+
+          {/* <div className="mb-5">
+            <CustomChart />
+          </div> */}
 
           {showDashboard && (
             <div ref={componentRef} className="print:a4-screen-sized">

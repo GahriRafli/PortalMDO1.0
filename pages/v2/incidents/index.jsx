@@ -5,9 +5,9 @@ import {
 } from "components/layout/index";
 import withSession from "lib/session";
 
-export default function Tickets({ user }) {
+export default function Incident({ user }) {
   return (
-    <LayoutPage session={user} pageTitle="Tickets - Shield">
+    <LayoutPage session={user} pageTitle="Incident - Shield">
       <LayoutPageHeader></LayoutPageHeader>
       <LayoutPageContent></LayoutPageContent>
     </LayoutPage>

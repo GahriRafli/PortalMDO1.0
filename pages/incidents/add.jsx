@@ -21,29 +21,10 @@ import {
 } from "../../components/utils";
 import { PrimaryButton } from "../../components/ui/button/primary-button";
 import { SecondaryButton } from "../../components/ui/button/secondary-button";
-import { Spinner } from "../../components/ui/spinner";
+import { Spinner } from "../../components/ui/svg/spinner";
 import PageHeader from "../../components/incidents/page-header";
 import docs from "../../components/incidents/docs.json";
 import withSession from "../../lib/session";
-
-export const getServerSideProps = withSession(async function ({ req, params }) {
-  const user = req.session.get("user");
-
-  if (!user) {
-    return {
-      redirect: {
-        destination: "/auth",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      user: req.session.get("user"),
-    },
-  };
-});
 
 function addIncident({ user }) {
   // Digunakan utuk fungsi reset form
@@ -71,7 +52,6 @@ function addIncident({ user }) {
     formState,
     reset,
     getValues,
-    setValue,
   } = useForm({
     mode: "onSubmit",
     reValidateMode: "onChange",
@@ -80,13 +60,12 @@ function addIncident({ user }) {
   const { errors, isSubmitting } = formState;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const router = useRouter();
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(false); // Untuk toggle incident resolved
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [impactOptions, setImpactOptions] = useState([]);
   const [problemTypeOptions, setProblemTypeOptions] = useState([]);
   const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
-  const [permanentFixEnabled, setPermanenFixEnabled] = useState(false); // Untuk toggle permanent fix
-  const [isProblem, setIsProblem] = useState("N");
+  const [isProblem, setIsProblem] = useState(false); // Untuk toggle permanent fix
 
   // Get data urgency
   useEffect(() => {
@@ -120,9 +99,7 @@ function addIncident({ user }) {
   const loadApplications = (value, callback) => {
     clearTimeout(timeoutId);
 
-    if (value.length < 3) {
-      return callback([]);
-    }
+    if (value.length < 3) return callback([]);
 
     const timeoutId = setTimeout(() => {
       axios
@@ -182,34 +159,6 @@ function addIncident({ user }) {
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
 
-  // Handle switch button when incident is over
-  const handleSwitch = () => {
-    if (enabled) {
-      setValue("endTime", null, { shouldValidate: false, shouldDirty: false });
-      setValue("rootCause", "", { shouldValidate: false, shouldDirty: false });
-      setValue("responsibleEngineer", "", {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-      setValue("idProblemType", null, {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-      setValue("proposedEnhancement", "", {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-      setValue("lessonLearned", "", {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-
-      setEnabled(false);
-    } else {
-      setEnabled(true);
-    }
-  };
-
   // Handle validate datetime
   const st = new Date(getValues("startTime"));
   const et = new Date(getValues("endTime"));
@@ -225,54 +174,48 @@ function addIncident({ user }) {
   // Handle validate start time
   const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0);
 
-  // Hanlde permanent fix select
-  const handlePFChange = () => {
-    if (permanentFixEnabled) {
-      setPermanenFixEnabled(!permanentFixEnabled);
-      setIsProblem("N");
-      setValue("idProblemType", null, {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-      setValue("proposedEnhancement", "", {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-      unregister("idProblemType");
-      unregister("proposedEnhancement");
-    } else {
-      setPermanenFixEnabled(true);
-      setIsProblem("W");
-    }
+  // Handle switch button when incident is over
+  const handleSwitch = (value) => {
+    unregister([
+      "endTime",
+      "idIncidentType",
+      "rootCause",
+      "actionItem",
+      "responsibleEngineer",
+      "lessonLearned",
+      "idProblemType",
+      "proposedEnhancement",
+    ]);
+    setEnabled(value);
+  };
 
-    // console.log(permanentFixEnabled);
-    // console.log(isProblem);
+  // Hanlde permanent fix select
+  const handleIsProlem = (value) => {
+    unregister(["idProblemType", "proposedEnhancement"]);
+    setIsProblem(value);
   };
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
     await sleep(1000);
 
-    // Destructuring object to fit format on API
-    if (!data.endTime || data.endTime === null || data.endTime === "") {
-      Object.assign(data, {
-        idApps: data.idApps.value,
-        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
-        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
-        idUrgency: data.idUrgency.value,
-        idImpact: data.idImpact.value,
-      });
+    const sqlDateFormat = "yyyy-MM-dd HH:mm";
+    const mandatoryObj = {
+      idApps: data.idApps.value,
+      startTime: format(new Date(data.startTime), sqlDateFormat),
+      logStartTime: format(new Date(data.logStartTime), sqlDateFormat),
+      idUrgency: data.idUrgency.value,
+      idImpact: data.idImpact.value,
+    };
+
+    if (!enabled) {
+      Object.assign(data, mandatoryObj);
     } else {
-      Object.assign(data, {
-        idApps: data.idApps.value,
-        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
-        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
+      Object.assign(data, mandatoryObj, {
+        endTime: format(new Date(data.endTime), sqlDateFormat),
         idIncidentType: data.idIncidentType.value,
-        endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
-        idUrgency: data.idUrgency.value,
-        idImpact: data.idImpact.value,
+        isProblem: !isProblem ? "N" : "W",
         incidentStatus: "Resolved",
-        isProblem: isProblem,
       });
     }
 
@@ -299,7 +242,6 @@ function addIncident({ user }) {
           toast.error(`Msg: ${error.message}`);
         }
       });
-    // console.log(data);
   };
 
   return (
@@ -548,7 +490,7 @@ function addIncident({ user }) {
                         </Switch.Group>
                       </div>
                       {/* Jika kondisi incident sudah selesai */}
-                      {enabled === true && (
+                      {enabled && (
                         <>
                           <div className="col-span-6 sm:col-span-3">
                             <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -689,19 +631,17 @@ function addIncident({ user }) {
                               className="flex items-center"
                             >
                               <Switch
-                                checked={permanentFixEnabled}
-                                onChange={handlePFChange}
+                                checked={isProblem}
+                                onChange={handleIsProlem}
                                 className={classNames(
-                                  permanentFixEnabled
-                                    ? "bg-blue-600"
-                                    : "bg-gray-200",
+                                  isProblem ? "bg-blue-600" : "bg-gray-200",
                                   "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                 )}
                               >
                                 <span
                                   aria-hidden="true"
                                   className={classNames(
-                                    permanentFixEnabled
+                                    isProblem
                                       ? "translate-x-5"
                                       : "translate-x-0",
                                     "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
@@ -715,7 +655,7 @@ function addIncident({ user }) {
                               </Switch.Label>
                             </Switch.Group>
                           </div>
-                          {permanentFixEnabled && (
+                          {isProblem && (
                             <>
                               <div className="col-span-6 sm:col-span-3">
                                 <label
@@ -892,5 +832,24 @@ function addIncident({ user }) {
     </>
   );
 }
+
+export const getServerSideProps = withSession(async function ({ req, params }) {
+  const user = req.session.get("user");
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      user: req.session.get("user"),
+    },
+  };
+});
 
 export default addIncident;

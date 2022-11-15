@@ -37,7 +37,7 @@ export const ShowChart = ({ chartData, title, chartType }) => {
         options={{
           responsive: true,
           plugins: {
-            title: { display: true, text: `${title}` },
+            title: { display: title ? true : false, text: `${title}` },
             legend: { display: false, position: "bottom" },
           },
           scale: {

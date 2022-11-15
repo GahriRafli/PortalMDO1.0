@@ -12,7 +12,7 @@ import Select, { components } from "react-select";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { ButtonCircle } from "components/ui/button/button-circle";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import ModalRootCause from "components/problems/ModalRootCause";
 import DetailHeader from "components/problems/DetailHeader";
 import StepProgress from "components/problems/StepProgress";
@@ -308,7 +308,7 @@ function ProblemDetail({ user, problem, idProblem }) {
       })
       .catch((err) => toast.error(`Follow Up ${err}`));
   }, []);
-  
+
   return (
     <>
       <Layout key={`LayoutProblemDetail-${problem.id}`} session={user}>

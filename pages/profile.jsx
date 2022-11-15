@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { classNames } from "components/utils";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { IdentificationIcon } from "@heroicons/react/solid";
 
 export const getServerSideProps = withSession(async function ({ req }) {

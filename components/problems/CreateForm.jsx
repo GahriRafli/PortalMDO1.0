@@ -4,7 +4,7 @@ import { styledReactSelect, styledReactSelectAdd } from "../utils";
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
 import { toast } from "react-toastify";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { useRouter } from "next/router";
 import format from "date-fns/format";
 import AsyncSelect from "react-select/async";
@@ -186,7 +186,10 @@ const CreateForm = ({ user }) => {
       .then(function (response) {
         if (response.status === 201 || postProblem) {
           toast.success("Problem Sucessfully Created");
-          setTimeout(() => router.push(`/problem/${response.data.data.id}`), 1000);
+          setTimeout(
+            () => router.push(`/problem/${response.data.data.id}`),
+            1000
+          );
         }
       })
       .catch((error) => {

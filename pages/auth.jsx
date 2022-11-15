@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { classNames } from "components/utils";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { FingerPrintIcon, KeyIcon } from "@heroicons/react/solid";
 
 export default function Auth() {
