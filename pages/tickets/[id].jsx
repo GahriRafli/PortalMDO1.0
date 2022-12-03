@@ -1,24 +1,608 @@
-import Layout from "components/layout";
-import Head from "next/head";
+import { useEffect, useState } from "react";
 import withSession from "../../lib/session";
-import { classNames } from "components/utils";
-import { Fragment, useEffect, useState } from "react";
-import format from "date-fns/format";
+import { Tab } from "@headlessui/react";
 import {
-  BellIcon,
-  CalendarIcon,
   ChatAltIcon,
   CheckCircleIcon,
-  LockOpenIcon,
   LockClosedIcon,
   PencilIcon,
-  SearchIcon,
-  TagIcon,
   UserCircleIcon as UserCircleIconSolid,
-  UserIcon,
-  OfficeBuildingIcon,
+  UsersIcon,
 } from "@heroicons/react/solid";
-import activity from "components/tickets/activity.json";
+import {
+  LayoutPage,
+  LayoutPageContent,
+  LayoutPageHeader,
+} from "components/layout/index";
+import { DefaultCard } from "components/ui/card/default-card";
+import { PrimaryButton, WhiteButton } from "components/ui/button/index";
+import { TextareaInput } from "components/ui/forms";
+import { formatDistanceToNowStrict } from "date-fns";
+import { Space, Image as AntdImage } from "antd";
+import { TicketRightSection } from "components/tickets/ticket-right-section";
+import clsx from "clsx";
+import { useForm } from "react-hook-form";
+import { async } from "regenerator-runtime";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { Spinner } from "components/ui/svg/spinner";
+
+const URL = process.env.NEXT_PUBLIC_API_URL;
+const tabs = [
+  { id: 0, name: "Reply to Uker" },
+  { id: 1, name: "Internal Note" },
+  { id: 2, name: "Other Department" },
+];
+
+export default function ReplyTicket({
+  user,
+  ticketData,
+  ticketHistoryData,
+  paramGroup,
+}) {
+  const router = useRouter();
+  const { register, unregister, handleSubmit, reset, formState } = useForm();
+  const { isSubmitting, errors } = formState;
+
+  const [replyTo, setReplyTo] = useState(0);
+  const [visibility, setVisibility] = useState({
+    internalNote: "hidden",
+    otherDepartment: "hidden",
+  });
+  const [required, setRequired] = useState({
+    escalatedRole: false,
+    idEscalatedGroup: false,
+  });
+  const [optionList, setOptionList] = useState({
+    listGroup: [],
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  console.log(isSubmitting);
+
+  const refreshData = () => {
+    router.replace(router.asPath);
+  };
+
+  function filterParamGroup(query) {
+    const filtered = paramGroup.filter(
+      (d) => d.prefix.toLowerCase() == query.toLowerCase()
+    );
+    return filtered;
+  }
+
+  // Get list Group
+  useEffect(() => {
+    let optionsData = paramGroup.map((d) => ({
+      value: d.id,
+      label: d.groupName,
+      prefix: d.prefix,
+    }));
+    optionsData.splice(
+      optionsData.findIndex((e) => e.prefix === "SDK"),
+      1
+    );
+    optionsData.splice(
+      optionsData.findIndex((e) => e.prefix === "UKER"),
+      1
+    );
+    setOptionList((optionList) => ({
+      ...optionList,
+      listGroup: optionsData,
+    }));
+  }, []);
+
+  function getAssignees(role) {
+    let roleName;
+    switch (role) {
+      case "0":
+        roleName = "SDK Operator";
+        break;
+      case "1":
+        roleName = "SDK Engineer";
+        break;
+      case "2":
+        roleName = "Other Team (OPA)";
+        break;
+      case "3":
+        roleName = "Other Department Engineer";
+        break;
+      default:
+        roleName = "Not Defined";
+    }
+
+    return roleName;
+  }
+
+  const handleTicketDest = (index) => {
+    setReplyTo(index);
+    if (index === 2) {
+      // Reply to Other Department
+      setVisibility((visibility) => ({
+        ...visibility,
+        otherDepartment: "",
+        internalNote: "hidden",
+      }));
+      setRequired((required) => ({
+        ...required,
+        idEscalatedGroup: true,
+      }));
+      unregister("escalatedRole");
+    } else if (index === 1) {
+      // Internal Note
+      setVisibility((visibility) => ({
+        ...visibility,
+        internalNote: "",
+        otherDepartment: "hidden",
+      }));
+      setRequired((required) => ({
+        ...required,
+        escalatedRole: "This is required",
+      }));
+      unregister("idEscalatedGroup");
+    } else {
+      // Reply to Uker
+      setVisibility((visibility) => ({
+        ...visibility,
+        otherDepartment: "hidden",
+        internalNote: "hidden",
+      }));
+      unregister(["idEscalatedGroup", "escalatedRole"]);
+      setRequired((required) => ({
+        ...required,
+        escalatedRole: false,
+        idEscalatedGroup: false,
+      }));
+    }
+  };
+
+  // useEffect(() => {
+  //   if (isSubmitSuccessful) {
+  //     reset({
+  //       historyContent: "",
+  //       escalatedRole: "",
+  //       idEscalatedGroup: "",
+  //     });
+  //   }
+  // }, [formState, reset, isSubmitSuccessful]);
+
+  function onSubmit(data) {
+    const formData = new FormData();
+    formData.append("historyContent", data.historyContent);
+    formData.append("isFromUker", "N");
+    if (replyTo === 0) {
+      // Reply to uker
+      const { defaultRole, id } = filterParamGroup("UKER")[0];
+      formData.append("idEscalatedGroup", id);
+      formData.append("escalatedRole", defaultRole);
+      formData.append("isSentToUker", "Y");
+    } else if (replyTo === 1) {
+      // Internal Note
+      const { id } = filterParamGroup("SDK")[0];
+      formData.append("idEscalatedGroup", id);
+      formData.append("escalatedRole", data.escalatedRole);
+      formData.append("isSentToUker", "N");
+    } else {
+      const { id, defaultRole } = filterParamGroup(data.idEscalatedGroup)[0];
+      formData.append("isSentToUker", "N");
+      formData.append("idEscalatedGroup", id);
+      formData.append("escalatedRole", defaultRole);
+    }
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 20000);
+    });
+
+    axios
+      .post(`${URL}/tickets/${ticketData.id}/history`, formData, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          alert(res.status);
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          alert(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
+        } else if (error.request) {
+          alert(`Request: ${error.request}`);
+        } else {
+          alert(`Msg: ${error.message}`);
+        }
+      })
+      .finally(() => {
+        reset({
+          historyContent: "",
+          escalatedRole: "",
+          idEscalatedGroup: "",
+        });
+        refreshData();
+      });
+
+    // for (const pair of formData.entries()) {
+    //   console.log(`${pair[0]}, ${pair[1]}`);
+    // }
+
+    // console.log(data);
+  }
+
+  return (
+    <LayoutPage session={user} pageTitle="Reply Tickets - Shield">
+      <LayoutPageHeader></LayoutPageHeader>
+      <LayoutPageContent>
+        <DefaultCard>
+          <div className="mx-auto px-4 sm:px-6 lg:px-8 xl:grid xl:grid-cols-3">
+            <div className="xl:col-span-2 xl:pr-8 xl:border-r xl:border-gray-200">
+              <div>
+                <div>
+                  {/* Ticket header start */}
+                  <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:border-b xl:pb-6">
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">
+                        Ticket ID #{ticketData.id}
+                      </h1>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Opened by{" "}
+                        <a href="#" className="font-medium text-gray-900">
+                          {ticketData.picName} - {ticketData.picPN} •{" "}
+                          {ticketData.branchName} ({ticketData.branchCode})
+                        </a>
+                      </p>
+                    </div>
+                    <div className="mt-4 flex space-x-3 md:mt-0">
+                      <WhiteButton type="button">
+                        <PencilIcon
+                          className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                        <span>Edit</span>
+                      </WhiteButton>
+                    </div>
+                  </div>
+                  {/* Ticket header end */}
+
+                  {/* Ticket left content (Mobile version) start */}
+                  <aside className="mt-8 xl:hidden">
+                    <TicketRightSection
+                      ticketStatus={ticketData.ticketStatus}
+                      totalReply={ticketHistoryData.length}
+                      createdAt={ticketData.createdAt}
+                      ticketOwner={ticketData.paramTicketOwner?.fullname}
+                      escalatedRole={getAssignees(ticketData.escalatedRole)}
+                      priority={ticketData.paramTicketPriority?.priorityTicket}
+                      ticketType={ticketData.paramTicketType?.ticketType}
+                      apps={ticketData.paramTicketApps?.name}
+                    />
+                  </aside>
+                  {/* Ticket left content (Mobile version) end */}
+
+                  {/* Ticket main content start */}
+                  <div className="py-3 xl:pt-6 xl:pb-0">
+                    <h2 className="sr-only">Description</h2>
+                    <div className="prose max-w-none">
+                      <p>{ticketData.content}</p>
+                    </div>
+                  </div>
+                  {/* Ticket main content end */}
+                </div>
+              </div>
+
+              {/* Ticket reply section start */}
+              <section
+                aria-labelledby="activity-title"
+                className="mt-8 xl:mt-10"
+              >
+                <div>
+                  <div className="divide-y divide-gray-200">
+                    <div className="pb-4">
+                      <h2
+                        id="activity-title"
+                        className="text-lg font-medium text-gray-900"
+                      >
+                        Activity
+                      </h2>
+                    </div>
+                    <div className="pt-6">
+                      {/* Activity feed*/}
+                      <div className="flow-root">
+                        <ul className="-mb-8">
+                          {ticketHistoryData.map((item, itemIdx) => (
+                            <li key={item.id}>
+                              <div className="relative pb-8">
+                                {itemIdx !== ticketHistoryData.length - 1 ? (
+                                  <span
+                                    className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
+                                    aria-hidden="true"
+                                  />
+                                ) : null}
+                                <div className="relative flex items-start space-x-3">
+                                  <>
+                                    {item.isFromUker === "N" ? (
+                                      <div className="relative">
+                                        <UserCircleIconSolid className="h-10 w-10 bg-white text-gray-500 flex items-center justify-center ring-8 ring-white" />
+
+                                        <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
+                                          <ChatAltIcon
+                                            className="h-5 w-5 text-gray-400"
+                                            aria-hidden="true"
+                                          />
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <div className="relative px-1">
+                                        <div className="h-8 w-8 bg-gray-100 rounded-full ring-8 ring-white flex items-center justify-center">
+                                          <UserCircleIconSolid
+                                            className="h-5 w-5 text-gray-500"
+                                            aria-hidden="true"
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                      <div>
+                                        <div className="text-sm">
+                                          <a
+                                            href="#"
+                                            className="font-medium text-gray-900"
+                                          >
+                                            {
+                                              item.paramHistoryCreatedBy
+                                                .fullname
+                                            }
+                                          </a>
+                                        </div>
+                                        <div className="mt-0.5 text-xs text-gray-500">
+                                          Replied{" "}
+                                          {formatDistanceToNowStrict(
+                                            new Date(item.createdAt)
+                                          )}{" "}
+                                          ago
+                                          {item.isSentToUker === "N" &&
+                                            item.isFromUker === "N" && (
+                                              <>
+                                                <span className="ml-1 mr-2">
+                                                  {" "}
+                                                  &bull;
+                                                </span>
+                                                <Space>
+                                                  <LockClosedIcon className="h-3 w-3" />{" "}
+                                                </Space>
+                                                {item.paramHistoryEscalatedGroup
+                                                  .prefix === "SDK"
+                                                  ? getAssignees(
+                                                      item.escalatedRole
+                                                    )
+                                                  : item
+                                                      .paramHistoryEscalatedGroup
+                                                      .groupName}
+                                              </>
+                                            )}
+                                        </div>
+                                      </div>
+                                      <div className="mt-2 text-sm text-gray-700">
+                                        {item.historyType === "image" ? (
+                                          <AntdImage
+                                            width={200}
+                                            className="rounded-md"
+                                            src={item.historyContent}
+                                            alt=""
+                                          />
+                                        ) : (
+                                          <p>{item.historyContent}</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </>
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {/* Ticket reply textarea start */}
+                      <div className="mt-6">
+                        <div className="flex space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="relative">
+                              <UserCircleIconSolid className="h-10 w-10 text-gray-500 bg-white flex items-center justify-center ring-8 ring-white" />
+
+                              <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
+                                <ChatAltIcon
+                                  className="h-5 w-5 text-gray-400"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            </div>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            {/* Tabs reply Start */}
+                            <div className="hidden sm:block pb-4">
+                              <div className="border-b border-gray-200">
+                                <Tab.Group onChange={handleTicketDest}>
+                                  <Tab.List className="-mb-px flex space-x-8">
+                                    {tabs.map((tab, idx) => (
+                                      <Tab
+                                        key={idx}
+                                        className={({ selected }) =>
+                                          clsx(
+                                            "whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm",
+                                            selected
+                                              ? "border-blue-500 text-blue-600"
+                                              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                          )
+                                        }
+                                      >
+                                        {tab.name}
+                                      </Tab>
+                                    ))}
+                                  </Tab.List>
+                                </Tab.Group>
+                              </div>
+                            </div>
+                            {/* Tabs reply End */}
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                              <div
+                                className={clsx(
+                                  "mb-4",
+                                  visibility.otherDepartment
+                                )}
+                              >
+                                <div className="mt-1 relative rounded-md shadow-sm w-1/2">
+                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <UsersIcon
+                                      className="h-5 w-5 text-gray-400"
+                                      aria-hidden="true"
+                                    />
+                                  </div>
+                                  <select
+                                    {...register("idEscalatedGroup", {
+                                      required: {
+                                        value: required.idEscalatedGroup,
+                                        message: "This is required",
+                                      },
+                                    })}
+                                    name="idEscalatedGroup"
+                                    className="focus:ring-blue-500 focus:border-blue-500 text-gray-700 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                                    defaultValue={null}
+                                  >
+                                    <option value="">Select...</option>
+                                    {optionList.listGroup.map((group) => (
+                                      <option
+                                        value={group.prefix}
+                                        key={group.value}
+                                      >
+                                        {group.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                {errors.idEscalatedGroup && (
+                                  <p className="mt-2 text-sm text-red-600">
+                                    {errors.idEscalatedGroup.message}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Internal SDK Destination Start */}
+                              <div
+                                className={clsx(
+                                  "flex mb-4",
+                                  visibility.internalNote
+                                )}
+                              >
+                                <div className="flex items-center mr-4">
+                                  <input
+                                    {...register("escalatedRole", {
+                                      required: required.escalatedRole,
+                                    })}
+                                    type="radio"
+                                    value={0}
+                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                  />
+                                  <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                    Operator
+                                  </label>
+                                </div>
+                                <div className="flex items-center mr-4">
+                                  <input
+                                    {...register("escalatedRole", {
+                                      required: required.escalatedRole,
+                                    })}
+                                    type="radio"
+                                    value={1}
+                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                  />
+                                  <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                    Engineer
+                                  </label>
+                                </div>
+                                {errors.escalatedRole && (
+                                  <p className="text-sm text-red-600">
+                                    {errors.escalatedRole.message}
+                                  </p>
+                                )}
+                              </div>
+                              {/* Internal SDK Destination End */}
+
+                              <div>
+                                <label
+                                  htmlFor="historyContent"
+                                  className="sr-only"
+                                >
+                                  historyContent
+                                </label>
+
+                                <TextareaInput
+                                  {...register("historyContent", {
+                                    required: "This is required",
+                                  })}
+                                  placeholder="Add a reply..."
+                                />
+
+                                {errors.historyContent && (
+                                  <p className="mt-2 text-sm text-red-600">
+                                    {errors.historyContent.message}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="mt-6 flex items-center justify-end space-x-4">
+                                <WhiteButton type="button">
+                                  <CheckCircleIcon
+                                    className="-ml-1 mr-2 h-5 w-5 text-green-500"
+                                    aria-hidden="true"
+                                  />
+                                  Close issue
+                                </WhiteButton>
+                                <PrimaryButton
+                                  type="submit"
+                                  className={
+                                    isSubmitting
+                                      ? "disabled:opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }
+                                  disabled={isSubmitting}
+                                >
+                                  {isSubmitting && <Spinner />}
+                                  Reply
+                                </PrimaryButton>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Ticket reply textarea end */}
+                    </div>
+                  </div>
+                </div>
+              </section>
+              {/* Ticket reply section end */}
+            </div>
+            {/* Ticket left content (Desktop version) start */}
+            <aside className="hidden xl:block xl:pl-8">
+              <TicketRightSection
+                ticketStatus={ticketData.ticketStatus}
+                totalReply={ticketHistoryData.length}
+                createdAt={ticketData.createdAt}
+                ticketOwner={ticketData.paramTicketOwner?.fullname}
+                escalatedRole={getAssignees(ticketData.escalatedRole)}
+                priority={ticketData.paramTicketPriority?.priorityTicket}
+                ticketType={ticketData.paramTicketType?.ticketType}
+                apps={ticketData.paramTicketApps?.name}
+              />
+            </aside>
+            {/* Ticket left content (Desktop version) end */}
+          </div>
+        </DefaultCard>
+      </LayoutPageContent>
+    </LayoutPage>
+  );
+}
 
 export const getServerSideProps = withSession(async function ({
   req,
@@ -35,13 +619,15 @@ export const getServerSideProps = withSession(async function ({
     };
   }
 
-  res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/tickets/${params.id}/history`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
+  res = await fetch(`${URL}/tickets/${params.id}/history`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
   const data = await res.json();
+
+  const getListGroup = await fetch(
+    `${URL}/parameters/group?isActive=Y&isTicket=Y`
+  );
+  const listGroup = await getListGroup.json();
 
   if (res.status === 200) {
     // Pass data to the page via props
@@ -49,7 +635,8 @@ export const getServerSideProps = withSession(async function ({
       props: {
         user: req.session.get("user"),
         ticketData: data.ticketData,
-        ticketHistoryData: data.ticketHistoryData,
+        ticketHistoryData: data.ticketHistoryData.slice(0, -1),
+        paramGroup: listGroup.data,
       },
     };
   } else if (res.status === 401) {
@@ -71,531 +658,3 @@ export const getServerSideProps = withSession(async function ({
     };
   }
 });
-
-export default function ReplyTicket({ user, ticketData, ticketHistoryData }) {
-  const [assignees, setAssigneees] = useState();
-
-  useEffect(() => {
-    switch (ticketData.escalatedRole) {
-      case "0":
-        setAssigneees("Operator SDK");
-        break;
-      case "1":
-        setAssigneees("Engineer SDK");
-        break;
-      case "2":
-        setAssigneees("Engineer Bagian Lain");
-        break;
-      default:
-        setAssigneees(ticketData.escalatedRole);
-    }
-  }, [ticketData.escalatedRole]);
-
-  return (
-    <>
-      <Layout session={user}>
-        <Head>
-          <title>Reply Ticket - ID {ticketData.id}</title>
-        </Head>
-        <section>
-          <div className="py-8 xl:py-10 bg-white">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 xl:max-w-5xl xl:grid xl:grid-cols-3">
-              <div className="xl:col-span-2 xl:pr-8 xl:border-r xl:border-gray-200">
-                <div>
-                  <div>
-                    <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:border-b xl:pb-6">
-                      <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
-                          Ticket ID #{ticketData.id}
-                        </h1>
-                        <p className="mt-2 text-sm text-gray-500">
-                          Opened by{" "}
-                          <a href="#" className="font-medium text-gray-900">
-                            {ticketData.picName} - {ticketData.picPN} •{" "}
-                            {ticketData.branchName} ({ticketData.branchCode})
-                          </a>
-                        </p>
-                      </div>
-                      <div className="mt-4 flex space-x-3 md:mt-0">
-                        <button
-                          type="button"
-                          className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                        >
-                          <PencilIcon
-                            className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span>Edit</span>
-                        </button>
-                      </div>
-                    </div>
-                    <aside className="mt-8 xl:hidden">
-                      <h2 className="sr-only">Details</h2>
-                      <div className="space-y-5">
-                        <div className="flex items-center space-x-2">
-                          {ticketData.ticketStatus == "Open" ? (
-                            <>
-                              <LockOpenIcon
-                                className="h-5 w-5 text-red-500"
-                                aria-hidden="true"
-                              />
-                              <span className="text-red-700 text-sm font-medium">
-                                {ticketData.ticketStatus} Issue
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <LockClosedIcon
-                                className="h-5 w-5 text-green-500"
-                                aria-hidden="true"
-                              />
-                              <span className="text-green-700 text-sm font-medium">
-                                {ticketData.ticketStatus} Issue
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <ChatAltIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span className="text-gray-900 text-sm font-medium">
-                            {ticketHistoryData.length} reply
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <CalendarIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span className="text-gray-900 text-sm font-medium">
-                            Created on{" "}
-                            <time>
-                              {format(
-                                new Date(ticketData.createdAt),
-                                "dd MMM yyyy, HH:mm"
-                              )}
-                            </time>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-6 border-t border-b border-gray-200 py-6 space-y-8">
-                        <div>
-                          <h2 className="text-sm font-medium text-gray-500">
-                            Assignees
-                          </h2>
-                          <ul className="mt-3 space-y-3">
-                            <li className="flex justify-start">
-                              <a
-                                href="#"
-                                className="flex items-center space-x-3"
-                              >
-                                <div className="flex-shrink-0">
-                                  <img
-                                    className="h-5 w-5 rounded-full"
-                                    src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-                                    alt=""
-                                  />
-                                </div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {assignees}
-                                </div>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h2 className="text-sm font-medium text-gray-500">
-                            Category
-                          </h2>
-                          <ul className="mt-2 leading-8">
-                            <li className="inline">
-                              <a
-                                href="#"
-                                className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                              >
-                                <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                  <span
-                                    className="h-1.5 w-1.5 rounded-full bg-rose-500"
-                                    aria-hidden="true"
-                                  />
-                                </div>
-                                <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                  {ticketData.idTicketType
-                                    ? ticketData.paramTicketType.ticketType
-                                    : "None"}
-                                </div>
-                              </a>{" "}
-                            </li>
-
-                            {ticketData.idApps && (
-                              <li className="inline">
-                                <a
-                                  href="#"
-                                  className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                                >
-                                  <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                    <span
-                                      className="h-1.5 w-1.5 rounded-full bg-blue-500"
-                                      aria-hidden="true"
-                                    />
-                                  </div>
-                                  <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                    {ticketData.paramTicketApps.name}
-                                  </div>
-                                </a>{" "}
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-                      </div>
-                    </aside>
-                    <div className="py-3 xl:pt-6 xl:pb-0">
-                      <h2 className="sr-only">Description</h2>
-                      <div className="prose max-w-none">
-                        <p>{ticketData.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <section
-                  aria-labelledby="activity-title"
-                  className="mt-8 xl:mt-10"
-                >
-                  <div>
-                    <div className="divide-y divide-gray-200">
-                      <div className="pb-4">
-                        <h2
-                          id="activity-title"
-                          className="text-lg font-medium text-gray-900"
-                        >
-                          Activity
-                        </h2>
-                      </div>
-                      <div className="pt-6">
-                        {/* Activity feed*/}
-                        <div className="flow-root">
-                          <ul className="-mb-8">
-                            {activity.map((item, itemIdx) => (
-                              <li key={item.id}>
-                                <div className="relative pb-8">
-                                  {itemIdx !== activity.length - 1 ? (
-                                    <span
-                                      className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
-                                      aria-hidden="true"
-                                    />
-                                  ) : null}
-                                  <div className="relative flex items-start space-x-3">
-                                    {item.type === "comment" ? (
-                                      <>
-                                        <div className="relative">
-                                          <img
-                                            className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                                            src={item.imageUrl}
-                                            alt=""
-                                          />
-
-                                          <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-                                            <ChatAltIcon
-                                              className="h-5 w-5 text-gray-400"
-                                              aria-hidden="true"
-                                            />
-                                          </span>
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                          <div>
-                                            <div className="text-sm">
-                                              <a
-                                                href={item.person.href}
-                                                className="font-medium text-gray-900"
-                                              >
-                                                {item.person.name}
-                                              </a>
-                                            </div>
-                                            <p className="mt-0.5 text-sm text-gray-500">
-                                              Replied {item.date}
-                                            </p>
-                                          </div>
-                                          <div className="mt-2 text-sm text-gray-700">
-                                            <p>{item.comment}</p>
-                                          </div>
-                                        </div>
-                                      </>
-                                    ) : item.type === "assignment" ? (
-                                      <>
-                                        <div>
-                                          <div className="relative px-1">
-                                            <div className="h-8 w-8 bg-gray-100 rounded-full ring-8 ring-white flex items-center justify-center">
-                                              <UserCircleIconSolid
-                                                className="h-5 w-5 text-gray-500"
-                                                aria-hidden="true"
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div className="min-w-0 flex-1 py-1.5">
-                                          <div className="text-sm text-gray-500">
-                                            <a
-                                              href={item.person.href}
-                                              className="font-medium text-gray-900"
-                                            >
-                                              {item.person.name}
-                                            </a>{" "}
-                                            assigned{" "}
-                                            <a
-                                              href={item.assigned.href}
-                                              className="font-medium text-gray-900"
-                                            >
-                                              {item.assigned.name}
-                                            </a>{" "}
-                                            <span className="whitespace-nowrap">
-                                              {item.date}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <div>
-                                          <div className="relative px-1">
-                                            <div className="h-8 w-8 bg-gray-100 rounded-full ring-8 ring-white flex items-center justify-center">
-                                              <TagIcon
-                                                className="h-5 w-5 text-gray-500"
-                                                aria-hidden="true"
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div className="min-w-0 flex-1 py-0">
-                                          <div className="text-sm leading-8 text-gray-500">
-                                            <span className="mr-0.5">
-                                              <a
-                                                href={item.person.href}
-                                                className="font-medium text-gray-900"
-                                              >
-                                                {item.person.name}
-                                              </a>{" "}
-                                              added category
-                                            </span>{" "}
-                                            <span className="mr-0.5">
-                                              {item.tags.map((tag) => (
-                                                <Fragment key={tag.name}>
-                                                  <a
-                                                    href={tag.href}
-                                                    className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5 text-sm"
-                                                  >
-                                                    <span className="absolute flex-shrink-0 flex items-center justify-center">
-                                                      <span
-                                                        className={classNames(
-                                                          tag.color,
-                                                          "h-1.5 w-1.5 rounded-full"
-                                                        )}
-                                                        aria-hidden="true"
-                                                      />
-                                                    </span>
-                                                    <span className="ml-3.5 font-medium text-gray-900">
-                                                      {tag.name}
-                                                    </span>
-                                                  </a>{" "}
-                                                </Fragment>
-                                              ))}
-                                            </span>
-                                            <span className="whitespace-nowrap">
-                                              {item.date}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="mt-6">
-                          <div className="flex space-x-3">
-                            <div className="flex-shrink-0">
-                              <div className="relative">
-                                <img
-                                  className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                                  src="https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-                                  alt=""
-                                />
-
-                                <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-                                  <ChatAltIcon
-                                    className="h-5 w-5 text-gray-400"
-                                    aria-hidden="true"
-                                  />
-                                </span>
-                              </div>
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <form action="#">
-                                <div>
-                                  <label htmlFor="comment" className="sr-only">
-                                    Comment
-                                  </label>
-                                  <textarea
-                                    id="comment"
-                                    name="comment"
-                                    rows={3}
-                                    className="shadow-sm block w-full focus:ring-gray-900 focus:border-gray-900 sm:text-sm border border-gray-300 rounded-md"
-                                    placeholder="Reply ticket"
-                                    defaultValue={""}
-                                  />
-                                </div>
-                                <div className="mt-6 flex items-center justify-end space-x-4">
-                                  <button
-                                    type="button"
-                                    className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                                  >
-                                    <CheckCircleIcon
-                                      className="-ml-1 mr-2 h-5 w-5 text-green-500"
-                                      aria-hidden="true"
-                                    />
-                                    <span>Close issue</span>
-                                  </button>
-                                  <button
-                                    type="submit"
-                                    className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700"
-                                  >
-                                    Comment
-                                  </button>
-                                </div>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </div>
-              <aside className="hidden xl:block xl:pl-8">
-                <h2 className="sr-only">Details</h2>
-                <div className="space-y-5">
-                  <div className="flex items-center space-x-2">
-                    {ticketData.ticketStatus == "Open" ? (
-                      <>
-                        <LockOpenIcon
-                          className="h-5 w-5 text-red-500"
-                          aria-hidden="true"
-                        />
-                        <span className="text-red-700 text-sm font-medium">
-                          {ticketData.ticketStatus} Issue
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <LockClosedIcon
-                          className="h-5 w-5 text-green-500"
-                          aria-hidden="true"
-                        />
-                        <span className="text-green-700 text-sm font-medium">
-                          {ticketData.ticketStatus} Issue
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <ChatAltIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    <span className="text-gray-900 text-sm font-medium">
-                      {ticketHistoryData.length} reply
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CalendarIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    <span className="text-gray-900 text-sm font-medium">
-                      Created on{" "}
-                      <time>
-                        {format(
-                          new Date(ticketData.createdAt),
-                          "dd MMM yyyy, HH:mm"
-                        )}
-                      </time>
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-6 border-t border-gray-200 py-6 space-y-8">
-                  <div>
-                    <h2 className="text-sm font-medium text-gray-500">
-                      Assignees
-                    </h2>
-                    <ul className="mt-3 space-y-3">
-                      <li className="flex justify-start">
-                        <a href="#" className="flex items-center space-x-3">
-                          <div className="flex-shrink-0">
-                            <img
-                              className="h-5 w-5 rounded-full"
-                              src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-                              alt=""
-                            />
-                          </div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {assignees}
-                          </div>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-medium text-gray-500">
-                      Category
-                    </h2>
-                    <ul className="mt-2 leading-8">
-                      <li className="inline">
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                        >
-                          <div className="absolute flex-shrink-0 flex items-center justify-center">
-                            <span
-                              className="h-1.5 w-1.5 rounded-full bg-rose-500"
-                              aria-hidden="true"
-                            />
-                          </div>
-                          <div className="ml-3.5 text-sm font-medium text-gray-900">
-                            {ticketData.idTicketType
-                              ? ticketData.paramTicketType.ticketType
-                              : "None"}
-                          </div>
-                        </a>{" "}
-                      </li>
-                      {ticketData.idApps && (
-                        <li className="inline">
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                          >
-                            <div className="absolute flex-shrink-0 flex items-center justify-center">
-                              <span
-                                className="h-1.5 w-1.5 rounded-full bg-indigo-500"
-                                aria-hidden="true"
-                              />
-                            </div>
-                            <div className="ml-3.5 text-sm font-medium text-gray-900">
-                              {ticketData.paramTicketApps.name}
-                            </div>
-                          </a>{" "}
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              </aside>
-            </div>
-          </div>
-        </section>
-      </Layout>
-    </>
-  );
-}

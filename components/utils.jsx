@@ -12,14 +12,14 @@ function classNames(...classes) {
 function getCriticalityIcon(criticality) {
   let iconName;
   criticality.startsWith("low")
-    ? (iconName = "low.svg")
+    ? (iconName = "/icon-priority/low.svg")
     : criticality.startsWith("medium")
-    ? (iconName = "medium.svg")
+    ? (iconName = "/icon-priority/medium.svg")
     : criticality.startsWith("high")
-    ? (iconName = "high.svg")
+    ? (iconName = "/icon-priority/high.svg")
     : criticality.startsWith("critical")
-    ? (iconName = "highest.svg")
-    : (iconName = "trivial.svg");
+    ? (iconName = "/icon-priority/highest.svg")
+    : (iconName = "/icon-priority/trivial.svg");
 
   return iconName;
 }
@@ -61,16 +61,11 @@ const IconOption = (props) => {
   return (
     <Option {...props}>
       <img
-        src={`/icon-priority/${getCriticalityIcon(criticality)}`}
+        src={getCriticalityIcon(criticality)}
         alt=""
         className="mr-1.5 h-5 w-5"
       />{" "}
-      {props.data.label} |{" "}
-      {criticality === "critical severity 1"
-        ? "CS 1"
-        : criticality === "critical severity 2"
-        ? "CS 2"
-        : props.data.criticality}
+      {props.data.label} | {props.data.criticality}
     </Option>
   );
 };
@@ -83,16 +78,11 @@ const ValueOption = (props) => {
   return (
     <SingleValue {...props}>
       <img
-        src={`/icon-priority/${getCriticalityIcon(criticality)}`}
+        src={getCriticalityIcon(criticality)}
         alt=""
         className="mr-1.5 h-5 w-5"
       />{" "}
-      {props.data.label} |{" "}
-      {criticality === "critical severity 1"
-        ? "CS 1"
-        : criticality === "critical severity 2"
-        ? "CS 2"
-        : props.data.criticality}
+      {props.data.label} | {props.data.criticality}
     </SingleValue>
   );
 };
@@ -290,4 +280,5 @@ export {
   DisclosureOpen,
   DisclosureDefault,
   createParam,
+  getCriticalityIcon,
 };

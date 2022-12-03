@@ -283,6 +283,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
         ) {
           return "#" + hex;
         }),
+        order: 1,
+      },
+      {
+        label: "Total Incident",
+        data: dashboardIncident.data.map((d) => d.TotalIncident),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+        type: "line",
+        order: 0,
       },
     ],
   };
@@ -297,6 +309,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
         ) {
           return "#" + hex;
         }),
+        order: 1,
+      },
+      {
+        label: "Total Application",
+        data: dashboardIncident.data.map((d) => d.TotalApps),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+        type: "line",
+        order: 0,
       },
     ],
   };
@@ -371,6 +395,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                       return "#" + hex;
                     }
                   ),
+                  order: 1,
+                },
+                {
+                  label: "Total Incident",
+                  data: res.data.data.map((d) => d.TotalIncident),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                  type: "line",
+                  order: 0,
                 },
               ],
             });
@@ -385,6 +421,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                       return "#" + hex;
                     }
                   ),
+                  order: 1,
+                },
+                {
+                  label: "Total Application",
+                  data: res.data.data.map((d) => d.TotalApps),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                  type: "line",
+                  order: 0,
                 },
               ],
             });

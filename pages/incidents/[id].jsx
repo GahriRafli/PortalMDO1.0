@@ -15,7 +15,7 @@ import { CardContent } from "components/ui/card-content";
 import { PrimaryButton } from "../../components/ui/button/primary-button";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import { classNames, styledReactSelect } from "components/utils";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { Listbox, Transition, Switch } from "@headlessui/react";
 import {
   PencilIcon,
@@ -350,39 +350,40 @@ function IncidentDetail({ user, incident, comments }) {
   });
 
   const handleEditableTitle = (value) => {
-    editableData.incidentName !== value &&
+    if (editableData.incidentName !== value) {
       setEditableData((editableData) => ({
         ...editableData,
         titleLoading: true,
       }));
-    axios
-      .patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
-        { incidentName: value },
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      )
-      .then(function (response) {
-        if (response.status === 200) {
-          // setIncidentName(value);
+      axios
+        .patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
+          { incidentName: value },
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
+        .then(function (response) {
+          if (response.status === 200) {
+            // setIncidentName(value);
+            setEditableData((editableData) => ({
+              ...editableData,
+              incidentName: value,
+              titleLoading: false,
+            }));
+          } else {
+            toast.error(`Failed to update: ${response.data.message}`);
+          }
+        })
+        .catch(function (error) {
+          // Error 😨
+          toast.error(`${error.response.data.message}`);
           setEditableData((editableData) => ({
             ...editableData,
-            incidentName: value,
             titleLoading: false,
           }));
-        } else {
-          toast.error(`Failed to update: ${response.data.message}`);
-        }
-      })
-      .catch(function (error) {
-        // Error 😨
-        toast.error(`${error.response.data.message}`);
-        setEditableData((editableData) => ({
-          ...editableData,
-          titleLoading: false,
-        }));
-      });
+        });
+    }
   };
 
   // Handle validate datetime

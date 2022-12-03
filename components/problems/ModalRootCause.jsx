@@ -2,7 +2,7 @@ import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { BadgeCheckIcon } from "@heroicons/react/outline";
 import { useForm } from "react-hook-form";
-import { Spinner } from "components/ui/spinner";
+import { Spinner } from "components/ui/svg/spinner";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import axios from "axios";
