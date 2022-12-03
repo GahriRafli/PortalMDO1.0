@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import withSession from "../../lib/session";
-import { Tab } from "@headlessui/react";
+import { Dialog, Tab } from "@headlessui/react";
 import {
   ChatAltIcon,
   CheckCircleIcon,
@@ -22,10 +22,12 @@ import { Space, Image as AntdImage } from "antd";
 import { TicketRightSection } from "components/tickets/ticket-right-section";
 import clsx from "clsx";
 import { useForm } from "react-hook-form";
-import { async } from "regenerator-runtime";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Spinner } from "components/ui/svg/spinner";
+import { toast } from "react-hot-toast";
+import { ModalContext } from "lib/context";
+import Modal from "components/ui/modal/basic-modal";
 
 const URL = process.env.NEXT_PUBLIC_API_URL;
 const tabs = [
@@ -44,6 +46,14 @@ export default function ReplyTicket({
   const { register, unregister, handleSubmit, reset, formState } = useForm();
   const { isSubmitting, errors } = formState;
 
+  // react hook form for close ticket
+  const {
+    register: register2,
+    formState: { errors: errors2, isSubmitting: isSubmitting2 },
+    handleSubmit: handleSubmit2,
+    reset: reset2,
+  } = useForm();
+
   const [replyTo, setReplyTo] = useState(0);
   const [visibility, setVisibility] = useState({
     internalNote: "hidden",
@@ -58,7 +68,11 @@ export default function ReplyTicket({
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log(isSubmitting);
+  const [showModal, updateShowModal] = useState(false);
+  const [showModal2, updateShowModal2] = useState(false);
+
+  const toggleModal = () => updateShowModal((state) => !state);
+  const toggleModal2 = () => updateShowModal2((state) => !state);
 
   const refreshData = () => {
     router.replace(router.asPath);
@@ -156,16 +170,6 @@ export default function ReplyTicket({
     }
   };
 
-  // useEffect(() => {
-  //   if (isSubmitSuccessful) {
-  //     reset({
-  //       historyContent: "",
-  //       escalatedRole: "",
-  //       idEscalatedGroup: "",
-  //     });
-  //   }
-  // }, [formState, reset, isSubmitSuccessful]);
-
   function onSubmit(data) {
     const formData = new FormData();
     formData.append("historyContent", data.historyContent);
@@ -189,30 +193,27 @@ export default function ReplyTicket({
       formData.append("escalatedRole", defaultRole);
     }
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 20000);
-    });
-
+    setIsLoading(true);
     axios
       .post(`${URL}/tickets/${ticketData.id}/history`, formData, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then((res) => {
         if (res.status !== 200) {
-          alert(res.status);
+          toast.error(res.status);
+        } else {
+          toast.success("Message successfully sent.");
         }
       })
       .catch((error) => {
         if (error.response) {
-          alert(
+          toast.error(
             `${error.response.data.message} (Code: ${error.response.status})`
           );
         } else if (error.request) {
-          alert(`Request: ${error.request}`);
+          toast.error(`Request: ${error.request}`);
         } else {
-          alert(`Msg: ${error.message}`);
+          toast.error(`Msg: ${error.message}`);
         }
       })
       .finally(() => {
@@ -221,6 +222,7 @@ export default function ReplyTicket({
           escalatedRole: "",
           idEscalatedGroup: "",
         });
+        setIsLoading(false);
         refreshData();
       });
 
@@ -230,6 +232,29 @@ export default function ReplyTicket({
 
     // console.log(data);
   }
+
+  const handleCloseSubmit = (data) => {
+    axios
+      .patch(`${URL}/tickets/${ticketData.id}/close`, data, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          toast.error(res.status);
+        } else toast.success("Ticket has been closed.");
+      })
+      .catch((error) => {
+        if (error.response) {
+          toast.error(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
+        } else if (error.request) {
+          toast.error(`Request: ${error.request}`);
+        } else {
+          toast.error(`Msg: ${error.message}`);
+        }
+      });
+  };
 
   return (
     <LayoutPage session={user} pageTitle="Reply Tickets - Shield">
@@ -255,13 +280,97 @@ export default function ReplyTicket({
                       </p>
                     </div>
                     <div className="mt-4 flex space-x-3 md:mt-0">
-                      <WhiteButton type="button">
-                        <PencilIcon
-                          className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                        <span>Edit</span>
-                      </WhiteButton>
+                      <ModalContext.Provider
+                        value={{ showModal2, toggleModal2 }}
+                      >
+                        <WhiteButton type="button" onClick={toggleModal2}>
+                          <PencilIcon
+                            className="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                          <span>Edit</span>
+                        </WhiteButton>
+                        <Modal
+                          canShow={showModal2}
+                          updateModalState={toggleModal2}
+                        >
+                          etes
+                        </Modal>
+                      </ModalContext.Provider>
+                      <ModalContext.Provider value={{ showModal, toggleModal }}>
+                        <WhiteButton type="button" onClick={toggleModal}>
+                          <CheckCircleIcon
+                            className="-ml-1 mr-2 h-5 w-5 text-green-500"
+                            aria-hidden="true"
+                          />
+                          Close issue
+                        </WhiteButton>
+                        <Modal
+                          canShow={showModal}
+                          updateModalState={toggleModal}
+                        >
+                          <>
+                            <form
+                              key={2}
+                              onSubmit={handleSubmit2(handleCloseSubmit)}
+                            >
+                              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div className="sm:flex sm:items-start">
+                                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                                    <CheckCircleIcon
+                                      className="h-6 w-6 text-green-500"
+                                      aria-hidden="true"
+                                    />
+                                  </div>
+                                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                    <Dialog.Title
+                                      as="h3"
+                                      className="text-lg leading-6 font-medium text-gray-900"
+                                    >
+                                      Close Issue
+                                    </Dialog.Title>
+                                    <div className="mt-2">
+                                      <p className="text-sm text-gray-500">
+                                        Are you sure you want to close this
+                                        issue? All of your data will be saved.
+                                        This action cannot be undone.
+                                      </p>
+                                      <TextareaInput
+                                        {...register2("resolution", {
+                                          required: "This is required",
+                                        })}
+                                        className="mt-3"
+                                        placeholder="Add your resolution..."
+                                      />
+
+                                      {errors2.resolution && (
+                                        <p className="mt-2 text-sm text-red-600">
+                                          {errors2.resolution.message}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                <PrimaryButton
+                                  type="submit"
+                                  disabled={isSubmitting2}
+                                >
+                                  {isSubmitting2 ? "Loading..." : "Submit"}
+                                </PrimaryButton>
+                                <WhiteButton
+                                  type="button"
+                                  className="mr-2"
+                                  onClick={toggleModal}
+                                >
+                                  Cancel
+                                </WhiteButton>
+                              </div>
+                            </form>
+                          </>
+                        </Modal>
+                      </ModalContext.Provider>
                     </div>
                   </div>
                   {/* Ticket header end */}
@@ -552,24 +661,22 @@ export default function ReplyTicket({
                               </div>
 
                               <div className="mt-6 flex items-center justify-end space-x-4">
-                                <WhiteButton type="button">
-                                  <CheckCircleIcon
-                                    className="-ml-1 mr-2 h-5 w-5 text-green-500"
-                                    aria-hidden="true"
-                                  />
-                                  Close issue
-                                </WhiteButton>
                                 <PrimaryButton
                                   type="submit"
                                   className={
-                                    isSubmitting
+                                    isLoading
                                       ? "disabled:opacity-50 cursor-not-allowed"
                                       : ""
                                   }
-                                  disabled={isSubmitting}
+                                  disabled={isLoading}
                                 >
-                                  {isSubmitting && <Spinner />}
-                                  Reply
+                                  {isLoading ? (
+                                    <>
+                                      <Spinner /> Sending...
+                                    </>
+                                  ) : (
+                                    "Reply"
+                                  )}
                                 </PrimaryButton>
                               </div>
                             </form>

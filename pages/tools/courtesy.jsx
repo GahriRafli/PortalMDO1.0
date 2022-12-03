@@ -15,9 +15,19 @@ import { styledReactSelect } from "components/utils";
 import { Spinner } from "components/ui/svg/spinner";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { ExclamationIcon } from "@heroicons/react/solid";
 
 export default function Courtesy({ user }) {
-  const { register, handleSubmit, formState, control } = useForm();
+  const defaultValues = {
+    categoryName: null,
+    broadcastType: null,
+    broadcastMessage: "",
+  };
+
+  const { register, handleSubmit, formState, control, reset } = useForm({
+    defaultValues: defaultValues,
+  });
   const { errors, isSubmitting } = formState;
 
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -25,6 +35,10 @@ export default function Courtesy({ user }) {
   const [isLoading, setIsLoading] = useState(false);
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const router = useRouter();
+
+  const refreshData = () => {
+    router.replace(router.asPath);
+  };
 
   useEffect(() => {
     getCategoryBroadcast()
@@ -36,7 +50,7 @@ export default function Courtesy({ user }) {
         setCategoryOptions(optionList);
       })
       .catch((err) => {
-        throw err;
+        toast.error(err);
       });
   }, []);
 
@@ -51,7 +65,7 @@ export default function Courtesy({ user }) {
           setIsLoading(false);
         })
         .catch((err) => {
-          throw err;
+          toast.error(err);
         });
     }
   }
@@ -69,21 +83,21 @@ export default function Courtesy({ user }) {
         { headers: { Authorization: `Bearer ${user.accessToken}` } }
       )
       .then((res) => {
-        console.log(res);
-        router.reload(window.location.pathname);
+        reset(defaultValues);
+        refreshData();
+        toast.success("Message successfully sent.");
       })
       .catch((error) => {
         if (error.response) {
-          alert(
+          toast.error(
             `${error.response.data.message} (Code: ${error.response.status})`
           );
         } else if (error.request) {
-          alert(`Request: ${error.request}`);
+          toast.error(`Request: ${error.request}`);
         } else {
-          alert(`Msg: ${error.message}`);
+          toast.error(`Msg: ${error.message}`);
         }
       });
-    console.log(data);
   };
 
   return (
@@ -170,6 +184,29 @@ export default function Courtesy({ user }) {
                       <label className="block mb-1 text-sm font-medium text-gray-700">
                         Messages
                       </label>
+                      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-2 mb-3">
+                        <div className="flex">
+                          <div className="flex-shrink-0">
+                            <ExclamationIcon
+                              className="h-5 w-5 text-yellow-400"
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                              You don't need to add headers and footers like{" "}
+                              <span className="font-medium text-yellow-700 hover:text-yellow-600">
+                                Yth. Bapak/Ibu, IT Command Center
+                              </span>{" "}
+                              and{" "}
+                              <span className="font-medium text-yellow-700 hover:text-yellow-600">
+                                Timestamp
+                              </span>
+                              . Let&apos;s make life easier dude! 🤙
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       <TextareaInput
                         {...register("broadcastMessage", {
                           required: "This is required!",
@@ -206,7 +243,12 @@ export default function Courtesy({ user }) {
                       "Send"
                     )}
                   </PrimaryButton>
-                  <SecondaryButton>Reset</SecondaryButton>
+                  <SecondaryButton
+                    type="button"
+                    onClick={() => reset(defaultValues)}
+                  >
+                    Reset
+                  </SecondaryButton>
                 </div>
                 {/* Card Footer End */}
               </div>
