@@ -10,10 +10,10 @@ function CreateNew({ user }) {
     <>
       <Layout key="LayoutCreateNew" session={user}>
         <Head>
-          <title>Create New Problem Ticket</title>
+          <title>Problem Non-Incident Ticket</title>
         </Head>
         <section>
-          <PageHeader title="Create New Problem Ticket" />
+          <PageHeader title="Problem Non-Incident Ticket" />
 
           <div className="hidden sm:block">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">

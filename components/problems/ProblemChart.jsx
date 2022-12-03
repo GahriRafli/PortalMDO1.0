@@ -31,19 +31,44 @@ ChartJS.register(
   ArcElement
 );
 
-export const ProblemChart = ({ chartData, title, chartType, onDisplay }) => {
+export const ProblemChart = ({
+  chartData,
+  indexAxis,
+  title,
+  chartType,
+  onDisplay,
+  stringLimit,
+}) => {
   return (
-    <div>
-      <Chart
-        data={chartData}
-        options={{
-          plugins: {
-            title: { display: onDisplay, text: `${title}` },
-            legend: { display: onDisplay, position: "bottom" },
+    <Chart
+      data={chartData}
+      options={{
+        plugins: {
+          title: { display: onDisplay, text: `${title}` },
+          legend: { display: onDisplay, position: "bottom" },
+        },
+        indexAxis: indexAxis,
+        scales: {
+          x: {
+            ticks: {
+              callback: function (value, index, ticks_array) {
+                let characterLimit = stringLimit;
+                let label = this.getLabelForValue(value);
+                if (label.length >= characterLimit) {
+                  return (
+                    label
+                      .slice(0, label.length)
+                      .substring(0, characterLimit - 1)
+                      .trim() + "..."
+                  );
+                }
+                return label;
+              },
+            },
           },
-        }}
-        type={chartType}
-      />
-    </div>
+        },
+      }}
+      type={chartType}
+    />
   );
 };

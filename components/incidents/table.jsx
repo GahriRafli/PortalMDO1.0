@@ -2,49 +2,24 @@ import React, { useImperativeHandle } from "react";
 import {
   useTable,
   useSortBy,
-  useGlobalFilter,
-  useFilters,
-  usePagination,
 } from "react-table";
-import {
-  ChevronDoubleLeftIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronDoubleRightIcon,
-} from "@heroicons/react/solid";
-import { PageButton } from "../ui/button/pagination-button";
 import { SortIcon, SortUpIcon, SortDownIcon } from "../ui/short-icon";
 import { classNames } from "../utils";
 
 const Table = React.forwardRef(({ columns, data }, ref) => {
   const instance = useTable(
     { columns, data },
-    useGlobalFilter,
-    useFilters,
-    useSortBy,
-    usePagination
+    useSortBy
   );
 
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    page,
-    nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    gotoPage,
-    pageCount,
-    setPageSize,
-    pageOptions,
+    rows,
     prepareRow,
-    state,
-    setGlobalFilter,
-    preGlobalFilteredRows,
+ 
   } = instance;
-
-  const { globalFilter, pageIndex, pageSize } = state;
 
   useImperativeHandle(ref, () => instance);
 
@@ -93,7 +68,7 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
               {...getTableBodyProps()}
               className="bg-white divide-y divide-gray-200"
             >
-              {page.map((row) => {
+              {rows.map((row, i) => {
                 prepareRow(row);
                 return (
                   <tr {...row.getRowProps()} className="bg-white">
