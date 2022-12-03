@@ -3,6 +3,7 @@ import { LayoutMain } from "./layout-main";
 import { LayoutRoot } from "./layout-root";
 import { LayoutSidebar } from "./layout-sidebar";
 import Head from "next/head";
+import { CustomToaster } from "components/ui/notifications/custom-toast";
 
 export const LayoutPage = ({ children, session, pageTitle }) => {
   return (
@@ -17,6 +18,7 @@ export const LayoutPage = ({ children, session, pageTitle }) => {
         <meta name="robots" content="noindex,nofollow" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
+      <CustomToaster />
       <LayoutSidebar session={session} />
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         <LayoutNav session={session} />

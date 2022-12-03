@@ -61,11 +61,28 @@ function addIncident({ user }) {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const router = useRouter();
   const [enabled, setEnabled] = useState(false); // Untuk toggle incident resolved
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [impactOptions, setImpactOptions] = useState([]);
   const [problemTypeOptions, setProblemTypeOptions] = useState([]);
   const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
   const [isProblem, setIsProblem] = useState(false); // Untuk toggle permanent fix
+
+  // Get data category system
+  useEffect(() => {
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/categorysystem?isActive=Y`
+      )
+      .then((response) => {
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.categorySystem,
+        }));
+        setCategoryOptions(data);
+      })
+      .catch((err) => toast.error(`Category System ${err}`));
+  }, []);
 
   // Get data urgency
   useEffect(() => {
@@ -202,6 +219,7 @@ function addIncident({ user }) {
     const sqlDateFormat = "yyyy-MM-dd HH:mm";
     const mandatoryObj = {
       idApps: data.idApps.value,
+      idCategorySystem: data.idCategorySystem.value,
       startTime: format(new Date(data.startTime), sqlDateFormat),
       logStartTime: format(new Date(data.logStartTime), sqlDateFormat),
       idUrgency: data.idUrgency.value,
@@ -313,7 +331,32 @@ function addIncident({ user }) {
                           </p>
                         )}
                       </div>
-                      <div className="col-span-6 sm:col-span-3"></div>
+                      <div className="col-span-3 sm:col-span-3">
+                        <label className="block mb-1 text-sm font-medium text-gray-700">
+                          Category System
+                        </label>
+                        <Controller
+                          name="idCategorySystem"
+                          control={control}
+                          rules={{ required: "This is required" }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              isClearable
+                              isSearchable={false}
+                              instanceId={"idCategorySystem"}
+                              options={categoryOptions}
+                              styles={styledReactSelect}
+                              className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          )}
+                        />
+                        {errors.idCategorySystem && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.idCategorySystem.message}
+                          </p>
+                        )}
+                      </div>
                       <div className="col-span-6 sm:col-span-3">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Start Time

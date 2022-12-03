@@ -160,6 +160,30 @@ function IncidentDetail({ user, incident, comments }) {
       );
   }, []);
 
+  // get data system catgory type
+  const [categoryTypeOptions, setCategoryTypeOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/categorysystem?isActive=Y`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
+      .then((response) => {
+        const data = response.data.data.map((item) => ({
+          value: item.id,
+          label: item.categorySystem,
+        }));
+        setCategoryTypeOptions(data);
+      })
+      .catch((error) =>
+        toast.error(
+          `Unable to get system category type list: ${error.response.data.message}`
+        )
+      );
+  }, []);
+
   // get data urgency list
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   useEffect(() => {
@@ -241,6 +265,12 @@ function IncidentDetail({ user, incident, comments }) {
         ? {
             label: incident.data.paramIncidentType.incidentType,
             value: incident.data.paramIncidentType.id,
+          }
+        : false,
+      idCategorySystem: incident.data.paramCategorySystem
+        ? {
+            label: incident.data.paramCategorySystem.categorySystem,
+            value: incident.data.paramCategorySystem.id,
           }
         : false,
       idUrgency: incident.data.paramUrgency
@@ -480,6 +510,7 @@ function IncidentDetail({ user, incident, comments }) {
   const onSubmit = async (data) => {
     data = Object.assign(data, {
       idIncidentType: data.idIncidentType.value,
+      idCategorySystem: data.idCategorySystem.value,
       startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
       logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
       endTime:
@@ -944,7 +975,7 @@ function IncidentDetail({ user, incident, comments }) {
                                 required:
                                   isOnGoing === true
                                     ? false
-                                    : "This is required",
+                                    : "This is required when incident is not ongoing",
                                 validate:
                                   isOnGoing === true ? false : handleDatetime,
                               }}
@@ -970,25 +1001,8 @@ function IncidentDetail({ user, incident, comments }) {
                                 />
                               )}
                             />
-                            {errors.endTime?.type === "validate" && (
-                              <p className="mt-2 text-sm text-red-600">
-                                End time must be greater than log or start time
-                              </p>
-                            )}
-                            {errors.endTime && (
-                              <p className="mt-2 text-sm text-red-600">
-                                {errors.endTime.message}
-                              </p>
-                            )}
-                          </div>
-
-                          {incident.data.endTime === null && (
-                            <div className="sm:col-span-1">
-                              <label
-                                htmlFor="end-time"
-                                className="block mb-8 text-sm font-medium text-gray-900"
-                              ></label>
-                              <div className="relative flex items-start">
+                            {incident.data.endTime === null && (
+                              <div className="relative flex items-start mt-2">
                                 <div className="flex items-center h-5">
                                   <input
                                     id="comments"
@@ -1005,12 +1019,60 @@ function IncidentDetail({ user, incident, comments }) {
                                     htmlFor="comments"
                                     className="font-medium text-gray-700"
                                   >
-                                    Incident Still Ongoing
+                                    Incident Still Ongoing{" "}
+                                    <span className="font-normal text-gray-400">
+                                      (Uncheck this when incident is over)
+                                    </span>
                                   </label>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+
+                            {errors.endTime?.type === "validate" && (
+                              <p className="mt-2 text-sm text-red-600">
+                                End time must be greater than log or start time
+                              </p>
+                            )}
+                            {errors.endTime && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {errors.endTime.message}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="sm:col-span-1">
+                            <label
+                              htmlFor="incident-type"
+                              className="block text-sm font-medium text-gray-900"
+                            >
+                              System Caegory Type
+                            </label>
+                            <Controller
+                              name="idCategorySystem"
+                              control={control}
+                              rules={{ required: "This is required" }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  className={classNames(
+                                    errors.idCategorySystem
+                                      ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                      : "focus:ring-blue-500 focus:border-blue-500",
+                                    "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                  )}
+                                  options={categoryTypeOptions}
+                                  styles={styledReactSelect}
+                                  placeholder="Select system category type..."
+                                  isSearchable={false}
+                                />
+                              )}
+                            />
+                            {errors.idCategorySystem && (
+                              <p className="text-sm text-red-600">
+                                {errors.idCategorySystem.message}
+                              </p>
+                            )}
+                          </div>
 
                           <div className="sm:col-span-2">
                             <label
@@ -1396,7 +1458,7 @@ function IncidentDetail({ user, incident, comments }) {
                               : "Not defined yet"}
                           </dd>
                         </div>
-                        <div className="sm:col-span-2">
+                        <div className="sm:col-span-1">
                           <dt className="text-sm font-medium text-gray-900">
                             Urgency
                           </dt>
@@ -1404,6 +1466,14 @@ function IncidentDetail({ user, incident, comments }) {
                             {incident.data.paramUrgency
                               ? incident.data.paramUrgency.urgency
                               : "Not defined yet"}
+                          </dd>
+                        </div>
+                        <div className="sm:col-span-1">
+                          <dt className="text-sm font-medium text-gray-900">
+                            System Category Type
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
+                            {incident.data.paramCategorySystem?.categorySystem}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
