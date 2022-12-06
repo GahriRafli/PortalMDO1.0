@@ -16,7 +16,7 @@ const userNavigation = [
   { name: "Sign out", href: "#" },
 ];
 
-export function LayoutNav({ session }) {
+export function LayoutNav({ session, searchNotif }) {
   const setSidebarOpen = useLayoutStore((state) => state.setSidebarOpen);
 
   async function logout() {
@@ -42,33 +42,42 @@ export function LayoutNav({ session }) {
       {/* Search bar */}
       <div className="flex-1 px-4 flex justify-between sm:px-6 lg:max-w-full lg:mx-auto lg:px-8">
         <div className="flex-1 flex">
-          <form className="w-full flex md:ml-0" action="#" method="GET">
-            <label htmlFor="search-field" className="sr-only">
-              Search
-            </label>
-            <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-              <div
-                className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
-                aria-hidden="true"
-              >
-                <SearchIcon className="h-5 w-5" aria-hidden="true" />
+          {searchNotif ? 
+          <>
+            <form className="w-full flex md:ml-0" action="#" method="GET">
+              <label htmlFor="search-field" className="sr-only">
+                Search
+              </label>
+              <div className="relative w-full text-gray-400 focus-within:text-gray-600">
+                <div
+                  className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
+                  aria-hidden="true"
+                >
+                  <SearchIcon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <input
+                  id="search-field"
+                  name="search-field"
+                  className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
+                  placeholder="Search"
+                  type="search"
+                />
               </div>
-              <input
-                id="search-field"
-                name="search-field"
-                className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
-                placeholder="Search"
-                type="search"
-              />
-            </div>
-          </form>
+            </form>
+          </> 
+          : ""}
+          
         </div>
         <div className="ml-4 flex items-center md:ml-6">
-          <button className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <span className="sr-only">View notifications</span>
-            <BellIcon className="h-6 w-6" aria-hidden="true" />
-          </button>
-
+          {searchNotif ? 
+          <>
+             <button className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <span className="sr-only">View notifications</span>
+                <BellIcon className="h-6 w-6" aria-hidden="true" />
+              </button> 
+          </> 
+          : ""}
+          
           {/* Profile dropdown */}
           <Menu as="div" className="ml-3 relative">
             {({ open }) => (
