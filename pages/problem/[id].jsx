@@ -27,6 +27,10 @@ import {
 import { PencilIcon, XIcon, CheckIcon } from "@heroicons/react/solid";
 import AssignModule from "components/problems/AssignModule";
 import RootCauseCard from "components/problems/RootCauseCard";
+import { LayoutRoot } from "components/layout/layout-root";
+import { CustomToaster } from "components/ui/notifications/custom-toast";
+import { LayoutSidebar } from "components/layout/layout-sidebar";
+import { LayoutNav } from "components/layout/layout-nav";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -332,451 +336,468 @@ function ProblemDetail({ user, problem, idProblem }) {
 
   return (
     <>
-      <Layout key={`LayoutProblemDetail-${problem.id}`} session={user}>
+      <LayoutRoot>
         <Head>
           <title>
             {problem.problemNumber} {problem.app ? problem.app.subname : null} -
             Shield
           </title>
+          <meta
+            name="description"
+            content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."
+          />
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <meta name="robots" content="noindex,nofollow" />
+          <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
-        <section>
-          <div className="py-6">
-            <div className="max-w-full mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-full lg:px-12">
-              <DetailHeader problem={problem} />
+        <CustomToaster />
+        <LayoutSidebar session={user} />
+        <div className="flex flex-col w-0 flex-1 overflow-hidden">
+          <LayoutNav session={user} searchNotif={false} />
+          <section>
+            <div className="py-6">
+              <div className="max-w-full mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-full lg:px-12">
+                <DetailHeader problem={problem} />
 
-              {/* Conditional Update Button Status */}
-              {problem.assigned_to ? (
-                user.username === problem.assigned_to.userName ? (
-                  problem.problemStatus.id === 2 ? (
-                    <form onSubmit={handleSubmit(onUpdateStatus)}>
-                      <button
-                        type="submit"
-                        className={classNames(
-                          spinner
-                            ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                            : null,
-                          "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        )}
-                        disabled={spinner}
-                      >
-                        {spinner && <Spinner />}
-                        Update Ongoing at JIRA
-                      </button>
-                    </form>
-                  ) : null
-                ) : null
-              ) : null}
-
-              {problem.assigned_to ? (
-                user.username === problem.assigned_to.userName ? (
-                  problem.problemStatus.id === 3 ? (
-                    <ModalRootCause problem={problem} user={user} />
-                  ) : null
-                ) : null
-              ) : null}
-            </div>
-
-            <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
-              <div className="space-y-6 lg:col-start-1 lg:col-span-2">
-                {/* Problem Detail */}
-                <section aria-labelledby="problem-detail">
-                  <div className="bg-white shadow sm:rounded-lg">
-                    {editMode ? (
-                      <>
-                        <form onSubmit={handleSubmit(onSubmitUpdateData)}>
-                          <section aria-labelledby="edit-problem">
-                            <CardTitle
-                              title={
-                                problem.problemNumber !== null
-                                  ? `Problem Number ${problem.problemNumber}`
-                                  : `Problem Number -`
-                              }
-                              subtitle={<ProblemSubDetail problem={problem} />}
-                            >
-                              <div className="px-4 flex">
-                                <ButtonCircle
-                                  action={() => {
-                                    setEditMode(false);
-                                    reset();
-                                  }}
-                                  className="border-transparent text-white bg-rose-600 hover:bg-rose-700"
-                                >
-                                  <XIcon
-                                    className="h-5 w-5"
-                                    aria-hidden="true"
-                                  />
-                                </ButtonCircle>
-                                <ButtonCircle
-                                  action={handleSubmit(onSubmitUpdateData)}
-                                  className={classNames(
-                                    spinner
-                                      ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                                      : null,
-                                    "ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
-                                  )}
-                                  disabled={spinner}
-                                >
-                                  {spinner && <Spinner />}
-                                  <CheckIcon
-                                    className="h-5 w-5"
-                                    aria-hidden="true"
-                                  />
-                                </ButtonCircle>
-                              </div>
-                            </CardTitle>
-                            <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                              <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                                <div className="sm:col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Problem Name
-                                  </label>
-                                  <div className="pt-1">
-                                    <textarea
-                                      id="problemName"
-                                      name="problemName"
-                                      {...register("problemName", {
-                                        required: "This is required!",
-                                        minLength: {
-                                          value: 10,
-                                          message:
-                                            "Please lengthen this text to 10 characters or more.",
-                                        },
-                                        maxLength: {
-                                          value: 60,
-                                          message:
-                                            "Please shorten this text to 60 characters or less.",
-                                        },
-                                      })}
-                                      rows={1}
-                                      style={{
-                                        resize: "none",
-                                      }}
-                                      className={classNames(
-                                        errors.problemName
-                                          ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                          : "focus:ring-blue-500 focus:border-blue-500",
-                                        "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                      )}
-                                      placeholder="Problem Happening"
-                                      defaultValue={problem.problemName}
-                                    />
-                                    {errors.problemName && (
-                                      <p className="mt-1 text-sm text-red-600">
-                                        {errors.problemName.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <p className="pt-2 text-sm text-gray-500">
-                                    Edit a few sentences about problem.
-                                  </p>
-                                </div>
-
-                                <div className="sm:col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Link JIRA
-                                  </label>
-                                  <div className="pt-1">
-                                    <textarea
-                                      id="jiraProblem"
-                                      name="jiraProblem"
-                                      {...register("jiraProblem", {
-                                        required: "This is required!",
-                                      })}
-                                      rows={1}
-                                      style={{
-                                        resize: "none",
-                                      }}
-                                      className={classNames(
-                                        errors.jiraProblem
-                                          ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                          : "focus:ring-blue-500 focus:border-blue-500",
-                                        "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                      )}
-                                      placeholder="Link JIRA"
-                                      defaultValue={problem.jiraProblem}
-                                    />
-                                    {errors.jiraProblem && (
-                                      <p className="mt-1 text-sm text-red-600">
-                                        {errors.jiraProblem.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Application
-                                  </label>
-                                  <Controller
-                                    name="idApps"
-                                    control={control}
-                                    rules={{ required: "This is required" }}
-                                    defaultValue={problem.app.id}
-                                    render={({ field }) => (
-                                      <AsyncSelect
-                                        {...field}
-                                        isClearable
-                                        loadOptions={loadApplications}
-                                        styles={styledReactSelectAdd}
-                                        className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Search for application"
-                                        components={{ NoOptionsMessage }}
-                                      />
-                                    )}
-                                  />
-                                  {errors.idApps && (
-                                    <p className="mt-2 text-sm text-red-600">
-                                      {errors.idApps.message}
-                                    </p>
-                                  )}
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Type
-                                  </label>
-                                  <Controller
-                                    name="idType"
-                                    control={control}
-                                    rules={{ required: "This is required" }}
-                                    render={({ field }) => (
-                                      <Select
-                                        {...field}
-                                        isClearable
-                                        options={typeOptions}
-                                        styles={styledReactSelect}
-                                        className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                                      />
-                                    )}
-                                  />
-                                  {errors.idType && (
-                                    <p className="pt-2 text-sm text-red-600">
-                                      {errors.idType.message}
-                                    </p>
-                                  )}
-                                </div>
-
-                                <div className="sm:col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Urgency
-                                  </label>
-                                  <div className="pt-1">
-                                    <Controller
-                                      name="idUrgency"
-                                      control={control}
-                                      rules={{ required: "This is required" }}
-                                      render={({ field }) => (
-                                        <Select
-                                          {...field}
-                                          isClearable
-                                          options={urgencyOptions}
-                                          styles={styledReactSelect}
-                                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                      )}
-                                    />
-                                    {errors.idUrgency && (
-                                      <p className="pt-2 text-sm text-red-600">
-                                        {errors.idUrgency.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="sm:col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Impact
-                                  </label>
-                                  <div className="pt-1">
-                                    <Controller
-                                      name="idImpact"
-                                      control={control}
-                                      rules={{ required: "This is required" }}
-                                      render={({ field }) => (
-                                        <Select
-                                          {...field}
-                                          isClearable
-                                          className={classNames(
-                                            errors.idImpact
-                                              ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                              : "focus:ring-blue-500 focus:border-blue-500",
-                                            "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
-                                          )}
-                                          options={impactOptions}
-                                          styles={styledReactSelect}
-                                          placeholder="Select impact..."
-                                        />
-                                      )}
-                                    />
-                                    {errors.idImpact && (
-                                      <p className="text-sm text-red-600">
-                                        {errors.idImpact.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Source
-                                  </label>
-                                  <div className="pt-1">
-                                    <Controller
-                                      name="idSource"
-                                      control={control}
-                                      rules={{ required: "This is required" }}
-                                      render={({ field }) => (
-                                        <Select
-                                          {...field}
-                                          isClearable
-                                          options={sourceOptions}
-                                          styles={styledReactSelect}
-                                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                      )}
-                                    />
-                                    {errors.idSource && (
-                                      <p className="pt-2 text-sm text-red-600">
-                                        {errors.idSource.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                  <label className="block text-sm font-medium text-gray-700">
-                                    Follow Up Plan
-                                  </label>
-                                  <div className="pt-1">
-                                    <Controller
-                                      name="idFollowup"
-                                      control={control}
-                                      rules={{ required: "This is required" }}
-                                      render={({ field }) => (
-                                        <Select
-                                          {...field}
-                                          isClearable
-                                          options={followupOptions}
-                                          styles={styledReactSelect}
-                                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                      )}
-                                    />
-                                    {errors.idFollowup && (
-                                      <p className="pt-2 text-sm text-red-600">
-                                        {errors.idFollowup.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </section>
-                        </form>
-                      </>
-                    ) : (
-                      <>
-                        <CardTitle
-                          title={
-                            problem.problemNumber !== null
-                              ? `Problem Number ${problem.problemNumber}`
-                              : `Problem Number -`
-                          }
-                          subtitle={<ProblemSubDetail problem={problem} />}
+                {/* Conditional Update Button Status */}
+                {problem.assigned_to ? (
+                  user.username === problem.assigned_to.userName ? (
+                    problem.problemStatus.id === 2 ? (
+                      <form onSubmit={handleSubmit(onUpdateStatus)}>
+                        <button
+                          type="submit"
+                          className={classNames(
+                            spinner
+                              ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                              : null,
+                            "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          )}
+                          disabled={spinner}
                         >
-                          {problem.problemStatus.id <= 4 ? (
-                            <nav
-                              className="flex items-center justify-left"
-                              aria-label="Progress"
-                            >
-                              <p className="text-sm font-medium">
-                                {`Progress ${problem.problemStatus.id} of 4`}
-                              </p>
-                              <StepProgress problem={problem} />
-                              <div className="px-4 flex ml-3 mb-4">
-                                {problem.assigned_to ? (
-                                  user.username ===
-                                  problem.assigned_to.userName ? (
-                                    problem.problemStatus.id !== 4 ? (
-                                      <ButtonCircle
-                                        action={() => {
-                                          setEditMode(true);
+                          {spinner && <Spinner />}
+                          Update Ongoing at JIRA
+                        </button>
+                      </form>
+                    ) : null
+                  ) : null
+                ) : null}
+
+                {problem.assigned_to ? (
+                  user.username === problem.assigned_to.userName ? (
+                    problem.problemStatus.id === 3 ? (
+                      <ModalRootCause problem={problem} user={user} />
+                    ) : null
+                  ) : null
+                ) : null}
+              </div>
+
+              <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
+                <div className="space-y-6 lg:col-start-1 lg:col-span-2">
+                  {/* Problem Detail */}
+                  <section aria-labelledby="problem-detail">
+                    <div className="bg-white shadow sm:rounded-lg">
+                      {editMode ? (
+                        <>
+                          <form onSubmit={handleSubmit(onSubmitUpdateData)}>
+                            <section aria-labelledby="edit-problem">
+                              <CardTitle
+                                title={
+                                  problem.problemNumber !== null
+                                    ? `Problem Number ${problem.problemNumber}`
+                                    : `Problem Number -`
+                                }
+                                subtitle={
+                                  <ProblemSubDetail problem={problem} />
+                                }
+                              >
+                                <div className="px-4 flex">
+                                  <ButtonCircle
+                                    action={() => {
+                                      setEditMode(false);
+                                      reset();
+                                    }}
+                                    className="border-transparent text-white bg-rose-600 hover:bg-rose-700"
+                                  >
+                                    <XIcon
+                                      className="h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                  </ButtonCircle>
+                                  <ButtonCircle
+                                    action={handleSubmit(onSubmitUpdateData)}
+                                    className={classNames(
+                                      spinner
+                                        ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                                        : null,
+                                      "ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
+                                    )}
+                                    disabled={spinner}
+                                  >
+                                    {spinner && <Spinner />}
+                                    <CheckIcon
+                                      className="h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                  </ButtonCircle>
+                                </div>
+                              </CardTitle>
+                              <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+                                <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                                  <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Problem Name
+                                    </label>
+                                    <div className="pt-1">
+                                      <textarea
+                                        id="problemName"
+                                        name="problemName"
+                                        {...register("problemName", {
+                                          required: "This is required!",
+                                          minLength: {
+                                            value: 10,
+                                            message:
+                                              "Please lengthen this text to 10 characters or more.",
+                                          },
+                                          maxLength: {
+                                            value: 60,
+                                            message:
+                                              "Please shorten this text to 60 characters or less.",
+                                          },
+                                        })}
+                                        rows={1}
+                                        style={{
+                                          resize: "none",
                                         }}
-                                        className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
-                                      >
-                                        <PencilIcon
-                                          className="h-5 w-5"
-                                          aria-hidden="true"
+                                        className={classNames(
+                                          errors.problemName
+                                            ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                            : "focus:ring-blue-500 focus:border-blue-500",
+                                          "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                        )}
+                                        placeholder="Problem Happening"
+                                        defaultValue={problem.problemName}
+                                      />
+                                      {errors.problemName && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                          {errors.problemName.message}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <p className="pt-2 text-sm text-gray-500">
+                                      Edit a few sentences about problem.
+                                    </p>
+                                  </div>
+
+                                  <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Link JIRA
+                                    </label>
+                                    <div className="pt-1">
+                                      <textarea
+                                        id="jiraProblem"
+                                        name="jiraProblem"
+                                        {...register("jiraProblem", {
+                                          required: "This is required!",
+                                        })}
+                                        rows={1}
+                                        style={{
+                                          resize: "none",
+                                        }}
+                                        className={classNames(
+                                          errors.jiraProblem
+                                            ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                            : "focus:ring-blue-500 focus:border-blue-500",
+                                          "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                        )}
+                                        placeholder="Link JIRA"
+                                        defaultValue={problem.jiraProblem}
+                                      />
+                                      {errors.jiraProblem && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                          {errors.jiraProblem.message}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="sm:col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Application
+                                    </label>
+                                    <Controller
+                                      name="idApps"
+                                      control={control}
+                                      rules={{ required: "This is required" }}
+                                      defaultValue={problem.app.id}
+                                      render={({ field }) => (
+                                        <AsyncSelect
+                                          {...field}
+                                          isClearable
+                                          loadOptions={loadApplications}
+                                          styles={styledReactSelectAdd}
+                                          className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                          placeholder="Search for application"
+                                          components={{ NoOptionsMessage }}
                                         />
-                                      </ButtonCircle>
+                                      )}
+                                    />
+                                    {errors.idApps && (
+                                      <p className="mt-2 text-sm text-red-600">
+                                        {errors.idApps.message}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <div className="sm:col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Type
+                                    </label>
+                                    <Controller
+                                      name="idType"
+                                      control={control}
+                                      rules={{ required: "This is required" }}
+                                      render={({ field }) => (
+                                        <Select
+                                          {...field}
+                                          isClearable
+                                          options={typeOptions}
+                                          styles={styledReactSelect}
+                                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                      )}
+                                    />
+                                    {errors.idType && (
+                                      <p className="pt-2 text-sm text-red-600">
+                                        {errors.idType.message}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Urgency
+                                    </label>
+                                    <div className="pt-1">
+                                      <Controller
+                                        name="idUrgency"
+                                        control={control}
+                                        rules={{ required: "This is required" }}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            isClearable
+                                            options={urgencyOptions}
+                                            styles={styledReactSelect}
+                                            className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                          />
+                                        )}
+                                      />
+                                      {errors.idUrgency && (
+                                        <p className="pt-2 text-sm text-red-600">
+                                          {errors.idUrgency.message}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Impact
+                                    </label>
+                                    <div className="pt-1">
+                                      <Controller
+                                        name="idImpact"
+                                        control={control}
+                                        rules={{ required: "This is required" }}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            isClearable
+                                            className={classNames(
+                                              errors.idImpact
+                                                ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                                : "focus:ring-blue-500 focus:border-blue-500",
+                                              "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                            )}
+                                            options={impactOptions}
+                                            styles={styledReactSelect}
+                                            placeholder="Select impact..."
+                                          />
+                                        )}
+                                      />
+                                      {errors.idImpact && (
+                                        <p className="text-sm text-red-600">
+                                          {errors.idImpact.message}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="sm:col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Source
+                                    </label>
+                                    <div className="pt-1">
+                                      <Controller
+                                        name="idSource"
+                                        control={control}
+                                        rules={{ required: "This is required" }}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            isClearable
+                                            options={sourceOptions}
+                                            styles={styledReactSelect}
+                                            className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                          />
+                                        )}
+                                      />
+                                      {errors.idSource && (
+                                        <p className="pt-2 text-sm text-red-600">
+                                          {errors.idSource.message}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="sm:col-span-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Follow Up Plan
+                                    </label>
+                                    <div className="pt-1">
+                                      <Controller
+                                        name="idFollowup"
+                                        control={control}
+                                        rules={{ required: "This is required" }}
+                                        render={({ field }) => (
+                                          <Select
+                                            {...field}
+                                            isClearable
+                                            options={followupOptions}
+                                            styles={styledReactSelect}
+                                            className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                          />
+                                        )}
+                                      />
+                                      {errors.idFollowup && (
+                                        <p className="pt-2 text-sm text-red-600">
+                                          {errors.idFollowup.message}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </section>
+                          </form>
+                        </>
+                      ) : (
+                        <>
+                          <CardTitle
+                            title={
+                              problem.problemNumber !== null
+                                ? `Problem Number ${problem.problemNumber}`
+                                : `Problem Number -`
+                            }
+                            subtitle={<ProblemSubDetail problem={problem} />}
+                          >
+                            {problem.problemStatus.id <= 4 ? (
+                              <nav
+                                className="flex items-center justify-left"
+                                aria-label="Progress"
+                              >
+                                <p className="text-sm font-medium">
+                                  {`Progress ${problem.problemStatus.id} of 4`}
+                                </p>
+                                <StepProgress problem={problem} />
+                                <div className="px-4 flex ml-3 mb-4">
+                                  {problem.assigned_to ? (
+                                    user.username ===
+                                    problem.assigned_to.userName ? (
+                                      problem.problemStatus.id !== 4 ? (
+                                        <ButtonCircle
+                                          action={() => {
+                                            setEditMode(true);
+                                          }}
+                                          className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                                        >
+                                          <PencilIcon
+                                            className="h-5 w-5"
+                                            aria-hidden="true"
+                                          />
+                                        </ButtonCircle>
+                                      ) : (
+                                        ""
+                                      )
                                     ) : (
                                       ""
                                     )
                                   ) : (
                                     ""
-                                  )
-                                ) : (
-                                  ""
-                                )}
-                              </div>
-                            </nav>
-                          ) : null}
-                        </CardTitle>
-                        <ProblemDetailPanel problem={problem} />
-                      </>
-                    )}
+                                  )}
+                                </div>
+                              </nav>
+                            ) : null}
+                          </CardTitle>
+                          <ProblemDetailPanel problem={problem} />
+                        </>
+                      )}
+                    </div>
+                  </section>
+
+                  {/* Condition Incident Table */}
+                  <RelatedIncidentTables problem={problem} />
+
+                  {/* Condition RootCause Done */}
+                  {problem.rootCauses.length > 0 ? (
+                    <RootCauseCard rootcause={problem.rootCauses[0]} />
+                  ) : null}
+                </div>
+
+                <section
+                  aria-labelledby="timeline-title"
+                  className="lg:col-start-3 lg:col-span-1"
+                >
+                  {/* Problem Info */}
+                  <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
+                    <ProblemInfoPanel problem={problem} />
+                  </div>
+
+                  {/* Reporter */}
+                  <div className="bg-white shadow sm:rounded-lg mt-3">
+                    <div className="space-y-4 px-4 py-5 sm:px-6">
+                      {/* Divide Component Conditional for Assign */}
+                      <AssignModule
+                        problem={problem}
+                        user={user}
+                        idProblem={idProblem}
+                      />
+
+                      {problem.updated_by !== null ? (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-gray-600 text-sm">
+                            Last updated on{" "}
+                            {format(
+                              new Date(problem.updatedAt),
+                              "d LLLL yyyy HH:mm",
+                              "id-ID"
+                            )}
+                            <br />
+                            by {problem.updated_by.fullName}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </section>
-
-                {/* Condition Incident Table */}
-                <RelatedIncidentTables problem={problem} />
-
-                {/* Condition RootCause Done */}
-                {problem.rootCauses.length > 0 ? (
-                  <RootCauseCard rootcause={problem.rootCauses[0]} />
-                ) : null}
               </div>
-
-              <section
-                aria-labelledby="timeline-title"
-                className="lg:col-start-3 lg:col-span-1"
-              >
-                {/* Problem Info */}
-                <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
-                  <ProblemInfoPanel problem={problem} />
-                </div>
-
-                {/* Reporter */}
-                <div className="bg-white shadow sm:rounded-lg mt-3">
-                  <div className="space-y-4 px-4 py-5 sm:px-6">
-                    {/* Divide Component Conditional for Assign */}
-                    <AssignModule
-                      problem={problem}
-                      user={user}
-                      idProblem={idProblem}
-                    />
-
-                    {problem.updated_by !== null ? (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-gray-600 text-sm">
-                          Last updated on{" "}
-                          {format(
-                            new Date(problem.updatedAt),
-                            "d LLLL yyyy HH:mm",
-                            "id-ID"
-                          )}
-                          <br />
-                          by {problem.updated_by.fullName}
-                        </span>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </section>
             </div>
-          </div>
-        </section>
-      </Layout>
+          </section>
+        </div>
+      </LayoutRoot>
     </>
   );
 }
