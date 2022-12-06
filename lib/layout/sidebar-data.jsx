@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/solid";
 
 export const navigation = [
-  { name: "Home", href: "#", icon: HomeIcon },
+  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   {
     name: "Incidents",
     href: "/incidents",
