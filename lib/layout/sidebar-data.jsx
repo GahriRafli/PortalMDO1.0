@@ -18,6 +18,7 @@ export const navigation = [
   {
     name: "Problems",
     icon: FireIcon,
+    href: "/problem",
     children: [
       {
         name: "Monitoring",
