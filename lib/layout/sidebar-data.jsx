@@ -20,8 +20,8 @@ export const navigation = [
     icon: FireIcon,
     children: [
       {
-        name: "Report",
-        href: "/problem/report",
+        name: "Monitoring",
+        href: "/problem/monitoring",
         permission: "all",
       },
       {
@@ -46,7 +46,7 @@ export const navigation = [
       },
       {
         name: "Known Error",
-        href: "#",
+        href: "/problem/knownerror",
         permission: "all",
       },
     ],
