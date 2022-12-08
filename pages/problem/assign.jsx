@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Image from "next/image";
-import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/ProblemHeader";
 import ProblemTables from "components/problems/ProblemTables";
 import { EyeIcon } from "@heroicons/react/outline";
@@ -13,6 +12,10 @@ import {
 } from "../../components/problems/ProblemBadge";
 import { StatusPill } from "components/problems/ProblemBadge";
 import withSession from "../../lib/session";
+import { LayoutRoot } from "components/layout/layout-root";
+import { CustomToaster } from "components/ui/notifications/custom-toast";
+import { LayoutSidebar } from "components/layout/layout-sidebar";
+import { LayoutNav } from "components/layout/layout-nav";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -177,43 +180,58 @@ export default function AssignList({ user, assign }) {
 
   return (
     <>
-      <Layout key="LayoutAssign" session={user}>
+      <LayoutRoot>
         <Head>
           <title>Need Assign List</title>
+          <meta
+            name="description"
+            content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."
+          />
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <meta name="robots" content="noindex,nofollow" />
+          <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
-        <section id="problem-list-section">
-          {/* Page title & actions */}
-          <PageHeader title="Need Assign List"></PageHeader>
+        <CustomToaster />
+        <LayoutSidebar session={user} />
+        <div className="flex flex-col w-0 flex-1 overflow-hidden">
+          <LayoutNav session={user} searchNotif={false} />
+          <section id="problem-list-section">
+            {/* Page title & actions */}
+            <PageHeader title="Need Assign List"></PageHeader>
 
-          {/* Problem Tables table (small breakpoint and up) */}
-          <div className="hidden sm:block mt-3">
-            <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-              {assign ? (
-                <ProblemTables columns={columns} data={assign} />
-              ) : (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Image
-                      width={400}
-                      height={400}
-                      src="/search-engines-rafiki.svg"
-                      alt="Workstation"
-                    />
-                  </div>
-                  <div className="mt-4 mb-3 max-w-3xl mx-auto text-center">
-                    Seems Like Problem is Empty, nothing to be Assigned
-                  </div>
-                </>
-              )}
+            {/* Problem Tables table (small breakpoint and up) */}
+            <div className="hidden sm:block mt-3">
+              <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
+                {assign ? (
+                  <ProblemTables columns={columns} data={assign} />
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Image
+                        width={400}
+                        height={400}
+                        src="/search-engines-rafiki.svg"
+                        alt="Workstation"
+                      />
+                    </div>
+                    <div className="mt-4 mb-3 max-w-3xl mx-auto text-center">
+                      Seems Like Problem is Empty, nothing to be Assigned
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
-      </Layout>
+          </section>
+        </div>
+      </LayoutRoot>
     </>
   );
 }
