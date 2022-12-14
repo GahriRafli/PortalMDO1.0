@@ -117,9 +117,9 @@ export default function TaskList({ user, data }) {
                     })
                   : "Multiple Incident"}{" "}
                 |
-                <text className="text-gray-600 hover:text-gray-900">
+                <p className="text-gray-600 hover:text-gray-900">
                   {` ${props.row.original.problemNumber}`}
-                </text>
+                </p>
               </div>
               <div className="text-base text-gray-900 font-medium">
                 <a
@@ -256,7 +256,7 @@ export default function TaskList({ user, data }) {
         </Head>
         <CustomToaster />
         <LayoutSidebar session={user} />
-        <div className="flex flex-col w-0 flex-1 overflow-hidden">
+        <div className="flex flex-col w-0 flex-1 overflow-auto">
           <LayoutNav session={user} searchNotif={false} />
           <section id="problem-list-section">
             <PageHeader title="My Task">
@@ -274,9 +274,9 @@ export default function TaskList({ user, data }) {
             {/* Problem Tables on Going */}
             <div className="hidden sm:block mt-3">
               <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-                <text className="text-2xl font-medium text-gray-900">
+                <p className="text-2xl font-medium text-gray-900">
                   Ongoing
-                </text>
+                </p>
                 <ProblemTables
                   columns={columns}
                   data={data.filter((task) => task.idStatus !== 4)}
@@ -287,7 +287,7 @@ export default function TaskList({ user, data }) {
             {/* Problem Tables Done */}
             <div className="hidden sm:block mt-3">
               <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-                <text className="text-2xl font-medium text-gray-900">Done</text>
+                <p className="text-2xl font-medium text-gray-900">Done</p>
                 <ProblemTables
                   columns={columns}
                   data={data.filter((done) => done.idStatus === 4)}

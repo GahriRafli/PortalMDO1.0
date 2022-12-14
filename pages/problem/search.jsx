@@ -262,10 +262,10 @@ const ProblemSearch = (props) => {
         </Head>
         <CustomToaster />
         <LayoutSidebar session={props.user} />
-        <div className="flex flex-col w-0 flex-1 overflow-hidden">
+        <div className="flex flex-col w-0 flex-1 overflow-auto">
           <LayoutNav session={props.user} searchNotif={false} />
           <div
-              className="flex-1 flex flex-col overflow-hidden"
+              className="flex-1 flex flex-col overflow-auto"
               id="problem-matching-section"
             >
               <div className="mt-10 mb-5 max-w-full sm:px-6 lg:max-w-full lg:px-12">

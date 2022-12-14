@@ -88,7 +88,7 @@ const KnownError = ({ user, kedb }) => {
         <CustomToaster />
 
         <LayoutSidebar session={user} />
-        <div className="flex flex-col w-0 flex-1 overflow-hidden">
+        <div className="flex flex-col w-0 flex-1 overflow-auto">
           <LayoutNav session={user} searchNotif={false} />
 
           {/* content section  */}
