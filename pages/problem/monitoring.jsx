@@ -207,6 +207,7 @@ export default function Report({ user, data }) {
             const lblChartProblems = [];
             const lblChartImpacted = [];
             const lblChartFUP = [];
+            const lblChartSources = [];
             countDataAssignee = [];
             if (res.status == 200) {
               dataHit.problemsByPeriod.map((getLabel) => {
@@ -296,7 +297,7 @@ export default function Report({ user, data }) {
                   {
                     label: "Problem Source",
                     data: dataHit.problemsSource.map(
-                      (d) => d.TotalProblemSource
+                      (d) => d.TotalProblemPerSource
                     ),
                     backgroundColor: palette(
                       "tol-rainbow",
