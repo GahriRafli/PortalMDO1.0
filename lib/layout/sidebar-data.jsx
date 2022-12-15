@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/solid";
 
 export const navigation = [
-  { name: "Home", href: "#", icon: HomeIcon },
+  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   {
     name: "Incidents",
     href: "/incidents",
@@ -18,10 +18,11 @@ export const navigation = [
   {
     name: "Problems",
     icon: FireIcon,
+    href: "/problem",
     children: [
       {
-        name: "Report",
-        href: "/problem/report",
+        name: "Monitoring",
+        href: "/problem/monitoring",
         permission: "all",
       },
       {
@@ -46,7 +47,7 @@ export const navigation = [
       },
       {
         name: "Known Error",
-        href: "#",
+        href: "/problem/knownerror",
         permission: "all",
       },
     ],

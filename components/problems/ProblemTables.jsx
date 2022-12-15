@@ -18,6 +18,8 @@ import React, { useImperativeHandle } from "react";
 
 // eslint-disable-next-line react/display-name
 const ProblemTables = React.forwardRef(({ columns, data }, ref) => {
+  const pageOptionList = [10, 25, 50];
+
   const instance = useTable(
     { columns, data },
     useGlobalFilter,
@@ -117,14 +119,15 @@ const ProblemTables = React.forwardRef(({ columns, data }, ref) => {
               Page <span className="font-medium">{pageIndex + 1}</span> of{" "}
               <span className="font-medium">{pageOptions.length}</span>{" "}
             </span>
+            {console.log("pageSize : ", pageSize)}
             <select
               id="page-size"
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="mt-1 ml-1 block text-base text-gray-700 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              defaultValue={10}
+              defaultValue={pageSize}
             >
-              {[10, 25, 50].map((pageSize) => (
+              {pageOptionList.map((pageSize) => (
                 <option key={pageSize} value={pageSize}>
                   Show {pageSize}
                 </option>

@@ -1,7 +1,6 @@
 import { Input } from "antd";
 import Link from "next/link";
 import Head from "next/head";
-import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/ProblemHeader";
 import ProblemStats from "components/problems/ProblemStats";
 import ProblemTables from "components/problems/ProblemTables";
@@ -18,21 +17,22 @@ import axios from "axios";
 import { useAsyncDebounce } from "react-table";
 import withSession from "../../lib/session";
 import {
-  PlusSmIcon,
   SearchIcon,
   DocumentAddIcon,
   DocumentSearchIcon,
   PuzzleIcon,
   SparklesIcon,
   BadgeCheckIcon,
-  AtSymbolIcon,
   BanIcon,
 } from "@heroicons/react/outline";
 import AsyncSelect from "react-select/async";
 import { ReactSelect } from "components/ui/forms";
 import { styledReactSelectAdd } from "components/utils";
-import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
 import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
+import { LayoutRoot } from "components/layout/layout-root";
+import { CustomToaster } from "components/ui/notifications/custom-toast";
+import { LayoutSidebar } from "components/layout/layout-sidebar";
+import { LayoutNav } from "components/layout/layout-nav";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -372,24 +372,38 @@ export default function ProblemList({ user, problems, countAssign }) {
 
   return (
     <>
-      <Layout key="LayoutProblem" session={user}>
+      <LayoutRoot>
         <Head>
           <title>All Problem List</title>
+          <meta
+            name="description"
+            content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."
+          />
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <meta name="robots" content="noindex,nofollow" />
+          <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
-        <section id="problem-list-section">
-          {/* Page title & actions */}
-          <PageHeader title="Problem List">
-            <Link href="/problem/search" passHref>
-              <SecondaryAnchorButton>
-                {/* <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> */}
-                <DocumentSearchIcon
-                  className="w-5 h-5 mr-2 -ml-1"
-                  aria-hidden="true"
-                />
-                Problem Matching
-              </SecondaryAnchorButton>
-            </Link>
-            {/* <span className="relative inline-flex">
+        <CustomToaster />
+        <LayoutSidebar session={user} />
+        <div className="flex flex-col w-0 flex-1 overflow-auto">
+          <LayoutNav session={user} searchNotif={false} />
+          <section id="problem-list-section">
+            {/* Page title & actions */}
+            <PageHeader title="Problem List">
+              <Link href="/problem/search" passHref>
+                <SecondaryAnchorButton>
+                  {/* <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> */}
+                  <DocumentSearchIcon
+                    className="w-5 h-5 mr-2 -ml-1"
+                    aria-hidden="true"
+                  />
+                  Problem Matching
+                </SecondaryAnchorButton>
+              </Link>
+              {/* <span className="relative inline-flex">
               <Link href="/problem/assign" passHref>
                 <SecondaryAnchorButton>
                   {countAssign} :: Need Assign
@@ -400,165 +414,168 @@ export default function ProblemList({ user, problems, countAssign }) {
                 </SecondaryAnchorButton>
               </Link>
             </span> */}
-          </PageHeader>
+            </PageHeader>
 
-          {/* Cards */}
-          <div className="px-4 sm:px-6 lg:px-8">
-            <ul className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 mt-3">
-              <ProblemStats
-                id="1"
-                bgColor="bg-red-400"
-                initials={<DocumentAddIcon className="w-6 h-6" />}
-                title="Draft and Unassigned"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Draft"
-                  ).length
-                } Draft | ${countAssign} Unassigned`}
-              />
-              <ProblemStats
-                id="2"
-                bgColor="bg-gray-400"
-                initials={<PuzzleIcon className="w-6 h-6" />}
-                title="Review"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Waiting for Review"
-                  ).length
-                } Waiting for Review`}
-              />
-              <ProblemStats
-                id="3"
-                bgColor="bg-blue-400"
-                initials={<SparklesIcon className="w-6 h-6" />}
-                title="Ongoing"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Ongoing at JIRA"
-                  ).length
-                } Ongoing at JIRA`}
-              />
-              <ProblemStats
-                id="4"
-                bgColor="bg-green-400"
-                initials={<BadgeCheckIcon className="w-6 h-6" />}
-                title="Done"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Need Acknowledged"
-                  ).length
-                } Acknowledged | ${
-                  problems.filter((data) => data.problemStatus.label === "Done")
-                    .length
-                } Resolved`}
-              />
-            </ul>
-          </div>
-
-          {/* Problem Tables table (small breakpoint and up) */}
-          <div className="hidden sm:block mt-3">
-            <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-              <div className="flex gap-x-2">
-                {/* Search Component */}
-                <div className="flex-auto">
-                  <label
-                    htmlFor="search"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Search
-                  </label>
-                  <Input
-                    disabled={false}
-                    allowClear
-                    value={value || ""}
-                    onChange={(e) => {
-                      setValue(e.target.value);
-                      handleGlobalChange(e.target.value);
-                    }}
-                    placeholder={
-                      tableData
-                        ? `${
-                            tableData.filter(
-                              (data) => data.problemStatus.id !== 1
-                            ).length
-                          } records...`
-                        : `0 records...`
-                    }
-                    prefix={
-                      <SearchIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    }
-                    style={{
-                      borderRadius: "0.375rem",
-                      height: "38px",
-                    }}
-                  />
-                </div>
-
-                {/* Application Filter */}
-                <div>
-                  <label
-                    htmlFor="application"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Application
-                  </label>
-                  <AsyncSelect
-                    isDisabled={false}
-                    isClearable
-                    loadOptions={loadApplications}
-                    styles={styledReactSelectAdd}
-                    className="text-sm focus:ring-blue-300 focus:border-blue-300 w-80"
-                    placeholder="Search App"
-                    onChange={handleAppChange}
-                  />
-                </div>
-
-                {/* Source Problem Filter */}
-                <div className="flex-intitial">
-                  <label
-                    htmlFor="SourceProblemOptions"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Source Problem
-                  </label>
-                  <ReactSelect
-                    isDisabled={false}
-                    options={sourceProblemOptions}
-                    isClearable
-                    className="block w-60"
-                    onChange={handleSourceProblemChange}
-                  />
-                </div>
-
-                {/* Problem Status Filter */}
-                <div>
-                  <label
-                    htmlFor="ProblemStatus"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Status Problem
-                  </label>
-                  <ReactSelect
-                    isDisabled={false}
-                    options={statusProblemOptions}
-                    isClearable
-                    className="block w-60"
-                    onChange={handleStatusProblemChange}
-                  />
-                </div>
-              </div>
-              <ProblemTables
-                columns={columns}
-                data={tableData.filter((data) => data.idStatus !== 1)}
-                ref={tableInstance}
-              />
+            {/* Cards */}
+            <div className="px-4 sm:px-6 lg:px-8">
+              <ul className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 mt-3">
+                <ProblemStats
+                  id="1"
+                  bgColor="bg-red-400"
+                  initials={<DocumentAddIcon className="w-6 h-6" />}
+                  title="Draft and Unassigned"
+                  desc={`${
+                    problems.filter(
+                      (data) => data.problemStatus.label === "Draft"
+                    ).length
+                  } Draft | ${countAssign} Unassigned`}
+                />
+                <ProblemStats
+                  id="2"
+                  bgColor="bg-gray-400"
+                  initials={<PuzzleIcon className="w-6 h-6" />}
+                  title="Review"
+                  desc={`${
+                    problems.filter(
+                      (data) =>
+                        data.problemStatus.label === "Waiting for Review"
+                    ).length
+                  } Waiting for Review`}
+                />
+                <ProblemStats
+                  id="3"
+                  bgColor="bg-blue-400"
+                  initials={<SparklesIcon className="w-6 h-6" />}
+                  title="Ongoing"
+                  desc={`${
+                    problems.filter(
+                      (data) => data.problemStatus.label === "Ongoing at JIRA"
+                    ).length
+                  } Ongoing at JIRA`}
+                />
+                <ProblemStats
+                  id="4"
+                  bgColor="bg-green-400"
+                  initials={<BadgeCheckIcon className="w-6 h-6" />}
+                  title="Done"
+                  desc={`${
+                    problems.filter(
+                      (data) => data.problemStatus.label === "Need Acknowledged"
+                    ).length
+                  } Acknowledged | ${
+                    problems.filter(
+                      (data) => data.problemStatus.label === "Done"
+                    ).length
+                  } Resolved`}
+                />
+              </ul>
             </div>
-          </div>
-        </section>
-      </Layout>
+
+            {/* Problem Tables table (small breakpoint and up) */}
+            <div className="hidden sm:block mt-3">
+              <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
+                <div className="flex gap-x-2">
+                  {/* Search Component */}
+                  <div className="flex-auto">
+                    <label
+                      htmlFor="search"
+                      className="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                      Search
+                    </label>
+                    <Input
+                      disabled={false}
+                      allowClear
+                      value={value || ""}
+                      onChange={(e) => {
+                        setValue(e.target.value);
+                        handleGlobalChange(e.target.value);
+                      }}
+                      placeholder={
+                        tableData
+                          ? `${
+                              tableData.filter(
+                                (data) => data.problemStatus.id !== 1
+                              ).length
+                            } records...`
+                          : `0 records...`
+                      }
+                      prefix={
+                        <SearchIcon
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      }
+                      style={{
+                        borderRadius: "0.375rem",
+                        height: "38px",
+                      }}
+                    />
+                  </div>
+
+                  {/* Application Filter */}
+                  <div>
+                    <label
+                      htmlFor="application"
+                      className="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                      Application
+                    </label>
+                    <AsyncSelect
+                      isDisabled={false}
+                      isClearable
+                      loadOptions={loadApplications}
+                      styles={styledReactSelectAdd}
+                      className="text-sm focus:ring-blue-300 focus:border-blue-300 w-80"
+                      placeholder="Search App"
+                      onChange={handleAppChange}
+                    />
+                  </div>
+
+                  {/* Source Problem Filter */}
+                  <div className="flex-intitial">
+                    <label
+                      htmlFor="SourceProblemOptions"
+                      className="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                      Source Problem
+                    </label>
+                    <ReactSelect
+                      isDisabled={false}
+                      options={sourceProblemOptions}
+                      isClearable
+                      className="block w-60"
+                      onChange={handleSourceProblemChange}
+                    />
+                  </div>
+
+                  {/* Problem Status Filter */}
+                  <div>
+                    <label
+                      htmlFor="ProblemStatus"
+                      className="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                      Status Problem
+                    </label>
+                    <ReactSelect
+                      isDisabled={false}
+                      options={statusProblemOptions}
+                      isClearable
+                      className="block w-60"
+                      onChange={handleStatusProblemChange}
+                    />
+                  </div>
+                </div>
+                <ProblemTables
+                  columns={columns}
+                  data={tableData.filter((data) => data.idStatus !== 1)}
+                  ref={tableInstance}
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+      </LayoutRoot>
     </>
   );
 }
