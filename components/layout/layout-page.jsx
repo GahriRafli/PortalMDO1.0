@@ -21,7 +21,7 @@ export const LayoutPage = ({ children, session, pageTitle }) => {
       <CustomToaster />
       <LayoutSidebar session={session} />
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
-        <LayoutNav session={session} />
+        <LayoutNav session={session} searchNotif={true} />
         <LayoutMain>{children}</LayoutMain>
       </div>
     </LayoutRoot>

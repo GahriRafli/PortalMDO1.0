@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Head from "next/head";
 import { useMemo } from "react";
-import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/ProblemHeader";
 import format from "date-fns/format";
 import ProblemTables from "components/problems/ProblemTables";
@@ -13,8 +12,11 @@ import {
 import withSession from "../../lib/session";
 import { PlusSmIcon, BanIcon, EyeIcon } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
-import { SecondaryAnchorButton } from "components/ui/button";
 import * as ProblemHelper from "components/problems/ProblemHelper";
+import { LayoutRoot } from "components/layout/layout-root";
+import { CustomToaster } from "components/ui/notifications/custom-toast";
+import { LayoutSidebar } from "components/layout/layout-sidebar";
+import { LayoutNav } from "components/layout/layout-nav";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -115,9 +117,9 @@ export default function TaskList({ user, data }) {
                     })
                   : "Multiple Incident"}{" "}
                 |
-                <text className="text-gray-600 hover:text-gray-900">
+                <p className="text-gray-600 hover:text-gray-900">
                   {` ${props.row.original.problemNumber}`}
-                </text>
+                </p>
               </div>
               <div className="text-base text-gray-900 font-medium">
                 <a
@@ -238,45 +240,63 @@ export default function TaskList({ user, data }) {
 
   return (
     <>
-      <Layout key="LayoutProblem" session={user}>
+      <LayoutRoot>
         <Head>
           <title>My Task</title>
+          <meta
+            name="description"
+            content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."
+          />
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <meta name="robots" content="noindex,nofollow" />
+          <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
-        <section id="problem-list-section">
-          <PageHeader title="My Task">
-            <Link href="/problem/create" passHref>
-              <PrimaryAnchorButton>
-                <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                Problem Non-Incident
-              </PrimaryAnchorButton>
-            </Link>
-          </PageHeader>
+        <CustomToaster />
+        <LayoutSidebar session={user} />
+        <div className="flex flex-col w-0 flex-1 overflow-auto">
+          <LayoutNav session={user} searchNotif={false} />
+          <section id="problem-list-section">
+            <PageHeader title="My Task">
+              <Link href="/problem/create" passHref>
+                <PrimaryAnchorButton>
+                  <PlusSmIcon
+                    className="-ml-1 mr-2 h-5 w-5"
+                    aria-hidden="true"
+                  />
+                  Problem Non-Incident
+                </PrimaryAnchorButton>
+              </Link>
+            </PageHeader>
 
-          {/* Problem Tables on Going */}
-          <div className="hidden sm:block mt-3">
-            <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-              <text className="text-2xl font-medium text-gray-900">
-                Ongoing
-              </text>
-              <ProblemTables
-                columns={columns}
-                data={data.filter((task) => task.idStatus !== 4)}
-              />
+            {/* Problem Tables on Going */}
+            <div className="hidden sm:block mt-3">
+              <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
+                <p className="text-2xl font-medium text-gray-900">
+                  Ongoing
+                </p>
+                <ProblemTables
+                  columns={columns}
+                  data={data.filter((task) => task.idStatus !== 4)}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Problem Tables Done */}
-          <div className="hidden sm:block mt-3">
-            <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-              <text className="text-2xl font-medium text-gray-900">Done</text>
-              <ProblemTables
-                columns={columns}
-                data={data.filter((done) => done.idStatus === 4)}
-              />
+            {/* Problem Tables Done */}
+            <div className="hidden sm:block mt-3">
+              <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
+                <p className="text-2xl font-medium text-gray-900">Done</p>
+                <ProblemTables
+                  columns={columns}
+                  data={data.filter((done) => done.idStatus === 4)}
+                />
+              </div>
             </div>
-          </div>
-        </section>
-      </Layout>
+          </section>
+        </div>
+      </LayoutRoot>
     </>
   );
 }
