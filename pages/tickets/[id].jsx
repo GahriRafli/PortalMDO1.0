@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import withSession from "../../lib/session";
-import { Dialog, Tab } from "@headlessui/react";
+import { Tab, Menu, Transition } from "@headlessui/react";
 import {
   ChatAltIcon,
   CheckCircleIcon,
   LockClosedIcon,
   PencilIcon,
+  UserAddIcon,
   UserCircleIcon as UserCircleIconSolid,
   UsersIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/solid";
 import {
   LayoutPage,
@@ -15,19 +17,44 @@ import {
   LayoutPageHeader,
 } from "components/layout/index";
 import { DefaultCard } from "components/ui/card/default-card";
-import { PrimaryButton, WhiteButton } from "components/ui/button/index";
-import { TextareaInput } from "components/ui/forms";
+import {
+  PrimaryButton,
+  SecondaryButton,
+  WhiteButton,
+} from "components/ui/button/index";
+import { ReactSelect, TextareaInput } from "components/ui/forms";
 import { formatDistanceToNowStrict } from "date-fns";
-import { Space, Image as AntdImage } from "antd";
+import { Space, Image as AntdImage, Upload } from "antd";
 import { TicketRightSection } from "components/tickets/ticket-right-section";
 import clsx from "clsx";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Spinner } from "components/ui/svg/spinner";
 import { toast } from "react-hot-toast";
-import { ModalContext } from "lib/context";
-import Modal from "components/ui/modal/basic-modal";
+// Sepaket modal component start
+import { Modal } from "components/ui/modal/modal";
+import { ModalBody } from "components/ui/modal/modal-body";
+import { ModalFooter } from "components/ui/modal/modal-footer";
+// Sepaket modal component end
+import { CustomAlert } from "components/ui/alert";
+import AsyncSelect from "react-select/async";
+import {
+  createFileName,
+  IconOption,
+  styledReactSelect,
+  ValueOption,
+} from "components/utils";
+import {
+  getApplication,
+  getPriorityTicket,
+  getTicketType,
+} from "lib/api-helper";
+import {
+  DocumentTextIcon,
+  PaperClipIcon,
+  RefreshIcon,
+} from "@heroicons/react/outline";
 
 const URL = process.env.NEXT_PUBLIC_API_URL;
 const tabs = [
@@ -43,36 +70,94 @@ export default function ReplyTicket({
   paramGroup,
 }) {
   const router = useRouter();
-  const { register, unregister, handleSubmit, reset, formState } = useForm();
-  const { isSubmitting, errors } = formState;
+  // react hook form for reply ticket
+  const {
+    register,
+    unregister,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   // react hook form for close ticket
   const {
     register: register2,
     formState: { errors: errors2, isSubmitting: isSubmitting2 },
-    handleSubmit: handleSubmit2,
     reset: reset2,
+    handleSubmit: handleSubmit2,
   } = useForm();
+
+  // react hook form for edit ticket
+  const editDefaultValue = {
+    idApps: ticketData.paramTicketApps
+      ? {
+          value: ticketData.paramTicketApps.id,
+          label: ticketData.paramTicketApps.subName,
+          criticality: ticketData.paramTicketApps.criticalityApp,
+        }
+      : false,
+    idTicketType: {
+      value: ticketData.paramTicketType?.id,
+      label: ticketData.paramTicketType?.ticketType,
+    },
+    idPriorityTicket: ticketData.paramTicketPriority
+      ? {
+          value: ticketData.paramTicketPriority.id,
+          label: ticketData.paramTicketPriority.priorityTicket,
+        }
+      : false,
+    idEscalatedGroup: ticketData.paramTicketEscalatedGroup
+      ? {
+          value: ticketData.paramTicketEscalatedGroup.id,
+          label: ticketData.paramTicketEscalatedGroup.groupName,
+        }
+      : false,
+    escalatedRole: ticketData.escalatedRole,
+  };
+  const {
+    formState: { errors: errors3, isSubmitting: isSubmitting3 },
+    control: control3,
+    handleSubmit: handleSubmit3,
+    reset: reset3,
+  } = useForm({ defaultValues: editDefaultValue });
 
   const [replyTo, setReplyTo] = useState(0);
   const [visibility, setVisibility] = useState({
     internalNote: "hidden",
     otherDepartment: "hidden",
+    replyTextArea: "",
   });
   const [required, setRequired] = useState({
     escalatedRole: false,
     idEscalatedGroup: false,
+    replyTextArea: "This is required",
   });
   const [optionList, setOptionList] = useState({
-    listGroup: [],
+    listGroupReply: [],
+    listGroupEdit: [],
+    ticketType: [],
+    ticketPriority: [],
   });
-  const [isLoading, setIsLoading] = useState(false);
 
-  const [showModal, updateShowModal] = useState(false);
-  const [showModal2, updateShowModal2] = useState(false);
+  // Loading handler
+  const [replyIsLoading, setReplyIsLoading] = useState(false);
+  const [editIsLoading, setEditIsLoading] = useState(false);
+  const [solveIsLoading, setSolveIsLoading] = useState(false);
+  const [assignIsLoading, setAssignIsLoading] = useState(false);
 
-  const toggleModal = () => updateShowModal((state) => !state);
-  const toggleModal2 = () => updateShowModal2((state) => !state);
+  const [editModalIsOpen, setEditModalIsOpen] = useState(false);
+  const [solveModalIsOpen, setSolveModalIsOpen] = useState(false);
+  const [assignModalIsOpen, setAssignModalIsOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState([]);
+
+  // Handle react-select dropdown position
+  const [portalTarget, setPortalTarget] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // browser code
+      setPortalTarget(document.querySelector("body"));
+    }
+  }, []);
 
   const refreshData = () => {
     router.replace(router.asPath);
@@ -87,23 +172,78 @@ export default function ReplyTicket({
 
   // Get list Group
   useEffect(() => {
-    let optionsData = paramGroup.map((d) => ({
+    let replyOptions = paramGroup.map((d) => ({
       value: d.id,
       label: d.groupName,
       prefix: d.prefix,
     }));
-    optionsData.splice(
-      optionsData.findIndex((e) => e.prefix === "SDK"),
+
+    const editOptions = paramGroup.map((d) => ({
+      value: d.id,
+      label: d.groupName,
+      defaultRole: d.defaultRole,
+    }));
+
+    replyOptions.splice(
+      replyOptions.findIndex((e) => e.prefix === "SDK"),
       1
     );
-    optionsData.splice(
-      optionsData.findIndex((e) => e.prefix === "UKER"),
+    replyOptions.splice(
+      replyOptions.findIndex((e) => e.prefix === "UKER"),
       1
     );
     setOptionList((optionList) => ({
       ...optionList,
-      listGroup: optionsData,
+      listGroupReply: replyOptions,
+      listGroupEdit: editOptions,
     }));
+  }, []);
+
+  // Get list Application
+  const loadApplications = (value, callback) => {
+    getApplication(value, callback);
+  };
+
+  // Get param ticket type
+  useEffect(() => {
+    getTicketType()
+      .then((res) => {
+        const options = res.data.map((d) => ({
+          value: d.id,
+          label: d.ticketType,
+        }));
+
+        setOptionList((optionList) => ({
+          ...optionList,
+          ticketType: options,
+        }));
+      })
+      .catch((error) => {
+        if (error.response) {
+          toast.error(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
+        } else if (error.request) {
+          toast.error(`Request: ${error.request}`);
+        } else {
+          toast.error(`Msg: ${error.message}`);
+        }
+      });
+  }, []);
+
+  // Get param ticket priority
+  useEffect(() => {
+    getPriorityTicket().then((res) => {
+      const options = res.data.map((d) => ({
+        value: d.id,
+        label: d.priorityTicket,
+      }));
+
+      setOptionList((optionList) => ({
+        ...optionList,
+        ticketPriority: options,
+      }));
+    });
   }, []);
 
   function getAssignees(role) {
@@ -170,9 +310,77 @@ export default function ReplyTicket({
     }
   };
 
+  const handleAssignTicket = () => {
+    setAssignIsLoading(true);
+    axios
+      .patch(`${URL}/tickets/${ticketData.id}/assign`, "", {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          toast.error(res.status);
+        } else {
+          toast.success("Ticket successfully assigned.");
+          refreshData();
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          toast.error(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
+        } else if (error.request) {
+          toast.error(`Request: ${error.request}`);
+        } else {
+          toast.error(`Msg: ${error.message}`);
+        }
+      })
+      .finally(() => {
+        setAssignIsLoading(false);
+        setAssignModalIsOpen(false);
+      });
+  };
+
+  // handle on reply submit
+  const [fileList, setFileList] = useState([]);
+  const [showList, setShowList] = useState(true);
+
+  const handleUpload = () => {
+    unregister(["historyContent"]);
+    setRequired((required) => ({
+      ...required,
+      replyTextArea: false,
+    }));
+    setVisibility((visibility) => ({
+      ...visibility,
+      replyTextArea: "hidden",
+    }));
+  };
+
+  const handleResetButton = () => {
+    register("historyContent", { required: "This is required" });
+    setFileList([]);
+    setShowList(false);
+    setVisibility((visibility) => ({
+      ...visibility,
+      replyTextArea: "",
+    }));
+    reset({
+      historyContent: "",
+      escalatedRole: "",
+      idEscalatedGroup: "",
+    });
+  };
+
   function onSubmit(data) {
     const formData = new FormData();
-    formData.append("historyContent", data.historyContent);
+    // cek jika ada file yang diupload
+    if (fileList.length !== 0) {
+      formData.append("historyContent", fileList);
+    } else {
+      formData.append("historyContent", data.historyContent);
+    }
+
     formData.append("isFromUker", "N");
     if (replyTo === 0) {
       // Reply to uker
@@ -193,7 +401,7 @@ export default function ReplyTicket({
       formData.append("escalatedRole", defaultRole);
     }
 
-    setIsLoading(true);
+    setReplyIsLoading(true);
     axios
       .post(`${URL}/tickets/${ticketData.id}/history`, formData, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -222,18 +430,19 @@ export default function ReplyTicket({
           escalatedRole: "",
           idEscalatedGroup: "",
         });
-        setIsLoading(false);
+        setReplyIsLoading(false);
+        setFileList([]);
+        setShowList(false);
+        setVisibility((visibility) => ({
+          ...visibility,
+          replyTextArea: "",
+        }));
         refreshData();
       });
-
-    // for (const pair of formData.entries()) {
-    //   console.log(`${pair[0]}, ${pair[1]}`);
-    // }
-
-    // console.log(data);
   }
 
   const handleCloseSubmit = (data) => {
+    setSolveIsLoading(true);
     axios
       .patch(`${URL}/tickets/${ticketData.id}/close`, data, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -241,11 +450,15 @@ export default function ReplyTicket({
       .then((res) => {
         if (res.status !== 200) {
           toast.error(res.status);
-        } else toast.success("Ticket has been closed.");
+        } else {
+          toast.success("Ticket has been closed.");
+          setSolveModalIsOpen(false);
+          refreshData();
+        }
       })
       .catch((error) => {
         if (error.response) {
-          toast.error(
+          setErrorMsg(
             `${error.response.data.message} (Code: ${error.response.status})`
           );
         } else if (error.request) {
@@ -253,7 +466,57 @@ export default function ReplyTicket({
         } else {
           toast.error(`Msg: ${error.message}`);
         }
+      })
+      .finally(() => {
+        setSolveIsLoading(false);
+        reset2({ resolution: "" });
       });
+  };
+
+  const OnEditSubmit = (data) => {
+    const isFormChange =
+      JSON.stringify(editDefaultValue) !== JSON.stringify(data);
+
+    Object.assign(data, {
+      idApps: data.idApps.value,
+      idTicketType: data.idTicketType.value,
+      idPriorityTicket: data.idPriorityTicket.value,
+      escalatedRole: data.idEscalatedGroup.defaultRole,
+      idEscalatedGroup: data.idEscalatedGroup.value,
+    });
+
+    if (isFormChange) {
+      setEditIsLoading(true);
+      axios
+        .patch(`${URL}/tickets/${ticketData.id}`, data, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        })
+        .then((res) => {
+          if (res.status !== 200) {
+            toast.error(res.status);
+          } else {
+            toast.success("Ticket successfully edited.");
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            toast.error(
+              `${error.response.data.message} (Code: ${error.response.status})`
+            );
+          } else if (error.request) {
+            toast.error(`Request: ${error.request}`);
+          } else {
+            toast.error(`Msg: ${error.message}`);
+          }
+        })
+        .finally(() => {
+          refreshData();
+          setEditIsLoading(false);
+          reset3(editDefaultValue);
+          setEditModalIsOpen(false);
+        });
+    }
+    setEditModalIsOpen(false);
   };
 
   return (
@@ -280,97 +543,105 @@ export default function ReplyTicket({
                       </p>
                     </div>
                     <div className="mt-4 flex space-x-3 md:mt-0">
-                      <ModalContext.Provider
-                        value={{ showModal2, toggleModal2 }}
+                      <WhiteButton type="button" onClick={() => refreshData()}>
+                        <RefreshIcon
+                          className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2"
+                          aria-hidden="true"
+                        />
+                        Refresh
+                      </WhiteButton>
+                      <Menu
+                        as="div"
+                        className="relative inline-block text-left"
                       >
-                        <WhiteButton type="button" onClick={toggleModal2}>
-                          <PencilIcon
-                            className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span>Edit</span>
-                        </WhiteButton>
-                        <Modal
-                          canShow={showModal2}
-                          updateModalState={toggleModal2}
-                        >
-                          etes
-                        </Modal>
-                      </ModalContext.Provider>
-                      <ModalContext.Provider value={{ showModal, toggleModal }}>
-                        <WhiteButton type="button" onClick={toggleModal}>
-                          <CheckCircleIcon
-                            className="-ml-1 mr-2 h-5 w-5 text-green-500"
-                            aria-hidden="true"
-                          />
-                          Close issue
-                        </WhiteButton>
-                        <Modal
-                          canShow={showModal}
-                          updateModalState={toggleModal}
-                        >
+                        {({ open }) => (
                           <>
-                            <form
-                              key={2}
-                              onSubmit={handleSubmit2(handleCloseSubmit)}
-                            >
-                              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div className="sm:flex sm:items-start">
-                                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
-                                    <CheckCircleIcon
-                                      className="h-6 w-6 text-green-500"
-                                      aria-hidden="true"
-                                    />
-                                  </div>
-                                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                    <Dialog.Title
-                                      as="h3"
-                                      className="text-lg leading-6 font-medium text-gray-900"
-                                    >
-                                      Close Issue
-                                    </Dialog.Title>
-                                    <div className="mt-2">
-                                      <p className="text-sm text-gray-500">
-                                        Are you sure you want to close this
-                                        issue? All of your data will be saved.
-                                        This action cannot be undone.
-                                      </p>
-                                      <TextareaInput
-                                        {...register2("resolution", {
-                                          required: "This is required",
-                                        })}
-                                        className="mt-3"
-                                        placeholder="Add your resolution..."
-                                      />
+                            <div>
+                              <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
+                                Options
+                                <ChevronDownIcon
+                                  className="-mr-1 ml-2 h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </Menu.Button>
+                            </div>
 
-                                      {errors2.resolution && (
-                                        <p className="mt-2 text-sm text-red-600">
-                                          {errors2.resolution.message}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
+                            <Transition
+                              show={open}
+                              as={Fragment}
+                              enter="transition ease-out duration-100"
+                              enterFrom="transform opacity-0 scale-95"
+                              enterTo="transform opacity-100 scale-100"
+                              leave="transition ease-in duration-75"
+                              leaveFrom="transform opacity-100 scale-100"
+                              leaveTo="transform opacity-0 scale-95"
+                            >
+                              <Menu.Items
+                                static
+                                className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                              >
+                                <div className="py-1">
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        onClick={() =>
+                                          setAssignModalIsOpen(true)
+                                        }
+                                        className={clsx(
+                                          active
+                                            ? "bg-gray-100 text-gray-900"
+                                            : "text-gray-700",
+                                          "block px-4 py-2 text-sm"
+                                        )}
+                                      >
+                                        Assign to me
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        onClick={() => {
+                                          reset3(editDefaultValue);
+                                          setEditModalIsOpen(true);
+                                        }}
+                                        className={clsx(
+                                          active
+                                            ? "bg-gray-100 text-gray-900"
+                                            : "text-gray-700",
+                                          "block px-4 py-2 text-sm"
+                                        )}
+                                      >
+                                        Edit
+                                      </a>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <a
+                                        href="#"
+                                        onClick={() =>
+                                          setSolveModalIsOpen(true)
+                                        }
+                                        className={clsx(
+                                          active
+                                            ? "bg-gray-100 text-gray-900"
+                                            : "text-gray-700",
+                                          "block px-4 py-2 text-sm"
+                                        )}
+                                      >
+                                        Close issue
+                                      </a>
+                                    )}
+                                  </Menu.Item>
                                 </div>
-                              </div>
-                              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <PrimaryButton
-                                  type="submit"
-                                  disabled={isSubmitting2}
-                                >
-                                  {isSubmitting2 ? "Loading..." : "Submit"}
-                                </PrimaryButton>
-                                <WhiteButton
-                                  type="button"
-                                  className="mr-2"
-                                  onClick={toggleModal}
-                                >
-                                  Cancel
-                                </WhiteButton>
-                              </div>
-                            </form>
+                              </Menu.Items>
+                            </Transition>
                           </>
-                        </Modal>
-                      </ModalContext.Provider>
+                        )}
+                      </Menu>
                     </div>
                   </div>
                   {/* Ticket header end */}
@@ -385,7 +656,7 @@ export default function ReplyTicket({
                       escalatedRole={getAssignees(ticketData.escalatedRole)}
                       priority={ticketData.paramTicketPriority?.priorityTicket}
                       ticketType={ticketData.paramTicketType?.ticketType}
-                      apps={ticketData.paramTicketApps?.name}
+                      apps={ticketData.paramTicketApps?.subName}
                     />
                   </aside>
                   {/* Ticket left content (Mobile version) end */}
@@ -444,9 +715,9 @@ export default function ReplyTicket({
                                       </div>
                                     ) : (
                                       <div className="relative px-1">
-                                        <div className="h-8 w-8 bg-gray-100 rounded-full ring-8 ring-white flex items-center justify-center">
+                                        <div className="h-8 w-8 bg-blue-100 rounded-full ring-8 ring-white flex items-center justify-center">
                                           <UserCircleIconSolid
-                                            className="h-5 w-5 text-gray-500"
+                                            className="h-5 w-5 text-blue-500"
                                             aria-hidden="true"
                                           />
                                         </div>
@@ -501,6 +772,37 @@ export default function ReplyTicket({
                                             src={item.historyContent}
                                             alt=""
                                           />
+                                        ) : item.historyType === "document" ? (
+                                          <div className="border border-gray-200 rounded-md divide-y divide-gray-200">
+                                            <div className="w-auto pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                                              <div className="w-0 flex-1 flex items-center">
+                                                <DocumentTextIcon
+                                                  className="flex-shrink-0 h-5 w-5 text-gray-400"
+                                                  aria-hidden="true"
+                                                />
+                                                <span className="ml-2 flex-1 w-0 truncate">
+                                                  {`Document ${createFileName(
+                                                    ticketData.id,
+                                                    item.id,
+                                                    item.historyContent
+                                                  )}`}
+                                                </span>
+                                              </div>
+                                              <div className="ml-4 flex-shrink-0">
+                                                <a
+                                                  href={item.historyContent}
+                                                  download={createFileName(
+                                                    ticketData.id,
+                                                    item.id,
+                                                    item.historyContent
+                                                  )}
+                                                  className="font-medium text-blue-500 hover:text-blue-400"
+                                                >
+                                                  Download
+                                                </a>
+                                              </div>
+                                            </div>
+                                          </div>
                                         ) : (
                                           <p>{item.historyContent}</p>
                                         )}
@@ -580,7 +882,7 @@ export default function ReplyTicket({
                                     defaultValue={null}
                                   >
                                     <option value="">Select...</option>
-                                    {optionList.listGroup.map((group) => (
+                                    {optionList.listGroupReply.map((group) => (
                                       <option
                                         value={group.prefix}
                                         key={group.value}
@@ -596,7 +898,6 @@ export default function ReplyTicket({
                                   </p>
                                 )}
                               </div>
-
                               {/* Internal SDK Destination Start */}
                               <div
                                 className={clsx(
@@ -637,48 +938,85 @@ export default function ReplyTicket({
                                 )}
                               </div>
                               {/* Internal SDK Destination End */}
-
+                              {/* Reply section (Textarea & Button) start */}
                               <div>
-                                <label
-                                  htmlFor="historyContent"
-                                  className="sr-only"
-                                >
-                                  historyContent
-                                </label>
+                                <div>
+                                  <label
+                                    htmlFor="historyContent"
+                                    className="sr-only"
+                                  >
+                                    historyContent
+                                  </label>
 
-                                <TextareaInput
-                                  {...register("historyContent", {
-                                    required: "This is required",
-                                  })}
-                                  placeholder="Add a reply..."
-                                />
+                                  <TextareaInput
+                                    {...register("historyContent", {
+                                      required: required.replyTextArea,
+                                    })}
+                                    placeholder="Add a reply..."
+                                    className={visibility.replyTextArea}
+                                  />
 
-                                {errors.historyContent && (
-                                  <p className="mt-2 text-sm text-red-600">
-                                    {errors.historyContent.message}
-                                  </p>
-                                )}
-                              </div>
-
-                              <div className="mt-6 flex items-center justify-end space-x-4">
-                                <PrimaryButton
-                                  type="submit"
-                                  className={
-                                    isLoading
-                                      ? "disabled:opacity-50 cursor-not-allowed"
-                                      : ""
-                                  }
-                                  disabled={isLoading}
-                                >
-                                  {isLoading ? (
-                                    <>
-                                      <Spinner /> Sending...
-                                    </>
-                                  ) : (
-                                    "Reply"
+                                  {errors.historyContent && (
+                                    <p className="mt-2 text-sm text-red-600">
+                                      {errors.historyContent.message}
+                                    </p>
                                   )}
-                                </PrimaryButton>
+
+                                  {/* Upload section start */}
+                                  <div className="mt-2">
+                                    <Upload
+                                      beforeUpload={(file) => {
+                                        setShowList(true);
+                                        setFileList(file);
+                                      }}
+                                      onRemove={() => setFileList([])}
+                                      listType="picture"
+                                      maxCount={1}
+                                      showUploadList={showList}
+                                    >
+                                      <button
+                                        onClick={handleUpload}
+                                        type="button"
+                                        className="inline-flex items-center px-4 py-2 text-sm italic rounded-md text-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
+                                      >
+                                        <PaperClipIcon
+                                          className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2"
+                                          aria-hidden="true"
+                                        />
+                                        Attach a file or drag here
+                                      </button>
+                                    </Upload>
+                                  </div>
+                                  {/* Upload section end */}
+                                </div>
+
+                                <div className="mt-6 flex items-center justify-end space-x-3">
+                                  <SecondaryButton
+                                    type="button"
+                                    onClick={handleResetButton}
+                                  >
+                                    Reset
+                                  </SecondaryButton>
+                                  <PrimaryButton
+                                    type="submit"
+                                    className={
+                                      replyIsLoading
+                                        ? "disabled:opacity-50 cursor-not-allowed"
+                                        : ""
+                                    }
+                                    disabled={replyIsLoading}
+                                  >
+                                    {replyIsLoading ? (
+                                      <>
+                                        <Spinner /> Sending...
+                                      </>
+                                    ) : (
+                                      "Reply"
+                                    )}
+                                  </PrimaryButton>
+                                </div>
                               </div>
+                              {/* Reply section (Textarea & Button) end */}
                             </form>
                           </div>
                         </div>
@@ -700,11 +1038,301 @@ export default function ReplyTicket({
                 escalatedRole={getAssignees(ticketData.escalatedRole)}
                 priority={ticketData.paramTicketPriority?.priorityTicket}
                 ticketType={ticketData.paramTicketType?.ticketType}
-                apps={ticketData.paramTicketApps?.name}
+                apps={ticketData.paramTicketApps?.subName}
               />
             </aside>
             {/* Ticket left content (Desktop version) end */}
           </div>
+          {/* START -- place Modal component here */}
+          <Modal
+            show={solveModalIsOpen}
+            onClose={setSolveModalIsOpen}
+            size="medium"
+          >
+            <form key={2} onSubmit={handleSubmit2(handleCloseSubmit)}>
+              <ModalBody>
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <CheckCircleIcon
+                      className="h-6 w-6 text-green-500"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Close Issue
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to close this issue? All of your
+                        data will be saved. This action cannot be undone.
+                      </p>
+                      {errorMsg.length > 0 && (
+                        <CustomAlert
+                          type="danger"
+                          title="Something went wrong!"
+                          className="mt-2"
+                          dismissButton={true}
+                        >
+                          <p>{errorMsg}</p>
+                        </CustomAlert>
+                      )}
+                      <TextareaInput
+                        {...register2("resolution", {
+                          required: "This is required",
+                        })}
+                        className="mt-3"
+                        placeholder="Add your resolution..."
+                      />
+
+                      {errors2.resolution && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {errors2.resolution.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <PrimaryButton
+                  type="submit"
+                  className={
+                    solveIsLoading
+                      ? "disabled:opacity-50 cursor-not-allowed"
+                      : ""
+                  }
+                  disabled={solveIsLoading}
+                >
+                  {solveIsLoading ? (
+                    <>
+                      <Spinner /> Sending...
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </PrimaryButton>
+                <WhiteButton
+                  type="button"
+                  className="mr-2"
+                  onClick={() => setSolveModalIsOpen(false)}
+                >
+                  Cancel
+                </WhiteButton>
+              </ModalFooter>
+            </form>
+          </Modal>
+
+          <Modal
+            show={editModalIsOpen}
+            onClose={setEditModalIsOpen}
+            size="x-large"
+          >
+            <form key={3} onSubmit={handleSubmit3(OnEditSubmit)}>
+              <ModalBody>
+                <div className="sm:flex sm:items-center">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <PencilIcon
+                      className="h-6 w-6 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Edit ticket
+                    </h3>
+                  </div>
+                </div>
+                <div className="mt-5 grid grid-cols-4 gap-6">
+                  <div className="col-span-2 sm:col-span-2">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Application
+                    </label>
+                    <Controller
+                      name="idApps"
+                      control={control3}
+                      rules={{ required: "This is required" }}
+                      render={({ field }) => (
+                        <AsyncSelect
+                          {...field}
+                          name="idApps"
+                          instanceId={"idApps"}
+                          styles={styledReactSelect}
+                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Search for application"
+                          loadOptions={loadApplications}
+                          components={{
+                            Option: IconOption,
+                            SingleValue: ValueOption,
+                          }}
+                        />
+                      )}
+                    />
+                    {errors3.idApps && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors3.idApps.message}
+                      </p>
+                    )}
+                    <span className="mt-2 text-xs italic font-normal text-gray-500">
+                      Type at least 3 letters of application name
+                    </span>
+                  </div>
+                  <div className="col-span-2 sm:col-span-2">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Ticket Type
+                    </label>
+                    <Controller
+                      name="idTicketType"
+                      control={control3}
+                      rules={{ required: "This is required" }}
+                      render={({ field }) => (
+                        <ReactSelect
+                          {...field}
+                          instanceId={"idTicketType"}
+                          options={optionList.ticketType}
+                          isSearchable={false}
+                        />
+                      )}
+                    />
+                    {errors3.idTicketType && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors3.idTicketType.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="col-span-2 sm:col-span-2">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Ticket Priority
+                    </label>
+                    <Controller
+                      name="idPriorityTicket"
+                      control={control3}
+                      rules={{ required: "This is required" }}
+                      render={({ field }) => (
+                        <ReactSelect
+                          {...field}
+                          instanceId={"idPriorityTicket"}
+                          options={optionList.ticketPriority}
+                          menuPortalTarget={portalTarget}
+                          isSearchable={false}
+                        />
+                      )}
+                    />
+                    {errors3.idPriorityTicket && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors3.idPriorityTicket.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="col-span-2 sm:col-span-2">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Escalated Group
+                    </label>
+                    <Controller
+                      name="idEscalatedGroup"
+                      control={control3}
+                      rules={{ required: "This is required" }}
+                      render={({ field }) => (
+                        <ReactSelect
+                          {...field}
+                          instanceId={"idEscalatedGroup"}
+                          options={optionList.listGroupEdit}
+                          menuPortalTarget={portalTarget}
+                        />
+                      )}
+                    />
+                    {errors3.idEscalatedGroup && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors3.idEscalatedGroup.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <PrimaryButton
+                  type="submit"
+                  className={
+                    editIsLoading
+                      ? "disabled:opacity-50 cursor-not-allowed"
+                      : ""
+                  }
+                  disabled={editIsLoading}
+                >
+                  {editIsLoading ? (
+                    <>
+                      <Spinner /> Sending...
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </PrimaryButton>
+                <WhiteButton
+                  type="button"
+                  className="mr-2"
+                  onClick={() => {
+                    reset3(editDefaultValue);
+                    setEditModalIsOpen(false);
+                  }}
+                >
+                  Cancel
+                </WhiteButton>
+              </ModalFooter>
+            </form>
+          </Modal>
+
+          <Modal show={assignModalIsOpen} onClose={setAssignModalIsOpen}>
+            <ModalBody>
+              <div className="sm:flex sm:items-start">
+                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <UserAddIcon
+                    className="h-6 w-6 text-blue-500"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    Assign ticket
+                  </h3>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Are you sure you want to assign this ticket ? This action
+                      cannot be undone.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <PrimaryButton
+                type="button"
+                onClick={handleAssignTicket}
+                disabled={assignIsLoading}
+                className={
+                  assignIsLoading
+                    ? "disabled:opacity-50 cursor-not-allowed"
+                    : ""
+                }
+              >
+                {assignIsLoading ? (
+                  <>
+                    {" "}
+                    <Spinner /> Assigning...
+                  </>
+                ) : (
+                  "Assign"
+                )}
+              </PrimaryButton>
+              <WhiteButton
+                type="button"
+                className="mr-2"
+                onClick={() => setAssignModalIsOpen(false)}
+              >
+                Cancel
+              </WhiteButton>
+            </ModalFooter>
+          </Modal>
+          {/* END -- place Modal component here */}
         </DefaultCard>
       </LayoutPageContent>
     </LayoutPage>
@@ -738,11 +1366,12 @@ export const getServerSideProps = withSession(async function ({
 
   if (res.status === 200) {
     // Pass data to the page via props
+    data.ticketHistoryData.shift();
     return {
       props: {
         user: req.session.get("user"),
         ticketData: data.ticketData,
-        ticketHistoryData: data.ticketHistoryData.slice(0, -1),
+        ticketHistoryData: data.ticketHistoryData,
         paramGroup: listGroup.data,
       },
     };

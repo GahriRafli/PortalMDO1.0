@@ -71,15 +71,16 @@ const TextareaInput = React.forwardRef(
   )
 );
 
-const ReactSelect = ({ className, ...rest }) => (
+const ReactSelect = React.forwardRef(({ className, ...rest }, ref) => (
   <Select
     className={clsx(
       "text-sm focus:ring-blue-300 focus:border-blue-300",
       className
     )}
     styles={styledReactSelect}
+    ref={ref}
     {...rest}
   />
-);
+));
 
 export { Input, ReactSelect, RadioInput, TextareaInput };

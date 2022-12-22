@@ -54,7 +54,6 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   const irNumber = query.incidentNumber || "";
   const incidentName = query.incidentName || "";
 
-
   if (
     query.page ||
     query.perPage ||
@@ -64,7 +63,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     query.filterStartTime ||
     query.filterEndTime ||
     query.incidentNumber ||
-    query.incidentName 
+    query.incidentName
   ) {
     url.searchParams.append("page", page);
     url.searchParams.append("perPage", perPage);
@@ -183,7 +182,7 @@ function IncidentList(props) {
     { value: "25", label: "Showing 25" },
     { value: "50", label: "Showing 50" },
   ];
-  
+
   // Get data aplikai async
   const loadApplications = (value, callback) => {
     clearTimeout(timeoutId);
@@ -337,7 +336,7 @@ function IncidentList(props) {
   const handleperPageChange = (e, { action }) => {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
-    
+
     if (action === "select-option") {
       currentQuery.perPage = e.value;
       router.push({
@@ -530,7 +529,9 @@ function IncidentList(props) {
                               </label>
                               <InputTag
                                 allowClear
-                                onChange={(e) => handleSearchChange(e.target.value)}
+                                onChange={(e) =>
+                                  handleSearchChange(e.target.value)
+                                }
                                 placeholder={`${count} records...`}
                                 prefix={
                                   <SearchIcon
@@ -654,7 +655,7 @@ function IncidentList(props) {
                   <div className="text-sm ">
                     {/* Showing{" "} */}
                     <div className="flex gap-x-1">
-                    <div>
+                      <div>
                         <ReactSelect
                           id="perPage"
                           instanceId={"perPage"}
@@ -666,10 +667,14 @@ function IncidentList(props) {
                         />
                       </div>
                       <div className="mt-2 ml-2">
-                        <span className="font-medium">Page {props.currentPage}</span> to{" "}
-                        <span className="font-medium">{props.pageCount}</span> of{" "} 
+                        <span className="font-medium">
+                          Page {props.currentPage}
+                        </span>{" "}
+                        to{" "}
+                        <span className="font-medium">{props.pageCount}</span>{" "}
+                        of{" "}
                         <span className="font-medium">{props.totalCount}</span>{" "}
-                          results
+                        results
                       </div>
                     </div>
                   </div>

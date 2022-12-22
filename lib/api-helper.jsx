@@ -33,6 +33,7 @@ function getApplication(value, callback) {
         const cachedOptions = res.data.map((d) => ({
           value: d.id,
           label: d.subName,
+          criticality: d.criticalityApp,
         }));
         callback(cachedOptions);
       })
@@ -60,6 +61,14 @@ async function getBroadcastRecipient(id) {
   );
 }
 
+async function getTicketType() {
+  return await fetcher(`${URL}/parameters/tickettype?isActive=Y`);
+}
+
+async function getPriorityTicket() {
+  return await fetcher(`${URL}/parameters/priorityticket?isActive=Y`);
+}
+
 export {
   getApplication,
   getCriticalityApp,
@@ -67,4 +76,6 @@ export {
   getListGroup,
   getCategoryBroadcast,
   getBroadcastRecipient,
+  getTicketType,
+  getPriorityTicket,
 };
