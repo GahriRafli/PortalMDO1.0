@@ -3,6 +3,7 @@ import { Transition, Disclosure } from "@headlessui/react";
 import { ChevronRightIcon } from "@heroicons/react/outline";
 import { checkMemberAES } from "./problems/ProblemHelper";
 import { components } from "react-select";
+import { format } from "date-fns";
 const { Option, SingleValue } = components;
 
 function classNames(...classes) {
@@ -11,15 +12,24 @@ function classNames(...classes) {
 
 function getCriticalityIcon(criticality) {
   let iconName;
-  criticality.startsWith("low")
-    ? (iconName = "/icon-priority/low.svg")
-    : criticality.startsWith("medium")
-    ? (iconName = "/icon-priority/medium.svg")
-    : criticality.startsWith("high")
-    ? (iconName = "/icon-priority/high.svg")
-    : criticality.startsWith("critical")
-    ? (iconName = "/icon-priority/highest.svg")
-    : (iconName = "/icon-priority/trivial.svg");
+
+  switch (criticality) {
+    case "low":
+      iconName = "/icon-priority/low.svg";
+      break;
+    case "medium":
+      iconName = "/icon-priority/medium.svg";
+      break;
+    case "high":
+      iconName = "/icon-priority/high.svg";
+      break;
+    case "critical severity 1":
+    case "critical severity 2":
+      iconName = "/icon-priority/highest.svg";
+      break;
+    default:
+      iconName = "/icon-priority/trivial.svg";
+  }
 
   return iconName;
 }
@@ -36,6 +46,7 @@ const styledReactSelect = {
     fontSize: "0.875rem",
     lineHeight: "1.25rem",
   }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
 const styledReactSelectAdd = {
@@ -97,6 +108,18 @@ function createParam(queryParam) {
       '"}'
   );
   return newParam;
+}
+
+function createFileName(id = null, subId = null, url) {
+  const now = format(new Date(), "yyyyMMdd");
+  const num = Math.floor(Math.random() * 1000) + 1;
+  const extension = url.split(".").pop();
+
+  if (id || subId) {
+    return `${now}-${id}-${subId}.${extension}`;
+  } else {
+    return `${now}-${num}.${extension}`;
+  }
 }
 
 const DisclosureOpen = ({ item, router, session }) => {
@@ -281,4 +304,5 @@ export {
   DisclosureDefault,
   createParam,
   getCriticalityIcon,
+  createFileName,
 };
