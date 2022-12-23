@@ -1,7 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { Area } from '@ant-design/plots';
 import Head from "next/head";
-import { ShowChart } from "components/chart";
 import axios from "axios";
 import withSession from "lib/session";
 import Layout from "components/layout";
@@ -9,7 +7,7 @@ import PageHeader from "components/incidents/page-header";
 import DateRangeFilter from "components/incidents/daterange-filter";
 import { PrimaryButton } from "components/ui/button";
 import { SecondaryButton } from "components/ui/button";
-import Select, { components } from "react-select";
+import { components } from "react-select";
 import { ReactSelect } from "components/ui/forms";
 import { toast } from "react-toastify";
 import format from "date-fns/format";
@@ -19,7 +17,10 @@ import { Spinner } from "components/ui/svg/spinner";
 import { classNames } from "components/utils";
 import { Spin } from "antd";
 import { useReactToPrint } from "react-to-print";
-import { CustomChart } from "components/custom-chart";
+import { ShieldExclamationIcon } from "@heroicons/react/solid";
+// import { CustomChart } from "components/custom-chart";
+// import { ShowChart } from "components/chart";
+// import { Area } from '@ant-design/plots';
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -38,7 +39,6 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     },
   };
 });
-
 
 export default function ThirdParty({ user }) {
   const [portalTarget, setPortalTarget] = useState("");
@@ -72,35 +72,34 @@ export default function ThirdParty({ user }) {
     ],
   };
 
- 
   const config = {
     data: [],
-    smooth : true,
-    xField: 'metric',
-    yField: 'value',
+    smooth: true,
+    xField: "metric",
+    yField: "value",
     xAxis: {
       range: [0, 1],
       tickCount: 5,
     },
     areaStyle: () => {
       return {
-        fill: 'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff',
+        fill: "l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff",
       };
     },
   };
 
   const config2 = {
     data: [],
-    smooth : true,
-    xField: 'metric',
-    yField: 'value',
+    smooth: true,
+    xField: "metric",
+    yField: "value",
     xAxis: {
       range: [0, 1],
       tickCount: 5,
     },
     areaStyle: () => {
       return {
-        fill: 'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff',
+        fill: "l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff",
       };
     },
   };
@@ -109,7 +108,6 @@ export default function ThirdParty({ user }) {
   // const [downtimeChartData, setDowntimeChartData] = useState(initialChartData);
   const [downtimeChartData, setDowntimeChartData] = useState(config2);
   //console.log(downtimeChartData);
-
 
   const stats = [
     {
@@ -149,7 +147,6 @@ export default function ThirdParty({ user }) {
       icon: "Wallet.png",
     },
   ];
-
 
   const [tableData, setTableData] = useState([]);
   const componentRef = useRef(null);
@@ -244,9 +241,15 @@ export default function ThirdParty({ user }) {
         partnerLogo: data.data.thirdPartyLogo,
         startTime: startTime,
         endTime: endTime,
-        totalInq: data.transactionSummary.totalInquiry.startsWith('0.00') ? null : data.transactionSummary.totalInquiry,
+        totalInq: data.transactionSummary.totalInquiry.startsWith("0.00")
+          ? null
+          : data.transactionSummary.totalInquiry,
         totalPay: data.transactionSummary.totalPayment,
-        successRateInq: data.transactionSummary.successRateInquiry.startsWith('0.00') ? null : data.transactionSummary.successRateInquiry.slice(0, -1),
+        successRateInq: data.transactionSummary.successRateInquiry.startsWith(
+          "0.00"
+        )
+          ? null
+          : data.transactionSummary.successRateInquiry.slice(0, -1),
         successRatePay: data.transactionSummary.sucessRatePayment.slice(0, -1),
         salesVolume: data.transactionSummary.totalSalesVolume,
       }));
@@ -275,9 +278,9 @@ export default function ThirdParty({ user }) {
         ...incidentChartData,
         labels: chartLabels,
         data: data.incidentSummaryData.map((d) => ({
-          metric : d.incidentDate,
-          value : d.numberOfIncident
-        }))
+          metric: d.incidentDate,
+          value: d.numberOfIncident,
+        })),
       }));
 
       // Change line chart dashboard
@@ -296,8 +299,8 @@ export default function ThirdParty({ user }) {
         ...downtimeChartData,
         data: data.incidentSummaryData.map((d) => ({
           metric: d.incidentDate,
-          value: d.totalDowntime
-        }))
+          value: d.totalDowntime,
+        })),
       }));
 
       setTableData(data.incidentDetailData);
@@ -461,45 +464,45 @@ export default function ThirdParty({ user }) {
                           </p>
                         </dt>
                         <dd className="pb-6 flex items-baseline sm:pb-7">
-                          {item.id == 2 || item.id == 3 ?  (
+                          {item.id == 2 || item.id == 3 ? (
                             item.stat.totalInq !== null ? (
-                            <>
-                              <div className="bg-blue-100 rounded px-1 py-0">
-                                <span className="text-blue-700 text-xs">
-                                  inq
-                                </span>
-                              </div>
+                              <>
+                                <div className="bg-blue-100 rounded px-1 py-0">
+                                  <span className="text-blue-700 text-xs">
+                                    inq
+                                  </span>
+                                </div>
+                                <p
+                                  className={classNames(
+                                    "ml-2 mr-2 text-lg font-semibold",
+                                    item.color
+                                  )}
+                                >
+                                  {item.stat.totalInq}
+                                </p>
+                                <div className="bg-blue-100 rounded px-1 py-0">
+                                  <span className="text-blue-700 text-xs">
+                                    pay
+                                  </span>
+                                </div>
+                                <p
+                                  className={classNames(
+                                    "ml-2 text-lg font-semibold",
+                                    item.color
+                                  )}
+                                >
+                                  {item.stat.totalPay}
+                                </p>
+                              </>
+                            ) : (
                               <p
                                 className={classNames(
-                                  "ml-2 mr-2 text-lg font-semibold",
-                                  item.color
-                                )}
-                              >
-                                {item.stat.totalInq}
-                              </p>
-                              <div className="bg-blue-100 rounded px-1 py-0">
-                                <span className="text-blue-700 text-xs">
-                                  pay
-                                </span>
-                              </div>
-                              <p
-                                className={classNames(
-                                  "ml-2 text-lg font-semibold",
+                                  "text-2xl font-semibold",
                                   item.color
                                 )}
                               >
                                 {item.stat.totalPay}
                               </p>
-                            </>
-                            ) : (
-                              <p
-                              className={classNames(
-                                "text-2xl font-semibold",
-                                item.color
-                              )}
-                            >
-                              {item.stat.totalPay}
-                            </p>
                             )
                           ) : (
                             <p
@@ -519,7 +522,7 @@ export default function ThirdParty({ user }) {
                 {/* End of Stats */}
 
                 {/* Card */}
-               
+
                 {/* End of Card */}
 
                 <div className="grid grid-cols-6 gap-6 print:grid-cols-1">
@@ -529,29 +532,37 @@ export default function ThirdParty({ user }) {
                       <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
                         <div className="px-1 py-2 sm:px-6 sm:flex-1">
                           <h2 className="text-sm leading-6 font-medium text-gray-900">
-                            Total Incident 
+                            Total Incident
                           </h2>
                         </div>
                       </div>
                       <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
-                          <Area {...incidentChartData} />
+                        {/* <Area {...incidentChartData} /> */}
+                        <div className="flex flex-1 justify-center space-x-2">
+                          <ShieldExclamationIcon className="h-5 w-5 text-gray-300" />
+                          <span>Sorry! Chart is under construction.</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                   <div className="col-span-3 print:col-span-1">
-                      {/* New Card */}
-                      <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
-                        <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
-                          <div className="px-1 py-2 sm:px-6 sm:flex-1">
-                            <h2 className="text-sm leading-6 font-medium text-gray-900">
-                              Total Downtime (minutes) 
-                            </h2>
-                          </div>
-                        </div>
-                        <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
-                            <Area {...downtimeChartData} />
+                    {/* New Card */}
+                    <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
+                      <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
+                        <div className="px-1 py-2 sm:px-6 sm:flex-1">
+                          <h2 className="text-sm leading-6 font-medium text-gray-900">
+                            Total Downtime (minutes)
+                          </h2>
                         </div>
                       </div>
+                      <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
+                        {/* <Area {...downtimeChartData} /> */}
+                        <div className="flex flex-1 justify-center space-x-2">
+                          <ShieldExclamationIcon className="h-5 w-5 text-gray-300" />
+                          <span>Sorry! Chart is under construction.</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
