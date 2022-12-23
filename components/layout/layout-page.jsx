@@ -1,9 +1,9 @@
+import Head from "next/head";
 import { LayoutNav } from "./layout-nav";
 import { LayoutMain } from "./layout-main";
 import { LayoutRoot } from "./layout-root";
 import { LayoutSidebar } from "./layout-sidebar";
-import Head from "next/head";
-import { CustomToaster } from "components/ui/notifications/custom-toast";
+import { Toaster } from "react-hot-toast";
 
 export const LayoutPage = ({ children, session, pageTitle }) => {
   return (
@@ -18,7 +18,20 @@ export const LayoutPage = ({ children, session, pageTitle }) => {
         <meta name="robots" content="noindex,nofollow" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
-      <CustomToaster />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 5000,
+          style: {
+            maxWidth: 800,
+          },
+          success: {
+            iconTheme: {
+              primary: "#48DD85",
+            },
+          },
+        }}
+      />
       <LayoutSidebar session={session} />
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         <LayoutNav session={session} searchNotif={true} />

@@ -42,85 +42,82 @@ export function LayoutNav({ session, searchNotif }) {
       {/* Search bar */}
       <div className="flex-1 px-4 flex justify-between sm:px-6 lg:max-w-full lg:mx-auto lg:px-8">
         <div className="flex-1 flex">
-          {searchNotif ? 
-          <>
-            <form className="w-full flex md:ml-0" action="#" method="GET">
-              <label htmlFor="search-field" className="sr-only">
-                Search
-              </label>
-              <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-                <div
-                  className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
-                  aria-hidden="true"
-                >
-                  <SearchIcon className="h-5 w-5" aria-hidden="true" />
+          {searchNotif ? (
+            <>
+              <form className="w-full flex md:ml-0" action="#" method="GET">
+                <label htmlFor="search-field" className="sr-only">
+                  Search
+                </label>
+                <div className="relative w-full text-gray-400 focus-within:text-gray-600">
+                  <div
+                    className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
+                    aria-hidden="true"
+                  >
+                    <SearchIcon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <input
+                    id="search-field"
+                    name="search-field"
+                    className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
+                    placeholder="Search"
+                    type="search"
+                  />
                 </div>
-                <input
-                  id="search-field"
-                  name="search-field"
-                  className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
-                  placeholder="Search"
-                  type="search"
-                />
-              </div>
-            </form>
-          </> 
-          : ""}
-          
+              </form>
+            </>
+          ) : (
+            ""
+          )}
         </div>
         <div className="ml-4 flex items-center md:ml-6">
           {/* Notification dropdown */}
-          <Menu as="div" className="ml-3 relative">
-            {({ open }) => (
-              <>
-                <div>
-                  <Menu.Button className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span className="sr-only">View notifications</span>
-                    <BellIcon className="h-6 w-6" aria-hidden="true" />
-                  </Menu.Button>
-                </div>
-                <Transition
-                  show={open}
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items
-                    static
-                    className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  >
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={clsx(
-                            active ? "bg-gray-100" : "",
-                            "block px-4 py-2 text-sm text-gray-700"
+          {searchNotif ? (
+            <>
+              <Menu as="div" className="ml-3 relative">
+                {({ open }) => (
+                  <>
+                    <div>
+                      <Menu.Button className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span className="sr-only">View notifications</span>
+                        <BellIcon className="h-6 w-6" aria-hidden="true" />
+                      </Menu.Button>
+                    </div>
+                    <Transition
+                      show={open}
+                      as={Fragment}
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Menu.Items
+                        static
+                        className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                      >
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a
+                              href="#"
+                              className={clsx(
+                                active ? "bg-gray-100" : "",
+                                "block px-4 py-2 text-sm text-gray-700"
+                              )}
+                            >
+                              You don't have notifications yet
+                            </a>
                           )}
-                        >
-                          You don't have notifications yet
-                        </a>
-                      )}
-                    </Menu.Item>
-                  </Menu.Items>
-                </Transition>
-              </>
-            )}
-          </Menu>
-
-          {searchNotif ? 
-          <>
-             <button className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <span className="sr-only">View notifications</span>
-                <BellIcon className="h-6 w-6" aria-hidden="true" />
-              </button> 
-          </> 
-          : ""}
-          
+                        </Menu.Item>
+                      </Menu.Items>
+                    </Transition>
+                  </>
+                )}
+              </Menu>
+            </>
+          ) : (
+            ""
+          )}
 
           {/* Profile dropdown */}
           <Menu as="div" className="ml-3 relative">

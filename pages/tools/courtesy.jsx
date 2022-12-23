@@ -102,10 +102,7 @@ export default function Courtesy({ user }) {
 
   return (
     <LayoutPage session={user} pageTitle="Courtesy - Shield">
-      <LayoutPageHeader
-        variant="alternate"
-        pageTitle="Courtesy"
-      ></LayoutPageHeader>
+      <LayoutPageHeader variant="alternate" pageTitle="Courtesy" />
       <LayoutPageContent>
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2">
