@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import DatePicker from "../../../components/ui/datepicker";
+import DatePicker from "components/ui/datepicker";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -11,20 +11,20 @@ import Select, { components } from "react-select";
 import AsyncSelect from "react-select/async";
 import format from "date-fns/format";
 import { toast } from "react-toastify";
-import Layout from "../../../components/layout";
-import { Input } from "../../../components/ui/forms";
+import Layout from "components/layout";
+import { Input } from "components/ui/forms";
 import {
   classNames,
   styledReactSelect,
   IconOption,
   ValueOption,
-} from "../../../components/utils";
-import { PrimaryButton } from "../../../components/ui/button/primary-button";
-import { SecondaryButton } from "../../../components/ui/button/secondary-button";
-import { Spinner } from "../../../components/ui/svg/spinner";
-import PageHeader from "../../../components/incidents/page-header";
-import docs from "../../components/incidents/docs.json";
-import withSession from "../../../lib/session";
+} from "components/utils";
+import { PrimaryButton } from "components/ui/button/primary-button";
+import { SecondaryButton } from "components/ui/button/secondary-button";
+import { Spinner } from "components/ui/svg/spinner";
+import PageHeader from "components/incidents/page-header";
+import docs from "components/incidents/docs.json";
+import withSession from "lib/session";
 
 function addIncident({ user }) {
   // Digunakan utuk fungsi reset form

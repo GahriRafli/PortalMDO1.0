@@ -1,8 +1,8 @@
 import DateRangeFilter from "components/incidents/daterange-filter";
 import Head from "next/head";
 import Link from "next/link";
-import Layout from "../components/layout";
-import withSession from "../lib/session";
+import Layout from "components/layout";
+import withSession from "lib/session";
 import {
   OfficeBuildingIcon,
   DocumentSearchIcon,
@@ -15,7 +15,7 @@ import axios from "axios";
 import { PrimaryButton } from "components/ui/button/primary-button";
 import AsyncSelect from "react-select/async";
 import { styledReactSelectAdd } from "components/utils";
-import { ShowChart } from "../components/chart";
+import { ShowChart } from "components/chart";
 import palette from "google-palette";
 import { toast } from "react-toastify";
 

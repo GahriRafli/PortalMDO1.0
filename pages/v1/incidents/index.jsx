@@ -2,23 +2,23 @@ import { Input as InputTag, Tooltip as TooltipTag, Space } from "antd";
 import DateRangeFilter from "components/incidents/daterange-filter";
 import Head from "next/head";
 import Link from "next/link";
-import Layout from "../../../components/layout";
-import AvatarCell from "../../../components/incidents/avatar-cell";
-import PageHeader from "../../../components/incidents/page-header";
-import Table from "../../../components/incidents/table";
+import Layout from "components/layout";
+import AvatarCell from "components/incidents/avatar-cell";
+import PageHeader from "components/incidents/page-header";
+import Table from "components/incidents/table";
 import {
   SelectColumnFilter,
   StatusFilter,
-} from "../../../components/incidents/dropdown-filter";
+} from "components/incidents/dropdown-filter";
 import axios from "axios";
-import withSession from "../../../lib/session";
+import withSession from "lib/session";
 import format from "date-fns/format";
 import { useMemo } from "react";
 import {
   StatusPill,
   StatusText,
   StatusIncident,
-} from "../../../components/incidents/status-pill";
+} from "components/incidents/status-pill";
 import {
   PlusSmIcon,
   SearchIcon,
@@ -38,7 +38,6 @@ import "regenerator-runtime";
 import { Disclosure } from "@headlessui/react";
 import { useRouter } from "next/router";
 import ReactPaginate from "react-paginate";
-import { classNames } from "components/utils";
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
