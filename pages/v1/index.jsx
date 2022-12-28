@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
-import Layout from "../components/layout";
-import withSession from "../lib/session";
+import Layout from "components/layout";
+import withSession from "lib/session";
 import {
   OfficeBuildingIcon,
   DocumentSearchIcon,
@@ -24,7 +24,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
   const data = await res.json();
-  
+
   if (res.status === 200) {
     // Pass data to the page via props
     return {
