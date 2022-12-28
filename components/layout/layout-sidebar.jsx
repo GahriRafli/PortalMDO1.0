@@ -1,13 +1,13 @@
-import clsx from "clsx";
 import { Fragment, useRef, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import clsx from "clsx";
 import { navigation } from "lib/layout/sidebar-data";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
-import { useLayoutStore } from "lib/layout/layout-store";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import { DisclosureOpen, DisclosureDefault } from "./accordion/index";
 import { UserCircleIcon } from "@heroicons/react/solid";
+import { useLayoutStore } from "lib/layout/layout-store";
+import { DisclosureOpen, DisclosureDefault } from "./accordion/index";
 
 export function LayoutSidebar({ session }) {
   const router = useRouter();
@@ -91,7 +91,7 @@ export function LayoutSidebar({ session }) {
                 className="mt-5 flex-shrink-0 h-full divide-y divide-gray-900 overflow-y-auto"
                 aria-label="Sidebar"
               >
-                {/* isi konten sidebar */}
+                {/* isi konten sidebar mobile */}
               </nav>
             </div>
           </Transition.Child>

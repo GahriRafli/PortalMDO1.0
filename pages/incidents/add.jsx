@@ -1,32 +1,46 @@
 import { useState, useEffect } from "react";
-import DatePicker from "../../components/ui/datepicker";
-import axios from "axios";
-import Head from "next/head";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import DatePicker from "components/ui/datepicker";
+import axios from "axios";
 import { Disclosure, Switch } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/outline";
+import { ArrowCircleLeftIcon, ChevronDownIcon } from "@heroicons/react/outline";
 import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
 import { Controller, useForm } from "react-hook-form";
-import Select, { components } from "react-select";
+import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import format from "date-fns/format";
-import { toast } from "react-toastify";
-import Layout from "../../components/layout";
-import { Input } from "../../components/ui/forms";
+import { toast } from "react-hot-toast";
+import { Input } from "components/ui/forms";
 import {
   classNames,
   styledReactSelect,
   IconOption,
   ValueOption,
-} from "../../components/utils";
-import { PrimaryButton } from "../../components/ui/button/primary-button";
-import { SecondaryButton } from "../../components/ui/button/secondary-button";
-import { Spinner } from "../../components/ui/svg/spinner";
-import PageHeader from "../../components/incidents/page-header";
-import docs from "../../components/incidents/docs.json";
-import withSession from "../../lib/session";
+} from "components/utils";
+import { PrimaryButton } from "components/ui/button/primary-button";
+import { SecondaryButton } from "components/ui/button/secondary-button";
+import { Spinner } from "components/ui/svg/spinner";
+import docs from "components/incidents/docs.json";
+import withSession from "lib/session";
+import {
+  LayoutPage,
+  LayoutPageHeader,
+  LayoutPageContent,
+} from "components/layout/index";
+import { getApplication } from "lib/api-helper";
 
-function addIncident({ user }) {
+export default function addIncident({ user }) {
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const router = useRouter();
+  const [enabled, setEnabled] = useState(false); // Untuk toggle incident resolved
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [urgencyOptions, setUrgencyOptions] = useState([]);
+  const [impactOptions, setImpactOptions] = useState([]);
+  const [problemTypeOptions, setProblemTypeOptions] = useState([]);
+  const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
+  const [isProblem, setIsProblem] = useState(false); // Untuk toggle permanent fix
+
   // Digunakan utuk fungsi reset form
   const defaultValues = {
     incidentName: "",
@@ -58,21 +72,16 @@ function addIncident({ user }) {
     defaultValues: {},
   });
   const { errors, isSubmitting } = formState;
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const router = useRouter();
-  const [enabled, setEnabled] = useState(false); // Untuk toggle incident resolved
-  const [categoryOptions, setCategoryOptions] = useState([]);
-  const [urgencyOptions, setUrgencyOptions] = useState([]);
-  const [impactOptions, setImpactOptions] = useState([]);
-  const [problemTypeOptions, setProblemTypeOptions] = useState([]);
-  const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
-  const [isProblem, setIsProblem] = useState(false); // Untuk toggle permanent fix
 
+  /** ==================== Data Fetching Start ==================== */
   // Get data category system
   useEffect(() => {
     axios
       .get(
-        `${process.env.NEXT_PUBLIC_API_URL}/parameters/categorysystem?isActive=Y`
+        `${process.env.NEXT_PUBLIC_API_URL_V2}/parameters/categorysystem?isActive=Y`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
       )
       .then((response) => {
         const data = response.data.data.map((d) => ({
@@ -114,34 +123,7 @@ function addIncident({ user }) {
 
   // Get data applications with async
   const loadApplications = (value, callback) => {
-    clearTimeout(timeoutId);
-
-    if (value.length < 3) return callback([]);
-
-    const timeoutId = setTimeout(() => {
-      axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}&status=A`
-        )
-        .then((res) => {
-          const cachedOptions = res.data.data.map((d) => ({
-            value: d.id,
-            label: d.subName,
-            criticality: d.criticalityApp,
-          }));
-
-          callback(cachedOptions);
-        })
-        .catch((err) => toast.error(`Application ${err}`));
-    }, 500);
-  };
-
-  const NoOptionsMessage = (props) => {
-    return (
-      <components.NoOptionsMessage {...props}>
-        <span>Type at least 3 letters of application name</span>
-      </components.NoOptionsMessage>
-    );
+    getApplication(value, callback, user.accessToken);
   };
 
   // Get data Problem Type
@@ -164,7 +146,10 @@ function addIncident({ user }) {
   useEffect(() => {
     axios
       .get(
-        `${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype?isActive=Y`
+        `${process.env.NEXT_PUBLIC_API_URL_V2}/parameters/incidenttype?isActive=Y`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
       )
       .then((res) => {
         const data = res.data.data.map((d) => ({
@@ -175,21 +160,26 @@ function addIncident({ user }) {
       })
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
+  /** ==================== Data Fetching End ==================== */
 
   // Handle validate datetime
-  const st = new Date(getValues("startTime"));
-  const et = new Date(getValues("endTime"));
-  const ls = new Date(getValues("logStartTime"));
+  const timeType = {
+    logStartTime: new Date(getValues("logStartTime")),
+    startTime: new Date(getValues("startTime")),
+    endTime: new Date(getValues("endTime")),
+  };
+  const { logStartTime, startTime, endTime } = timeType;
 
   const handleDatetime = () => {
     return (
-      st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
-      ls.setSeconds(0, 0) < et.setSeconds(0, 0)
+      startTime.setSeconds(0, 0) < endTime.setSeconds(0, 0) &&
+      logStartTime.setSeconds(0, 0) < endTime.setSeconds(0, 0)
     );
   };
 
   // Handle validate start time
-  const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0);
+  const handleStartTime = () =>
+    logStartTime.setSeconds(0, 0) <= startTime.setSeconds(0, 0);
 
   // Handle switch button when incident is over
   const handleSwitch = (value) => {
@@ -263,14 +253,15 @@ function addIncident({ user }) {
   };
 
   return (
-    <>
-      <Layout session={user}>
-        <Head>
-          <title>Declare New Incident - Shield</title>
-        </Head>
-        {/* Page title & actions */}
-        <PageHeader title="Create New Incident"></PageHeader>
-        <div className="grid max-w-full grid-cols-1 gap-6 mx-auto mt-8 mb-8 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
+    <LayoutPage session={user} pageTitle="Declare New Incidents - Shield">
+      <LayoutPageHeader
+        variant="alternate"
+        pageTitle={"Declare New Incidents"}
+        backButton={true}
+        href={"/incidents"}
+      />
+      <LayoutPageContent>
+        <div className="grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
           <div className="space-y-6 lg:col-start-1 lg:col-span-2">
             {/* Section Incident Detail */}
             <section aria-labelledby="create-new-incident">
@@ -871,8 +862,8 @@ function addIncident({ user }) {
           </section>
           {/* End of Docs Panel */}
         </div>
-      </Layout>
-    </>
+      </LayoutPageContent>
+    </LayoutPage>
   );
 }
 
@@ -894,5 +885,3 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
     },
   };
 });
-
-export default addIncident;

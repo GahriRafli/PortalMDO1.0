@@ -30,7 +30,7 @@ export default function Auth() {
         if (response.data.fullname === null) {
           router.push("/profile");
         } else {
-          router.push("/dashboard");
+          router.push("/");
         }
       }
     } catch (error) {
