@@ -283,7 +283,7 @@ export default function SearchIncident(props) {
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
-  let url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/incidents/search`);
+  let url = new URL(`${process.env.NEXT_PUBLIC_API_URL_V2}/incidents/search`);
   const paramLength = Object.keys(query).length;
 
   if (paramLength > 0) {

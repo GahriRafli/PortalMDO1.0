@@ -284,7 +284,7 @@ export default function IncidentDetail({ user, incident, comments }) {
         setSpinner(true);
         axios
           .patch(
-            `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
+            `${process.env.NEXT_PUBLIC_API_URL_V2}/incidents/${incident.data.id}`,
             { incidentStatus: value },
             {
               headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -396,7 +396,7 @@ export default function IncidentDetail({ user, incident, comments }) {
     }
   };
 
-  // Handle modal delete
+  // Handle modal delete comments
   const showDeleteConfirm = (id) => {
     Modal.confirm({
       title: "Are you sure to delete this comment?",
@@ -452,7 +452,7 @@ export default function IncidentDetail({ user, incident, comments }) {
 
     await axios
       .patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL_V2}/incidents/${incident.data.id}`,
         data,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },

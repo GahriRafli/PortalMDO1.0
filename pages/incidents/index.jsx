@@ -58,7 +58,7 @@ export default function Incident(props) {
   const stopLoading = () => setLoading(false);
   const router = useRouter();
 
-  /** ========================== Data Fetching ========================== */
+  /** ========================== Data Fetching Start ========================== */
   const loadApplications = (value, callback) => {
     getApplication(value, callback, props.user.accessToken);
   };
@@ -81,7 +81,7 @@ export default function Incident(props) {
       })
       .catch((err) => toast.error(`Incident Type ${err}`));
   }, []);
-  /** ========================== Data Fetching ========================== */
+  /** ========================== Data Fetching End ========================== */
 
   // Handle react-select dropdown position
   useEffect(() => {

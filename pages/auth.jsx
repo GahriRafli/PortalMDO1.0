@@ -1,20 +1,20 @@
 import Head from "next/head";
 import Image from "next/image";
-import loginPic from "public/cover-photo.jpg";
+import loginPic from "public/shield-logo-new-black.png";
 import fetchJson from "lib/fetchJson";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { classNames } from "components/utils";
 import { Spinner } from "components/ui/svg/spinner";
-import { FingerPrintIcon, KeyIcon } from "@heroicons/react/solid";
+import clsx from "clsx";
+import { CustomAlert } from "components/ui/alert";
 
 export default function Auth() {
   const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -43,118 +43,139 @@ export default function Auth() {
       <Head>
         <title>Shield - Incident & Problem Management</title>
       </Head>
-      <div className="min-h-screen bg-white flex">
-        <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-          <div className="mx-auto w-full max-w-sm lg:w-96">
-            <div>
-              <img
-                className="h-12 w-auto"
-                src="/shield-logo.png"
-                alt="Workflow"
-              />
-              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-                Sign in to your account
-              </h2>
-            </div>
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          {/* <img
+          className="mx-auto h-12 w-auto"
+          src="https://tailwindui.com/img/logos/workflow-mark-blue-600.svg"
+          alt="Workflow"
+        /> */}
+          <img
+            className="mx-auto h-12 ml-36"
+            src="/shield-logo-new-black.png"
+            alt="Shield logo"
+          />
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{" "}
+            <a
+              href="#"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              register if you don't have a personal number
+            </a>
+          </p>
+        </div>
 
-            <div className="mt-8">
-              <div className="mt-6">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div>
-                    {errorMsg && (
-                      <p className="mb-1 text-sm text-red-600">{errorMsg}</p>
-                    )}
-                    <label
-                      htmlFor="username"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Username
-                    </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FingerPrintIcon
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <input
-                        id="username"
-                        {...register("username", { required: true })}
-                        type="text"
-                        placeholder="Personal Number"
-                        autoComplete="username"
-                        required
-                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </div>
-                  </div>
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              <div>
+                {errorMsg && (
+                  <CustomAlert
+                    type="danger"
+                    title="Something went wrong!"
+                    className="mb-5"
+                  >
+                    <p>{errorMsg}</p>
+                  </CustomAlert>
+                )}
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Personal Number / Username
+                </label>
+                <div className="mt-1">
+                  <input
+                    {...register("username", {
+                      required: "Username can not be blank!",
+                    })}
+                    id="username"
+                    name="username"
+                    type="text"
+                    autoComplete="username"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  {errors.username && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.username.message}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-                  <div className="space-y-1">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Password
-                    </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <KeyIcon
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <input
-                        id="password"
-                        {...register("password", { required: true })}
-                        type="password"
-                        placeholder="Bristars password if you have one"
-                        autoComplete="password"
-                        required
-                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </div>
-                  </div>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+                <div className="mt-1">
+                  <input
+                    {...register("password", {
+                      required: "Password required!",
+                    })}
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">
-                      Don't have a personal number?{" "}
-                      <a
-                        href="#"
-                        className="font-medium text-indigo-600 hover:text-indigo-500"
-                      >
-                        Register here
-                      </a>
-                    </div>
-                  </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center"></div>
 
-                  <div>
-                    <button
-                      type="submit"
-                      className={classNames(
-                        isSubmitting
-                          ? "disabled:opacity-50 cursor-not-allowed"
-                          : "",
-                        "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      )}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting && <Spinner />}
-                      Sign in
-                    </button>
-                  </div>
-                </form>
+                <div className="text-sm">
+                  <a
+                    href="#"
+                    className="font-medium text-blue-600 hover:text-blue-500"
+                  >
+                    Forgot your password?
+                  </a>
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  className={clsx(
+                    isSubmitting
+                      ? "disabled:opacity-50 cursor-not-allowed"
+                      : "",
+                    "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  )}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting && <Spinner />}
+                  Sign in
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-white text-gray-500">
+                    Copyright &#169; {new Date().getFullYear()} APP - BRI
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="hidden lg:block relative w-0 flex-1">
-          <Image
-            className="absolute inset-0 h-full w-full object-cover"
-            src={loginPic}
-            layout="fill"
-            placeholder="blur"
-            alt="Login Cover Photo"
-          />
         </div>
       </div>
     </>

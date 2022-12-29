@@ -149,9 +149,10 @@ export default function ReplyTicket({
   const [solveModalIsOpen, setSolveModalIsOpen] = useState(false);
   const [assignModalIsOpen, setAssignModalIsOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState([]);
+  const [fileList, setFileList] = useState([]);
+  const [showList, setShowList] = useState(true);
+  const [portalTarget, setPortalTarget] = useState(""); // Handle react-select dropdown position
 
-  // Handle react-select dropdown position
-  const [portalTarget, setPortalTarget] = useState("");
   useEffect(() => {
     if (typeof window !== "undefined") {
       // browser code
@@ -159,9 +160,9 @@ export default function ReplyTicket({
     }
   }, []);
 
-  const refreshData = () => {
+  function refreshData() {
     router.replace(router.asPath);
-  };
+  }
 
   function filterParamGroup(query) {
     const filtered = paramGroup.filter(
@@ -342,9 +343,6 @@ export default function ReplyTicket({
   };
 
   // handle on reply submit
-  const [fileList, setFileList] = useState([]);
-  const [showList, setShowList] = useState(true);
-
   const handleUpload = () => {
     unregister(["historyContent"]);
     setRequired((required) => ({

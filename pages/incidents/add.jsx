@@ -228,7 +228,7 @@ export default function addIncident({ user }) {
     }
 
     axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, data, {
+      .post(`${process.env.NEXT_PUBLIC_API_URL_V2}/incidents`, data, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then(function (response) {
