@@ -1948,7 +1948,7 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
 
   // get data incident detail
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/incidents/${params.id}`,
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/incidents/${params.id}`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
     }
