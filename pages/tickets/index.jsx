@@ -413,7 +413,7 @@ export default function TicketList(props) {
       },
       {
         Header: "Reporter",
-        accessor: "paramCreatedBy.fullname",
+        accessor: "paramTicketUpdatedBy.fullname",
         Cell: AvatarCell,
         disableSortBy: true,
       },
