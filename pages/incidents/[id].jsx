@@ -516,15 +516,15 @@ export default function IncidentDetail({ user, incident, comments }) {
           <div className="flex items-center space-x-5">
             <div className="flex flex-row space-x-4">
               <div className="flex w-8 h-8 items-center justify-center">
-                <Link href="/incidents">
-                  <a
-                    aria-label="Kembali"
-                    className="text-blue-500 hover:text-blue-700"
-                    title="Kembali"
-                  >
-                    <ArrowCircleLeftIcon aria-hidden className="w-8 h-8" />
-                  </a>
-                </Link>
+                <a
+                  href="#"
+                  onClick={() => router.back()}
+                  aria-label="Kembali"
+                  className="text-blue-500 hover:text-blue-700"
+                  title="Kembali"
+                >
+                  <ArrowCircleLeftIcon aria-hidden className="w-8 h-8" />
+                </a>
               </div>
               <div>
                 <h1 className="text-2xl font-semibold">
