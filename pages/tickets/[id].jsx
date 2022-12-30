@@ -526,7 +526,7 @@ export default function ReplyTicket({
       <LayoutPageHeader></LayoutPageHeader>
       <LayoutPageContent>
         <DefaultCard>
-          <div className="mx-auto px-4 sm:px-6 lg:px-8 xl:grid xl:grid-cols-3">
+          <div className="px-4 mx-auto sm:px-6 lg:px-8 xl:grid xl:grid-cols-3">
             <div className="xl:col-span-2 xl:pr-8 xl:border-r xl:border-gray-200">
               <div>
                 <div>
@@ -573,10 +573,10 @@ export default function ReplyTicket({
                         </p>
                       </div>
                     </div>
-                    <div className="mt-4 flex space-x-3 md:mt-0">
+                    <div className="flex mt-4 space-x-3 md:mt-0">
                       <WhiteButton type="button" onClick={() => refreshData()}>
                         <RefreshIcon
-                          className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2"
+                          className="flex-shrink-0 w-5 h-5 mr-2 text-gray-400"
                           aria-hidden="true"
                         />
                         Refresh
@@ -588,10 +588,10 @@ export default function ReplyTicket({
                         {({ open }) => (
                           <>
                             <div>
-                              <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
+                              <Menu.Button className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
                                 Options
                                 <ChevronDownIcon
-                                  className="-mr-1 ml-2 h-5 w-5"
+                                  className="w-5 h-5 ml-2 -mr-1"
                                   aria-hidden="true"
                                 />
                               </Menu.Button>
@@ -609,7 +609,7 @@ export default function ReplyTicket({
                             >
                               <Menu.Items
                                 static
-                                className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                className="absolute right-0 w-56 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                               >
                                 <div className="py-1">
                                   <Menu.Item>
@@ -735,26 +735,26 @@ export default function ReplyTicket({
                                   <>
                                     {item.isFromUker === "N" ? (
                                       <div className="relative">
-                                        <UserCircleIconSolid className="h-10 w-10 bg-white text-gray-500 flex items-center justify-center ring-8 ring-white" />
+                                        <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" />
 
                                         <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
                                           <ChatAltIcon
-                                            className="h-5 w-5 text-gray-400"
+                                            className="w-5 h-5 text-gray-400"
                                             aria-hidden="true"
                                           />
                                         </span>
                                       </div>
                                     ) : (
                                       <div className="relative px-1">
-                                        <div className="h-8 w-8 bg-blue-100 rounded-full ring-8 ring-white flex items-center justify-center">
+                                        <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full ring-8 ring-white">
                                           <UserCircleIconSolid
-                                            className="h-5 w-5 text-blue-500"
+                                            className="w-5 h-5 text-blue-500"
                                             aria-hidden="true"
                                           />
                                         </div>
                                       </div>
                                     )}
-                                    <div className="min-w-0 flex-1">
+                                    <div className="flex-1 min-w-0">
                                       <div>
                                         <div className="text-sm">
                                           <a
@@ -781,7 +781,7 @@ export default function ReplyTicket({
                                                   &bull;
                                                 </span>
                                                 <Space>
-                                                  <LockClosedIcon className="h-3 w-3" />{" "}
+                                                  <LockClosedIcon className="w-3 h-3" />{" "}
                                                 </Space>
                                                 {item.paramHistoryEscalatedGroup
                                                   .prefix === "SDK"
@@ -804,14 +804,14 @@ export default function ReplyTicket({
                                             alt=""
                                           />
                                         ) : item.historyType === "document" ? (
-                                          <div className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                                            <div className="w-auto pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                              <div className="w-0 flex-1 flex items-center">
+                                          <div className="border border-gray-200 divide-y divide-gray-200 rounded-md">
+                                            <div className="flex items-center justify-between w-auto py-3 pl-3 pr-4 text-sm">
+                                              <div className="flex items-center flex-1 w-0">
                                                 <DocumentTextIcon
-                                                  className="flex-shrink-0 h-5 w-5 text-gray-400"
+                                                  className="flex-shrink-0 w-5 h-5 text-gray-400"
                                                   aria-hidden="true"
                                                 />
-                                                <span className="ml-2 flex-1 w-0 truncate">
+                                                <span className="flex-1 w-0 ml-2 truncate">
                                                   {`Document ${createFileName(
                                                     ticketData.id,
                                                     item.id,
@@ -819,7 +819,7 @@ export default function ReplyTicket({
                                                   )}`}
                                                 </span>
                                               </div>
-                                              <div className="ml-4 flex-shrink-0">
+                                              <div className="flex-shrink-0 ml-4">
                                                 <a
                                                   href={item.historyContent}
                                                   download={createFileName(
@@ -862,22 +862,22 @@ export default function ReplyTicket({
                         <div className="flex space-x-3">
                           <div className="flex-shrink-0">
                             <div className="relative">
-                              <UserCircleIconSolid className="h-10 w-10 text-gray-500 bg-white flex items-center justify-center ring-8 ring-white" />
+                              <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" />
 
                               <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
                                 <ChatAltIcon
-                                  className="h-5 w-5 text-gray-400"
+                                  className="w-5 h-5 text-gray-400"
                                   aria-hidden="true"
                                 />
                               </span>
                             </div>
                           </div>
-                          <div className="min-w-0 flex-1">
+                          <div className="flex-1 min-w-0">
                             {/* Tabs reply Start */}
-                            <div className="hidden sm:block pb-4">
+                            <div className="hidden pb-4 sm:block">
                               <div className="border-b border-gray-200">
                                 <Tab.Group onChange={handleTicketDest}>
-                                  <Tab.List className="-mb-px flex space-x-8">
+                                  <Tab.List className="flex -mb-px space-x-8">
                                     {tabs.map((tab, idx) => (
                                       <Tab
                                         key={idx}
@@ -905,10 +905,10 @@ export default function ReplyTicket({
                                   visibility.otherDepartment
                                 )}
                               >
-                                <div className="mt-1 relative rounded-md shadow-sm w-1/2">
-                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="relative w-1/2 mt-1 rounded-md shadow-sm">
+                                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <UsersIcon
-                                      className="h-5 w-5 text-gray-400"
+                                      className="w-5 h-5 text-gray-400"
                                       aria-hidden="true"
                                     />
                                   </div>
@@ -920,7 +920,7 @@ export default function ReplyTicket({
                                       },
                                     })}
                                     name="idEscalatedGroup"
-                                    className="focus:ring-blue-500 focus:border-blue-500 text-gray-700 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                                    className="block w-full pl-10 text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     defaultValue={null}
                                   >
                                     <option value="">Select...</option>
@@ -1019,10 +1019,10 @@ export default function ReplyTicket({
                                       <button
                                         onClick={handleUpload}
                                         type="button"
-                                        className="inline-flex items-center px-4 py-2 text-sm italic rounded-md text-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
+                                        className="inline-flex items-center px-4 py-2 text-sm italic text-gray-400 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
                                       >
                                         <PaperClipIcon
-                                          className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2"
+                                          className="flex-shrink-0 w-5 h-5 mr-2 text-gray-400"
                                           aria-hidden="true"
                                         />
                                         Attach a file or drag here
@@ -1032,7 +1032,7 @@ export default function ReplyTicket({
                                   {/* Upload section end */}
                                 </div>
 
-                                <div className="mt-6 flex items-center justify-end space-x-3">
+                                <div className="flex items-center justify-end mt-6 space-x-3">
                                   <SecondaryButton
                                     type="button"
                                     onClick={handleResetButton}
@@ -1094,14 +1094,14 @@ export default function ReplyTicket({
             <form key={2} onSubmit={handleSubmit2(handleCloseSubmit)}>
               <ModalBody>
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-green-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                     <CheckCircleIcon
-                      className="h-6 w-6 text-green-500"
+                      className="w-6 h-6 text-green-500"
                       aria-hidden="true"
                     />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    <h3 className="text-lg font-medium leading-6 text-gray-900">
                       Close Issue
                     </h3>
                     <div className="mt-2">
@@ -1173,19 +1173,19 @@ export default function ReplyTicket({
             <form key={3} onSubmit={handleSubmit3(OnEditSubmit)}>
               <ModalBody>
                 <div className="sm:flex sm:items-center">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-gray-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                     <PencilIcon
-                      className="h-6 w-6 text-gray-400"
+                      className="w-6 h-6 text-gray-400"
                       aria-hidden="true"
                     />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    <h3 className="text-lg font-medium leading-6 text-gray-900">
                       Edit ticket
                     </h3>
                   </div>
                 </div>
-                <div className="mt-5 grid grid-cols-4 gap-6">
+                <div className="grid grid-cols-4 gap-6 mt-5">
                   <div className="col-span-2 sm:col-span-2">
                     <label className="block mb-1 text-sm font-medium text-gray-700">
                       Application
@@ -1326,14 +1326,14 @@ export default function ReplyTicket({
           <Modal show={assignModalIsOpen} onClose={setAssignModalIsOpen}>
             <ModalBody>
               <div className="sm:flex sm:items-start">
-                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-blue-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                   <UserAddIcon
-                    className="h-6 w-6 text-blue-500"
+                    className="w-6 h-6 text-blue-500"
                     aria-hidden="true"
                   />
                 </div>
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">
                     Assign ticket
                   </h3>
                   <div className="mt-2">
