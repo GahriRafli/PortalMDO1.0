@@ -110,8 +110,7 @@ export default function addTicket({ user }) {
       })
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
-  
-  
+
   const onSubmit = async (data, e) => {
     e.preventDefault();
     await sleep(1000);
@@ -139,29 +138,16 @@ export default function addTicket({ user }) {
           toast.error(`Msg: ${error.message}`);
         }
       });
-      
   };
 
   return (
     <LayoutPage session={user} pageTitle="Declare New Tickets">
-      <LayoutPageHeader variant="alternate">
-        <div className="flex flex-row space-x-4 mt-4">
-          <div className="flex w-8 h-8 items-center justify-center">
-            <Link href="/tickets">
-              <a
-                aria-label="Kembali"
-                className="text-blue-500 hover:text-blue-700"
-                title="Kembali"
-              >
-                <ArrowCircleLeftIcon aria-hidden className="w-8 h-8" />
-              </a>
-            </Link>
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold">Declare New Tickets</h1>
-          </div>
-        </div>
-      </LayoutPageHeader>
+      <LayoutPageHeader
+        variant="alternate"
+        pageTitle={"Add New Ticket Complaint"}
+        backButton={true}
+        href="/tickets"
+      />
       <LayoutPageContent>
         <div className="grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
           <div className="space-y-6 lg:col-start-1 lg:col-span-2">
@@ -172,7 +158,7 @@ export default function addTicket({ user }) {
                 <div className="static overflow-hidden bg-white shadow sm:rounded-lg">
                   <div className="px-4 py-5 border-t border-gray-200 sm:px-6">
                     <div className="grid grid-cols-6 gap-6">
-                    <div className="col-span-3 sm:col-span-3">
+                      <div className="col-span-3 sm:col-span-3">
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Branch Code
                         </label>
@@ -186,7 +172,6 @@ export default function addTicket({ user }) {
                           className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           placeholder="Describe Branch code"
                           defaultValue={""}
-
                         />
                         {errors.branchCode && (
                           <p className="mt-2 text-sm text-red-600">
@@ -276,7 +261,6 @@ export default function addTicket({ user }) {
                           className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           placeholder="Describe PIC Phone TIcket"
                           defaultValue={""}
-
                         />
                         {errors.picPhone && (
                           <p className="mt-2 text-sm text-red-600">
@@ -300,7 +284,6 @@ export default function addTicket({ user }) {
                           className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           placeholder="Describe Source Ticket, ex : Whatsapp and Telegram"
                           defaultValue={""}
-
                         />
                         {errors.sourceManual && (
                           <p className="mt-2 text-sm text-red-600">
