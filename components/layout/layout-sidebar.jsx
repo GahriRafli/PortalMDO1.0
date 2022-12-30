@@ -8,6 +8,7 @@ import { XIcon } from "@heroicons/react/outline";
 import { UserCircleIcon } from "@heroicons/react/solid";
 import { useLayoutStore } from "lib/layout/layout-store";
 import { DisclosureOpen, DisclosureDefault } from "./accordion/index";
+import { getNickName } from "components/utils";
 
 export function LayoutSidebar({ session }) {
   const router = useRouter();
@@ -170,7 +171,7 @@ export function LayoutSidebar({ session }) {
                   <p className="text-sm font-medium text-white">
                     {" "}
                     {session.fullname
-                      ? session.fullname.split(" ").slice(0, -1).join(" ")
+                      ? getNickName(session.fullname)
                       : session.username}
                   </p>
                   <p className="text-xs font-medium text-gray-300 group-hover:text-gray-200">

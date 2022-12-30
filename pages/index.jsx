@@ -17,7 +17,7 @@ import { DefaultCard } from "components/ui/card/default-card";
 import DateRangeFilter from "components/incidents/daterange-filter";
 import { ReactSelect } from "components/ui/forms";
 import AsyncSelect from "react-select/async";
-import { styledReactSelect } from "components/utils";
+import { getNickName, styledReactSelect } from "components/utils";
 import { ShowChart } from "components/chart";
 import palette from "google-palette";
 import { format, getYear } from "date-fns";
@@ -105,6 +105,7 @@ export default function Home({ user, statsIncidentData, chartIncidentData }) {
     getApplication(value, callback);
   };
 
+  // Get Dashboard data
   useEffect(() => {
     axios
       .get(
@@ -283,9 +284,7 @@ export default function Home({ user, statsIncidentData, chartIncidentData }) {
                 <div className="flex items-center">
                   <h1 className="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
                     Welcome back,{" "}
-                    {user.fullname
-                      ? user.fullname.split(" ").slice(0, -1).join(" ")
-                      : user.username}{" "}
+                    {user.fullname ? getNickName(user.fullname) : user.username}{" "}
                     👋🏻
                   </h1>
                 </div>
@@ -402,7 +401,12 @@ export default function Home({ user, statsIncidentData, chartIncidentData }) {
                 </DefaultCard>
               </div>
               <div>
-                <DefaultCard>Recent Activity</DefaultCard>
+                <DefaultCard>
+                  <h1>Recent Activity</h1>
+                  <p className="text-xs font-normal text-gray-500">
+                    No Activity found
+                  </p>
+                </DefaultCard>
               </div>
             </div>
           </div>

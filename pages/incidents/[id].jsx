@@ -14,7 +14,7 @@ import { CardContent } from "components/ui/card-content";
 import { PrimaryButton } from "components/ui/button/primary-button";
 import { WhiteButton } from "components/ui/button";
 import { ButtonCircle } from "components/ui/button/button-circle";
-import { styledReactSelect } from "components/utils";
+import { getCriticalityIcon, styledReactSelect } from "components/utils";
 import { Spinner } from "components/ui/svg/spinner";
 import { Listbox, Transition, Switch } from "@headlessui/react";
 import {
@@ -936,7 +936,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                           htmlFor="incident-type"
                           className="block text-sm font-medium text-gray-900"
                         >
-                          System Caegory Type
+                          System Category Type
                         </label>
                         <Controller
                           name="idCategorySystem"
@@ -1330,9 +1330,28 @@ export default function IncidentDetail({ user, incident, comments }) {
                         Application
                       </dt>
                       <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
-                        {incident.data.paramApps
-                          ? incident.data.paramApps.subName
-                          : "Not defined yet"}
+                        {incident.data.paramApps ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="flex-shrink-0">
+                              <Tooltip
+                                title={incident.data.paramApps.criticalityApp}
+                                placement="left"
+                              >
+                                <img
+                                  src={getCriticalityIcon(
+                                    incident.data.paramApps.criticalityApp.toLowerCase()
+                                  )}
+                                  className="h-5 w-5"
+                                />
+                              </Tooltip>
+                            </div>
+                            <div className="text-gray-500 text-sm">
+                              {incident.data.paramApps.subName}
+                            </div>
+                          </div>
+                        ) : (
+                          "Not defined yet"
+                        )}
                       </dd>
                     </div>
                     <div className="sm:col-span-1">
@@ -1340,9 +1359,23 @@ export default function IncidentDetail({ user, incident, comments }) {
                         Incident Priority
                       </dt>
                       <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
-                        {incident.data.paramPriorityMatrix
-                          ? incident.data.paramPriorityMatrix.mapping
-                          : "Not defined yet"}
+                        {incident.data.paramPriorityMatrix ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="flex-shrink-0">
+                              <img
+                                src={getCriticalityIcon(
+                                  incident.data.paramPriorityMatrix.mapping.toLowerCase()
+                                )}
+                                className="h-5 w-5"
+                              />
+                            </div>
+                            <div className="text-gray-500 text-sm">
+                              {incident.data.paramPriorityMatrix.mapping}
+                            </div>
+                          </div>
+                        ) : (
+                          "Not defined yet"
+                        )}
                       </dd>
                     </div>
                     <div className="sm:col-span-1">
@@ -1668,24 +1701,6 @@ export default function IncidentDetail({ user, incident, comments }) {
                         <div className="ml-3.5 text-sm font-medium text-gray-600">
                           {incident.data.paramIncidentType
                             ? incident.data.paramIncidentType.incidentType
-                            : "-"}
-                        </div>
-                      </a>{" "}
-                    </li>
-                    <li className="inline">
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                      >
-                        <div className="absolute flex items-center justify-center flex-shrink-0">
-                          <span
-                            className="h-1.5 w-1.5 rounded-full bg-blue-500"
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <div className="ml-3.5 text-sm font-medium text-gray-600">
-                          {incident.data.paramApps
-                            ? incident.data.paramApps.criticalityApp
                             : "-"}
                         </div>
                       </a>{" "}

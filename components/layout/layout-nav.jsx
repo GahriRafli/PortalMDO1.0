@@ -10,6 +10,7 @@ import {
 } from "@heroicons/react/solid";
 import { useLayoutStore } from "lib/layout/layout-store";
 import fetchJson from "lib/fetchJson";
+import { getNickName } from "components/utils";
 
 const userNavigation = [
   { name: "Your Profile", href: "#" },
@@ -126,7 +127,7 @@ export function LayoutNav({ session, searchNotif }) {
                     <span className="hidden ml-3 text-gray-700 text-sm font-medium lg:block">
                       <span className="sr-only">Open user menu for </span>
                       {session.fullname
-                        ? session.fullname.split(" ").slice(0, -1).join(" ")
+                        ? getNickName(session.fullname)
                         : session.username}
                     </span>
                     <ChevronDownIcon

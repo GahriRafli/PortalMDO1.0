@@ -281,6 +281,7 @@ export default function ReplyTicket({
       setRequired((required) => ({
         ...required,
         idEscalatedGroup: true,
+        escalatedRole: false,
       }));
       unregister("escalatedRole");
     } else if (index === 1) {

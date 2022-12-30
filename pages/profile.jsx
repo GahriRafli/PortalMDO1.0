@@ -40,7 +40,7 @@ export default function Profile() {
       .then(function (response) {
         if (response.status === 200) {
           !isSubmitting && toast.success("Profile updated");
-          router.push("/dashboard");
+          router.push("/");
         } else {
           toast.error(`Failed to update: ${error.response.data.message}`);
         }
@@ -58,10 +58,15 @@ export default function Profile() {
       </Head>
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <img
+          {/* <img
             className="mx-auto h-12 w-auto"
-            src="/shield-logo.png"
+            src="/shie"
             alt="Shield"
+          /> */}
+          <img
+            className="mx-auto h-12 ml-36"
+            src="/shield-logo-new-black.png"
+            alt="Shield logo"
           />
           <h3 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Update your profile
