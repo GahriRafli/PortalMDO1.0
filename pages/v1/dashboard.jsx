@@ -1,7 +1,8 @@
+import DateRangeFilter from "components/incidents/daterange-filter";
 import Head from "next/head";
 import Link from "next/link";
-import Layout from "../components/layout";
-import withSession from "../lib/session";
+import Layout from "components/layout";
+import withSession from "lib/session";
 import {
   OfficeBuildingIcon,
   DocumentSearchIcon,
@@ -14,8 +15,7 @@ import axios from "axios";
 import { PrimaryButton } from "components/ui/button/primary-button";
 import AsyncSelect from "react-select/async";
 import { styledReactSelectAdd } from "components/utils";
-import DateRangeFilter from "components/incidents/daterange-filter";
-import { ShowChart } from "../components/chart";
+import { ShowChart } from "components/chart";
 import palette from "google-palette";
 import { toast } from "react-toastify";
 
@@ -30,7 +30,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/1/report`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
   // const getProblems = await fetch(
@@ -43,17 +43,16 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   const groupBy = "Periodic";
   const today = new Date();
   const tahun = today.getFullYear().toString();
-  var bulan = today.getMonth().toString();
-  if (bulan.length < 2) {
-    bulan = "0" + today.getMonth().toString();
+  let bulan = today.getMonth() + 1;
+  if (bulan.toString().length < 2) {
+    bulan = `0${bulan}`;
   }
-  var tanggal = today.getDate().toString();
+  let tanggal = today.getDate().toString();
   if (today.getDate().toString().length < 2) {
     tanggal = "0" + today.getDate().toString();
   }
-
   const periodeAwal = today.getFullYear().toString() + "-01-01";
-  const periodeAkhir = tahun + "-" + bulan + "-" + tanggal;
+  const periodeAkhir = tahun + "-" + bulan.toString() + "-" + tanggal;
 
   const dashboardIncident = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${groupBy}&periodeAwal=${periodeAwal}&periodeAkhir=${periodeAkhir}&PIC=&CriticalApp=&AppName=`,
@@ -97,8 +96,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
       name: "Incidents Open",
       href: "/incidents",
       icon: DocumentSearchIcon,
-      total: incidents.data.filter((status) => status.incidentStatus === "Open")
-        .length,
+      total: incidents.data.jumlah,
     },
     {
       name: "Problem Management",
@@ -285,6 +283,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
         ) {
           return "#" + hex;
         }),
+        order: 1,
+      },
+      {
+        label: "Total Incident",
+        data: dashboardIncident.data.map((d) => d.TotalIncident),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+        type: "line",
+        order: 0,
       },
     ],
   };
@@ -299,6 +309,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
         ) {
           return "#" + hex;
         }),
+        order: 1,
+      },
+      {
+        label: "Total Application",
+        data: dashboardIncident.data.map((d) => d.TotalApps),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+        type: "line",
+        order: 0,
       },
     ],
   };
@@ -373,6 +395,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                       return "#" + hex;
                     }
                   ),
+                  order: 1,
+                },
+                {
+                  label: "Total Incident",
+                  data: res.data.data.map((d) => d.TotalIncident),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                  type: "line",
+                  order: 0,
                 },
               ],
             });
@@ -387,6 +421,18 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                       return "#" + hex;
                     }
                   ),
+                  order: 1,
+                },
+                {
+                  label: "Total Application",
+                  data: res.data.data.map((d) => d.TotalApps),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                  type: "line",
+                  order: 0,
                 },
               ],
             });
@@ -447,9 +493,9 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                           Hello, {user.fullname ? user.fullname : user.username}
                         </h1>
                       </div>
-                      <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
+                      <dl className="flex flex-col mt-6 sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
                         <dt className="sr-only">Company</dt>
-                        <dd className="flex items-center text-sm text-gray-500 font-medium capitalize sm:mr-6">
+                        <dd className="flex items-center text-sm font-medium text-gray-500 capitalize sm:mr-6">
                           <OfficeBuildingIcon
                             className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                             aria-hidden="true"
@@ -466,25 +512,25 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 
           <div className="mt-8">
             <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-1">
-              <h2 className="text-lg leading-6 font-medium text-gray-900">
+              <h2 className="text-lg font-medium leading-6 text-gray-900">
                 Overview
               </h2>
-              <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 mt-2 sm:grid-cols-2 lg:grid-cols-3">
                 {/* Card */}
                 {cards.map((card) => (
                   <div
                     key={card.name}
-                    className="bg-white overflow-hidden shadow rounded-lg"
+                    className="overflow-hidden bg-white rounded-lg shadow"
                   >
                     <div className="p-5">
                       <div className="flex items-center">
                         <div className="flex-shrink-0">
                           <card.icon
-                            className="h-6 w-6 text-gray-400"
+                            className="w-6 h-6 text-gray-400"
                             aria-hidden="true"
                           />
                         </div>
-                        <div className="ml-5 w-0 flex-1">
+                        <div className="flex-1 w-0 ml-5">
                           <dl>
                             <dt className="text-sm font-medium text-gray-500 truncate">
                               {card.name}
@@ -498,7 +544,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-gray-50 px-5 py-3">
+                    <div className="px-5 py-3 bg-gray-50">
                       <div className="text-sm">
                         <Link href={card.href}>
                           <a className="font-medium text-cyan-700 hover:text-cyan-900">
@@ -515,14 +561,14 @@ function Home({ user, incidents, problems, dashboardIncident }) {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-1">
-              <h2 className="text-lg leading-6 font-medium text-gray-900">
+              <h2 className="text-lg font-medium leading-6 text-gray-900">
                 Summary Dashboard
               </h2>
-              <div className="mt-4 p-2 bg-white shadow rounded-lg inline-grid lg:grid-cols-6 gap-4">
+              <div className="inline-grid gap-4 p-2 mt-4 bg-white rounded-lg shadow lg:grid-cols-6">
                 <div>
                   <label
                     htmlFor="Periode1Options"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Periode
                   </label>
@@ -531,11 +577,13 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                 <div>
                   <label
                     htmlFor="GroupByOptions"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Group By
                   </label>
                   <ReactSelect
+                    id="GroupByOptions"
+                    instanceId={"GroupByOptions"}
                     options={listGroupBy}
                     isClearable
                     className="block w-auto"
@@ -545,11 +593,13 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                 <div>
                   <label
                     htmlFor="CriticalityOption"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Criticality
                   </label>
                   <ReactSelect
+                    id="CriticalityOption"
+                    instanceId={"CriticalityOption"}
                     options={CriticalityOption}
                     isClearable
                     isMulti
@@ -560,11 +610,13 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                 <div>
                   <label
                     htmlFor="PICOption"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     PIC
                   </label>
                   <ReactSelect
+                    id="PICOption"
+                    instanceId={"PICOption"}
                     options={PICOption}
                     isClearable
                     isMulti
@@ -575,11 +627,13 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                 <div>
                   <label
                     htmlFor="ApplicationOption"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Application
                   </label>
                   <AsyncSelect
+                    id="ApplicationOption"
+                    instanceId={"ApplicationOption"}
                     isClearable
                     loadOptions={loadApplications}
                     styles={styledReactSelectAdd}
@@ -591,7 +645,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                 <div>
                   <label
                     htmlFor="Periode1Options"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     &nbsp;
                   </label>
@@ -600,39 +654,39 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                   </PrimaryButton>
                 </div>
               </div>
-              <div className="mt-4 bg-white shadow rounded-lg inline-grid">
+              <div className="inline-grid mt-4 bg-white rounded-lg shadow">
                 <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
-                  <li className="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
+                  <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData1}
                       title={"Total Incident"}
                       chartType={handlerChartType1}
                     />
                   </li>
-                  <li className="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
+                  <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData2}
-                      title={"Total Application"}
+                      title={"Total Impacted Application"}
                       chartType={handlerChartType2}
                     />
                   </li>
-                  <li className="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
+                  <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData3}
-                      title={"Average Detection Duration"}
+                      title={"Average Detection Duration (minutes)"}
                       chartType={handlerChartType3}
                     />
                   </li>
-                  <li className="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
+                  <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData4}
-                      title={"Average Solved Duration"}
+                      title={"Average Solved Duration (minutes)"}
                       chartType={handlerChartType4}
                     />
                   </li>
                 </ul>
               </div>
-              <div className="mt-4 bg-white shadow rounded-lg inline-grid">
+              <div className="inline-grid mt-4 bg-white rounded-lg shadow">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
@@ -640,7 +694,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                         {SelectedGroupBy}
                       </th>
                       <th scope="col" className="relative px-6 py-3">
-                        Total Application
+                        Total Impacted Application
                       </th>
                       <th scope="col" className="relative px-6 py-3">
                         Total Incident
@@ -651,12 +705,6 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                       <th scope="col" className="relative px-6 py-3">
                         Average Solved Duration (minutes)
                       </th>
-                      <th scope="col" className="relative px-6 py-3">
-                        Total Detection Duration (minutes)
-                      </th>
-                      <th scope="col" className="relative px-6 py-3">
-                        Total Solved Duration (minutes)
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -664,26 +712,20 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                     Object.keys(tableData).length > 0
                       ? tableData.data.map((dashboard) => (
                           <tr key={dashboard.RowID}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
                               {dashboard[ColumnGroupBy[SelectedGroupBy]]}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-medium text-gray-900">
+                            <td className="px-6 py-4 text-sm font-medium text-center text-gray-900 whitespace-nowrap">
                               {dashboard.TotalApps}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                            <td className="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">
                               {dashboard.TotalIncident}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
+                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
                               {dashboard.AverageDetectionDuration}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
+                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
                               {dashboard.AverageSolvedDuration}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
-                              {dashboard.TotalDetectionDuration}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
-                              {dashboard.TotalSolvedDuration}
                             </td>
                           </tr>
                         ))

@@ -21,10 +21,10 @@ function getCriticalityIcon(criticality) {
       iconName = "/icon-priority/medium.svg";
       break;
     case "high":
+    case "very high":
       iconName = "/icon-priority/high.svg";
       break;
-    case "critical severity 1":
-    case "critical severity 2":
+    case "critical":
       iconName = "/icon-priority/highest.svg";
       break;
     default:
@@ -120,6 +120,17 @@ function createFileName(id = null, subId = null, url) {
   } else {
     return `${now}-${num}.${extension}`;
   }
+}
+
+function getNickName(fullname) {
+  let nickName;
+  if (fullname.split(" ").length > 1) {
+    nickName = fullname.split(" ").splice(0, -1).join(" ");
+  } else {
+    nickName = fullname;
+  }
+
+  return nickName;
 }
 
 const DisclosureOpen = ({ item, router, session }) => {
@@ -305,4 +316,5 @@ export {
   createParam,
   getCriticalityIcon,
   createFileName,
+  getNickName,
 };

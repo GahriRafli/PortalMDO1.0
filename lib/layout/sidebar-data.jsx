@@ -1,7 +1,6 @@
 import {
   DocumentReportIcon,
   HomeIcon,
-  ScaleIcon,
   ShieldCheckIcon,
   FireIcon,
   ChatAlt2Icon,
@@ -9,11 +8,21 @@ import {
 } from "@heroicons/react/solid";
 
 export const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "Home", href: "/", icon: HomeIcon },
   {
     name: "Incidents",
     href: "/incidents",
     icon: ShieldCheckIcon,
+    children: [
+      {
+        name: "Incident List",
+        href: "/incidents",
+      },
+      {
+        name: "Incident Matching",
+        href: "/incidents/search",
+      },
+    ],
   },
   {
     name: "Problems",
@@ -62,11 +71,6 @@ export const navigation = [
         href: "/tickets",
         permission: "all",
       },
-      {
-        name: "Ticket Report",
-        href: "/tickets/dashboard",
-        permission: "member",
-      },
     ],
   },
   {
@@ -88,35 +92,6 @@ export const navigation = [
         name: "Courtesy",
         href: "/tools/courtesy",
       },
-      {
-        name: "IB Data",
-        href: "#",
-      },
     ],
   },
 ];
-
-export const cards = [
-  { name: "Account balance", href: "#", icon: ScaleIcon, amount: "$30,659.45" },
-  // More items...
-];
-
-export const transactions = [
-  {
-    id: 1,
-    name: "Payment to Molly Sanders",
-    href: "#",
-    amount: "$20,000",
-    currency: "USD",
-    status: "success",
-    date: "July 11, 2020",
-    datetime: "2020-07-11",
-  },
-  // More transactions...
-];
-
-export const statusStyles = {
-  success: "bg-green-100 text-green-800",
-  processing: "bg-yellow-100 text-yellow-800",
-  failed: "bg-gray-100 text-gray-800",
-};

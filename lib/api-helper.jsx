@@ -2,33 +2,61 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import fetcher from "./fetchJson";
 const URL = process.env.NEXT_PUBLIC_API_URL;
+const API_V2 = process.env.NEXT_PUBLIC_API_URL_V2;
 
 const useAxios = (url) => {
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(url);
-      setIsLoading(false);
-      setData(response.data);
-    } catch (error) {
-      setIsLoading(false);
-      setIsError(error.message);
-    }
-  };
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
+    const fetchData = () => {
+      axios
+        .get(url)
+        .then((response) => {
+          setIsLoaded(true);
+          setData(response.data);
+        })
+        .catch((error) => {
+          // Error 😨
+          if (error.response) {
+            /*
+             * The request was made and the server responded with a
+             * status code that falls out of the range of 2xx
+             */
+            setError(
+              error.response.data ||
+                error.response.status ||
+                error.response.headers
+            );
+          } else if (error.request) {
+            /*
+             * The request was made but no response was received, `error.request`
+             * is an instance of XMLHttpRequest in the browser and an instance
+             * of http.ClientRequest in Node.js
+             */
+            setError(error.request);
+          } else {
+            // Something happened in setting up the request and triggered an Error
+            setError("Error ", error.message);
+          }
+          setError(error.config);
+        });
+    };
     fetchData();
-  }, []);
-  return { isLoading, isError, data };
+  }, [url]);
+
+  return { error, isLoaded, data };
 };
 
-function getApplication(value, callback) {
+function getApplication(value, callback, accessToken) {
   clearTimeout(timeoutId);
   if (value.length < 3) return callback([]);
 
   const timeoutId = setTimeout(() => {
-    fetcher(`${URL}/parameters/app?subName=${value}`)
+    fetcher(`${API_V2}/parameters/app?subName=${value}&status=A`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
       .then((res) => {
         const cachedOptions = res.data.map((d) => ({
           value: d.id,
