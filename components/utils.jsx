@@ -125,7 +125,7 @@ function createFileName(id = null, subId = null, url) {
 function getNickName(fullname) {
   let nickName;
   if (fullname.split(" ").length > 1) {
-    nickName = fullname.split(" ").splice(0, -1).join(" ");
+    nickName = fullname.split(" ").slice(0, -1).join(" ");
   } else {
     nickName = fullname;
   }

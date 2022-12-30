@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment } from "react";
+import Link from "next/link";
 import withSession from "../../lib/session";
 import { Tab, Menu, Transition } from "@headlessui/react";
 import {
@@ -51,10 +52,12 @@ import {
   getTicketType,
 } from "lib/api-helper";
 import {
+  ArrowCircleLeftIcon,
   DocumentTextIcon,
   PaperClipIcon,
   RefreshIcon,
 } from "@heroicons/react/outline";
+import ReactPlayer from "react-player";
 
 const URL = process.env.NEXT_PUBLIC_API_URL;
 const tabs = [
@@ -202,7 +205,7 @@ export default function ReplyTicket({
 
   // Get list Application
   const loadApplications = (value, callback) => {
-    getApplication(value, callback);
+    getApplication(value, callback, user.accessToken);
   };
 
   // Get param ticket type
@@ -529,7 +532,7 @@ export default function ReplyTicket({
                 <div>
                   {/* Ticket header start */}
                   <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:border-b xl:pb-6">
-                    <div>
+                    {/* <div>
                       <h1 className="text-2xl font-bold text-gray-900">
                         Ticket ID #{ticketData.id}
                       </h1>
@@ -540,6 +543,35 @@ export default function ReplyTicket({
                           {ticketData.branchName} ({ticketData.branchCode})
                         </a>
                       </p>
+                    </div> */}
+                    <div className="flex flex-row space-x-4">
+                      <div className="flex w-8 h-8 items-center justify-center">
+                        <Link href={"/tickets"}>
+                          <a
+                            aria-label="Kembali"
+                            className="text-blue-500 hover:text-blue-700"
+                            title="Kembali"
+                          >
+                            <ArrowCircleLeftIcon
+                              aria-hidden
+                              className="w-8 h-8"
+                            />
+                          </a>
+                        </Link>
+                      </div>
+                      <div>
+                        <h1 className="text-2xl font-semibold">
+                          {" "}
+                          Ticket ID #{ticketData.id}
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500">
+                          Opened by{" "}
+                          <a href="#" className="font-medium text-gray-900">
+                            {ticketData.picName} - {ticketData.picPN} •{" "}
+                            {ticketData.branchName} ({ticketData.branchCode})
+                          </a>
+                        </p>
+                      </div>
                     </div>
                     <div className="mt-4 flex space-x-3 md:mt-0">
                       <WhiteButton type="button" onClick={() => refreshData()}>
@@ -802,6 +834,17 @@ export default function ReplyTicket({
                                               </div>
                                             </div>
                                           </div>
+                                        ) : item.historyType === "video" ? (
+                                          <ReactPlayer
+                                            url={item.historyContent}
+                                            controls={true}
+                                            width="20vw"
+                                            height="20vh"
+                                            style={{
+                                              borderRadius: "8px",
+                                              overflow: "hidden",
+                                            }}
+                                          />
                                         ) : (
                                           <p>{item.historyContent}</p>
                                         )}
