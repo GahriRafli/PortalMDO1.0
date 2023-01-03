@@ -12,7 +12,6 @@ import { toast } from "react-hot-toast";
 import { CardTitle } from "components/ui/card-title";
 import { CardContent } from "components/ui/card-content";
 import { PrimaryButton } from "components/ui/button/primary-button";
-import { WhiteButton } from "components/ui/button";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import {
   getCriticalityIcon,
@@ -35,7 +34,6 @@ import {
   ExternalLinkIcon,
 } from "@heroicons/react/solid";
 import {
-  ArrowCircleLeftIcon,
   DocumentTextIcon,
   PaperClipIcon,
   RefreshIcon,
@@ -46,7 +44,6 @@ import {
   LayoutPageContent,
   LayoutPageHeader,
 } from "components/layout/index";
-import PageHeader from "components/incidents/page-header";
 import clsx from "clsx";
 import { getApplication } from "lib/api-helper";
 
