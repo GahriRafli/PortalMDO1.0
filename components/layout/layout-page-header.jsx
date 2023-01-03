@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowCircleLeftIcon } from "@heroicons/react/outline";
 import clsx from "clsx";
 import { Container } from "components/ui/container";
+import { useRouter } from "next/router";
 
 export const LayoutPageHeader = ({
   className,
@@ -9,10 +10,12 @@ export const LayoutPageHeader = ({
   pageSubTitle,
   children,
   backButton = false,
+  routerBack,
   href = "#",
   variant = "default",
   ...rest
 }) => {
+  const router = useRouter();
   const textHeading = (
     <>
       <h1 className="text-2xl font-semibold">{pageTitle}</h1>
@@ -49,6 +52,17 @@ export const LayoutPageHeader = ({
                         <ArrowCircleLeftIcon aria-hidden className="w-8 h-8" />
                       </a>
                     </Link>
+                  </div>
+                )}
+                {routerBack && (
+                  <div className="flex w-8 h-8 items-center justify-center">
+                    <button
+                      onClick={() => router.back()}
+                      type="button"
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      <ArrowCircleLeftIcon aria-hidden className="w-8 h-8" />
+                    </button>
                   </div>
                 )}
                 <div>{textHeading}</div>

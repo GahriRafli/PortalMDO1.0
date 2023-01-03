@@ -1,8 +1,8 @@
 import { Fragment, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import axios from "axios";
 import Select from "react-select";
+import AsyncSelect from "react-select/async";
 import DatePicker from "components/ui/datepicker";
 import withSession from "lib/session";
 import incidentStatus from "public/incident-status.json";
@@ -14,7 +14,12 @@ import { CardContent } from "components/ui/card-content";
 import { PrimaryButton } from "components/ui/button/primary-button";
 import { WhiteButton } from "components/ui/button";
 import { ButtonCircle } from "components/ui/button/button-circle";
-import { getCriticalityIcon, styledReactSelect } from "components/utils";
+import {
+  getCriticalityIcon,
+  IconOption,
+  styledReactSelect,
+  ValueOption,
+} from "components/utils";
 import { Spinner } from "components/ui/svg/spinner";
 import { Listbox, Transition, Switch } from "@headlessui/react";
 import {
@@ -35,18 +40,15 @@ import {
   PaperClipIcon,
   RefreshIcon,
 } from "@heroicons/react/outline";
+import { Image as AntdImage, Modal, Space, Tooltip, Upload } from "antd";
 import {
-  Image as AntdImage,
-  Modal,
-  Space,
-  Tooltip,
-  Upload,
-  Typography,
-  Spin,
-} from "antd";
-import { LayoutPage, LayoutPageContent } from "components/layout/index";
+  LayoutPage,
+  LayoutPageContent,
+  LayoutPageHeader,
+} from "components/layout/index";
 import PageHeader from "components/incidents/page-header";
 import clsx from "clsx";
+import { getApplication } from "lib/api-helper";
 
 export default function IncidentDetail({ user, incident, comments }) {
   const pageTitle = `${incident.data.incidentNumber}
@@ -64,10 +66,6 @@ export default function IncidentDetail({ user, incident, comments }) {
   const [selectedStatus, setSelectedStatus] = useState(
     incident.data.incidentStatus
   );
-  const [editableData, setEditableData] = useState({
-    incidentName: incident.data.incidentName,
-    titleLoading: false,
-  });
   const [enhancement, setEnhancement] = useState(
     incident.data.isProblem !== "N" ? true : false
   );
@@ -127,7 +125,11 @@ export default function IncidentDetail({ user, incident, comments }) {
         )
       );
   }, []);
-  /** =============== Data Fetching End =============== */
+
+  // Get data applications with async
+  const loadApplications = (value, callback) => {
+    getApplication(value, callback, user.accessToken);
+  };
 
   // get data urgency list
   useEffect(() => {
@@ -189,6 +191,7 @@ export default function IncidentDetail({ user, incident, comments }) {
         )
       );
   }, []);
+  /** =============== Data Fetching End =============== */
 
   // react hook form for incident
   const {
@@ -203,6 +206,13 @@ export default function IncidentDetail({ user, incident, comments }) {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
+      idApps: incident.data.paramApps
+        ? {
+            value: incident.data.paramApps.id,
+            label: incident.data.paramApps.subName,
+            criticality: incident.data.paramApps.criticalityApp,
+          }
+        : false,
       idIncidentType: incident.data.paramIncidentType
         ? {
             label: incident.data.paramIncidentType.incidentType,
@@ -310,44 +320,6 @@ export default function IncidentDetail({ user, incident, comments }) {
     });
   };
 
-  // Handle Editable Title incident
-  const handleEditableTitle = (value) => {
-    if (editableData.incidentName !== value) {
-      setEditableData((editableData) => ({
-        ...editableData,
-        titleLoading: true,
-      }));
-      axios
-        .patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
-          { incidentName: value },
-          {
-            headers: { Authorization: `Bearer ${user.accessToken}` },
-          }
-        )
-        .then(function (response) {
-          if (response.status === 200) {
-            // setIncidentName(value);
-            setEditableData((editableData) => ({
-              ...editableData,
-              incidentName: value,
-              titleLoading: false,
-            }));
-          } else {
-            toast.error(`Failed to update: ${response.data.message}`);
-          }
-        })
-        .catch(function (error) {
-          // Error 😨
-          toast.error(`${error.response.data.message}`);
-          setEditableData((editableData) => ({
-            ...editableData,
-            titleLoading: false,
-          }));
-        });
-    }
-  };
-
   // Handle validate datetime
   const timeType = {
     logStartTime: new Date(getValues("logStartTime")),
@@ -431,6 +403,7 @@ export default function IncidentDetail({ user, incident, comments }) {
   // handle form submit
   const onSubmit = async (data) => {
     data = Object.assign(data, {
+      idApps: data.idApps.value,
       idIncidentType: data.idIncidentType.value,
       idCategorySystem: data.idCategorySystem.value,
       startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
@@ -509,184 +482,156 @@ export default function IncidentDetail({ user, incident, comments }) {
       });
   };
 
+  const pageSubTitle = (
+    <>
+      Reported by{" "}
+      <a href="#" className="text-gray-900">
+        {incident.data.paramCreatedBy
+          ? incident.data.paramCreatedBy.fullname
+          : "undefined"}
+      </a>{" "}
+      on{" "}
+      <time>
+        {format(
+          new Date(incident.data.createdAt),
+          "dd MMMM yyyy HH:mm",
+          "id-ID"
+        )}
+      </time>
+    </>
+  );
+
   return (
     <LayoutPage session={user} pageTitle={pageTitle}>
-      <PageHeader>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center space-x-5">
-            <div className="flex flex-row space-x-4">
-              <div className="flex w-8 h-8 items-center justify-center">
-                <a
-                  href="#"
-                  onClick={() => router.back()}
-                  aria-label="Kembali"
-                  className="text-blue-500 hover:text-blue-700"
-                  title="Kembali"
-                >
-                  <ArrowCircleLeftIcon aria-hidden className="w-8 h-8" />
-                </a>
-              </div>
-              <div>
-                <h1 className="text-2xl font-semibold">
-                  {editableData.incidentName}
-                </h1>
-                <p className="mt-1 text-sm text-gray-500 overflow-hidden overflow-ellipsis">
-                  Reported by{" "}
-                  <a href="#" className="text-gray-900">
-                    {incident.data.paramCreatedBy
-                      ? incident.data.paramCreatedBy.fullname
-                      : "undefined"}
-                  </a>{" "}
-                  on{" "}
-                  <time>
-                    {format(
-                      new Date(incident.data.createdAt),
-                      "dd MMMM yyyy HH:mm",
-                      "id-ID"
-                    )}
-                  </time>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex space-x-3 sm:mt-0 sm:ml-4">
-          <WhiteButton type="button" onClick={() => refreshData()}>
-            <RefreshIcon
-              className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2"
-              aria-hidden="true"
-            />
-            Refresh
-          </WhiteButton>
-          <Listbox
-            value={selectedStatus}
-            onChange={(value) => {
-              onStatusChange(value);
-            }}
-            disabled={user.grant === "viewer" ? true : false}
-          >
-            {({ open }) => (
-              <>
-                <Listbox.Label className="sr-only">
-                  Change incident status
-                </Listbox.Label>
-                <div className="relative">
-                  <div className="inline-flex divide-x divide-gray-200 rounded-md shadow-sm">
-                    <div className="relative z-0 inline-flex divide-x divide-gray-200 rounded-md shadow-sm">
-                      <div
-                        className={clsx(
-                          selectedStatus == "Open"
-                            ? "bg-red-500"
-                            : selectedStatus == "Investigate"
-                            ? "bg-blue-500"
-                            : "bg-green-500",
-                          "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
-                        )}
-                      >
-                        {spinner ? (
-                          <Spinner />
-                        ) : selectedStatus == "Open" ? (
-                          <LockOpenIcon
-                            className="w-5 h-5"
-                            aria-hidden="true"
-                          />
-                        ) : selectedStatus == "Investigate" ? (
-                          <ClockIcon className="w-5 h-5" aria-hidden="true" />
-                        ) : selectedStatus == "Resolved" ? (
-                          <CheckIcon className="w-5 h-5" aria-hidden="true" />
-                        ) : (
-                          ""
-                        )}
-                        <p className="ml-2.5 text-sm font-medium">
-                          {selectedStatus}
-                        </p>
-                      </div>
-                      <Listbox.Button
-                        className={clsx(
-                          selectedStatus == "Open"
-                            ? "bg-red-500 hover:bg-red-600"
-                            : selectedStatus == "Investigate"
-                            ? "bg-blue-500 hover:bg-blue-600"
-                            : "bg-green-500 hover:bg-green-600",
-                          "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
-                        )}
-                      >
-                        <span className="sr-only">Change incident status</span>
-                        <ChevronDownIcon
-                          className="w-5 h-5 text-white"
-                          aria-hidden="true"
-                        />
-                      </Listbox.Button>
-                    </div>
-                  </div>
-
-                  <Transition
-                    show={open}
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <Listbox.Options
-                      static
-                      className="absolute right-0 z-10 mt-2 overflow-hidden origin-top-right bg-white divide-y divide-gray-200 rounded-md shadow-lg w-72 ring-1 ring-black ring-opacity-5 focus:outline-none"
+      <LayoutPageHeader
+        variant="alternate"
+        pageTitle={`Incident Report ${incident.data.incidentNumber}`}
+        pageSubTitle={pageSubTitle}
+        routerBack={true}
+      >
+        <Listbox
+          value={selectedStatus}
+          onChange={(value) => {
+            onStatusChange(value);
+          }}
+          disabled={user.grant === "viewer" ? true : false}
+        >
+          {({ open }) => (
+            <>
+              <Listbox.Label className="sr-only">
+                Change incident status
+              </Listbox.Label>
+              <div className="relative">
+                <div className="inline-flex divide-x divide-gray-200 rounded-md shadow-sm">
+                  <div className="relative z-0 inline-flex divide-x divide-gray-200 rounded-md shadow-sm">
+                    <div
+                      className={clsx(
+                        selectedStatus == "Open"
+                          ? "bg-red-500"
+                          : selectedStatus == "Investigate"
+                          ? "bg-blue-500"
+                          : "bg-green-500",
+                        "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
+                      )}
                     >
-                      {incidentStatus.map((option) => (
-                        <Listbox.Option
-                          key={option.status}
-                          className={({ active }) =>
-                            clsx(
-                              active
-                                ? "text-white bg-blue-500"
-                                : "text-gray-900",
-                              "cursor-default select-none relative p-4 text-sm"
-                            )
-                          }
-                          value={option.status}
-                        >
-                          {({ selected, active }) => (
-                            <div className="flex flex-col">
-                              <div className="flex justify-between">
-                                <p
+                      {spinner ? (
+                        <Spinner />
+                      ) : selectedStatus == "Open" ? (
+                        <LockOpenIcon className="w-5 h-5" aria-hidden="true" />
+                      ) : selectedStatus == "Investigate" ? (
+                        <ClockIcon className="w-5 h-5" aria-hidden="true" />
+                      ) : selectedStatus == "Resolved" ? (
+                        <CheckIcon className="w-5 h-5" aria-hidden="true" />
+                      ) : (
+                        ""
+                      )}
+                      <p className="ml-2.5 text-sm font-medium">
+                        {selectedStatus}
+                      </p>
+                    </div>
+                    <Listbox.Button
+                      className={clsx(
+                        selectedStatus == "Open"
+                          ? "bg-red-500 hover:bg-red-600"
+                          : selectedStatus == "Investigate"
+                          ? "bg-blue-500 hover:bg-blue-600"
+                          : "bg-green-500 hover:bg-green-600",
+                        "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
+                      )}
+                    >
+                      <span className="sr-only">Change incident status</span>
+                      <ChevronDownIcon
+                        className="w-5 h-5 text-white"
+                        aria-hidden="true"
+                      />
+                    </Listbox.Button>
+                  </div>
+                </div>
+
+                <Transition
+                  show={open}
+                  as={Fragment}
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Listbox.Options
+                    static
+                    className="absolute right-0 z-10 mt-2 overflow-hidden origin-top-right bg-white divide-y divide-gray-200 rounded-md shadow-lg w-72 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  >
+                    {incidentStatus.map((option) => (
+                      <Listbox.Option
+                        key={option.status}
+                        className={({ active }) =>
+                          clsx(
+                            active ? "text-white bg-blue-500" : "text-gray-900",
+                            "cursor-default select-none relative p-4 text-sm"
+                          )
+                        }
+                        value={option.status}
+                      >
+                        {({ selected, active }) => (
+                          <div className="flex flex-col">
+                            <div className="flex justify-between">
+                              <p
+                                className={
+                                  selected ? "font-semibold" : "font-normal"
+                                }
+                              >
+                                {option.status}
+                              </p>
+                              {selected ? (
+                                <span
                                   className={
-                                    selected ? "font-semibold" : "font-normal"
+                                    active ? "text-white" : "text-blue-500"
                                   }
                                 >
-                                  {option.status}
-                                </p>
-                                {selected ? (
-                                  <span
-                                    className={
-                                      active ? "text-white" : "text-blue-500"
-                                    }
-                                  >
-                                    <CheckIcon
-                                      className="w-5 h-5"
-                                      aria-hidden="true"
-                                    />
-                                  </span>
-                                ) : null}
-                              </div>
-                              <p
-                                className={clsx(
-                                  active ? "text-blue-200" : "text-gray-500",
-                                  "mt-2"
-                                )}
-                              >
-                                {option.description}
-                              </p>
+                                  <CheckIcon
+                                    className="w-5 h-5"
+                                    aria-hidden="true"
+                                  />
+                                </span>
+                              ) : null}
                             </div>
-                          )}
-                        </Listbox.Option>
-                      ))}
-                    </Listbox.Options>
-                  </Transition>
-                </div>
-              </>
-            )}
-          </Listbox>
-        </div>
-      </PageHeader>
+                            <p
+                              className={clsx(
+                                active ? "text-blue-200" : "text-gray-500",
+                                "mt-2"
+                              )}
+                            >
+                              {option.description}
+                            </p>
+                          </div>
+                        )}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </Transition>
+              </div>
+            </>
+          )}
+        </Listbox>
+      </LayoutPageHeader>
       <LayoutPageContent>
         <div className="grid grid-cols-1 gap-8 lg:grid-flow-col-dense lg:grid-cols-2">
           <div className="space-y-6 lg:col-start-1 lg:col-span-2">
@@ -696,7 +641,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                 <section aria-labelledby="incident-detail">
                   <div className="bg-white shadow sm:rounded-lg">
                     <CardTitle
-                      title={`Incident Report ${incident.data.incidentNumber}`}
+                      title={incident.data.incidentName}
                       subtitle={`Priority ${
                         incident.data.paramPriorityMatrix
                           ? incident.data.paramPriorityMatrix.mapping
@@ -737,47 +682,94 @@ export default function IncidentDetail({ user, incident, comments }) {
                       </div>
                     </CardTitle>
                     <CardContent>
+                      <div className="sm:col-span-2">
+                        <dt className="text-sm font-medium text-gray-900">
+                          Incident Name
+                        </dt>
+                        <input
+                          {...register("incidentName", {
+                            required: "This is required",
+                          })}
+                          type="text"
+                          name="incidentName"
+                          className={clsx(
+                            "mt-1 block shadow-sm border-gray-300 sm:text-sm rounded-md w-full",
+                            "focus:ring-blue-500 focus:border-blue-500"
+                          )}
+                          defaultValue={incident.data.incidentName}
+                        />
+                        {errors.incidentName && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.incidentName.message}
+                          </p>
+                        )}
+                      </div>
                       <div className="sm:col-span-1">
                         <dt className="text-sm font-medium text-gray-900">
                           Application
                         </dt>
-                        <dd className="mt-1 text-sm text-gray-500">
-                          {incident.data.paramApps
-                            ? incident.data.paramApps.subName
-                            : "Not defined yet"}
+                        <dd className="mt-2 text-sm text-gray-500">
+                          <Controller
+                            name="idApps"
+                            control={control}
+                            rules={{ required: "This is required" }}
+                            render={({ field }) => (
+                              <AsyncSelect
+                                {...field}
+                                isClearable
+                                instanceId={"idApps"}
+                                loadOptions={loadApplications}
+                                styles={styledReactSelect}
+                                className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Search for application"
+                                components={{
+                                  Option: IconOption,
+                                  SingleValue: ValueOption,
+                                }}
+                                defaultOptions={{ label: "yaya", value: 22 }}
+                              />
+                            )}
+                          />
+                          <span className="mt-2 text-xs italic font-normal text-gray-500">
+                            Type at least 3 letters of application name
+                          </span>
+                          {errors.idApps && (
+                            <p className="mt-2 text-sm text-red-600">
+                              {errors.idApps.message}
+                            </p>
+                          )}
                         </dd>
                       </div>
                       <div className="sm:col-span-1">
-                        <label
-                          htmlFor="incident-type"
-                          className="block text-sm font-medium text-gray-900"
-                        >
+                        <dt className="text-sm font-medium text-gray-900">
                           Incident Type
-                        </label>
-                        <Controller
-                          name="idIncidentType"
-                          control={control}
-                          rules={{ required: "This is required" }}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              className={clsx(
-                                errors.idIncidentType
-                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                  : "focus:ring-blue-500 focus:border-blue-500",
-                                "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
-                              )}
-                              options={incidentTypeOptions}
-                              styles={styledReactSelect}
-                              placeholder="Select incident type..."
-                            />
+                        </dt>
+                        <dd className="text-sm text-gray-500">
+                          <Controller
+                            name="idIncidentType"
+                            control={control}
+                            rules={{ required: "This is required" }}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                className={clsx(
+                                  errors.idIncidentType
+                                    ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                    : "focus:ring-blue-500 focus:border-blue-500",
+                                  "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                )}
+                                options={incidentTypeOptions}
+                                styles={styledReactSelect}
+                                placeholder="Select incident type..."
+                              />
+                            )}
+                          />
+                          {errors.idIncidentType && (
+                            <p className="text-sm text-red-600">
+                              {errors.idIncidentType.message}
+                            </p>
                           )}
-                        />
-                        {errors.idIncidentType && (
-                          <p className="text-sm text-red-600">
-                            {errors.idIncidentType.message}
-                          </p>
-                        )}
+                        </dd>
                       </div>
                       <div className="sm:col-span-1">
                         <label
@@ -856,7 +848,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                       <div className="sm:col-span-1">
                         <label
                           htmlFor="end-time"
-                          className="block mb-1 text-sm font-medium text-gray-900"
+                          className="block mb-2 text-sm font-medium text-gray-900"
                         >
                           End Time
                         </label>
@@ -1293,7 +1285,7 @@ export default function IncidentDetail({ user, incident, comments }) {
               <section aria-labelledby="incident-detail">
                 <div className="bg-white shadow sm:rounded-lg">
                   <CardTitle
-                    title={`Incident Report ${incident.data.incidentNumber}`}
+                    title={incident.data.incidentName}
                     subtitle={
                       incident.data.resolvedIntervals
                         ? `Duration ${incident.data.resolvedIntervals} minutes`
@@ -1675,6 +1667,7 @@ export default function IncidentDetail({ user, incident, comments }) {
             {/* End of Comments */}
           </div>
 
+          {/* Right Section */}
           <section
             aria-labelledby="incident-info"
             className="lg:col-start-3 lg:col-span-1"
