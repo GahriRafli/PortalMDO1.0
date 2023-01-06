@@ -846,7 +846,9 @@ export default function ReplyTicket({
                                             }}
                                           />
                                         ) : (
-                                          <p>{item.historyContent}</p>
+                                          <p className="whitespace-pre-wrap">
+                                            {item.historyContent}
+                                          </p>
                                         )}
                                       </div>
                                     </div>
