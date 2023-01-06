@@ -522,7 +522,10 @@ export default function ReplyTicket({
   };
 
   return (
-    <LayoutPage session={user} pageTitle="Reply Tickets - Shield">
+    <LayoutPage
+      session={user}
+      pageTitle={`Reply Ticket ${ticketData.id}  - Shield`}
+    >
       <LayoutPageHeader></LayoutPageHeader>
       <LayoutPageContent>
         <DefaultCard>
