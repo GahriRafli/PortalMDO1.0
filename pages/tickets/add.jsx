@@ -1,23 +1,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import axios from "axios";
-import { Disclosure, Switch } from "@headlessui/react";
-import { ArrowCircleLeftIcon, ChevronDownIcon } from "@heroicons/react/outline";
+import { Disclosure } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/outline";
 import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
 import { Controller, useForm } from "react-hook-form";
-import Select, { components } from "react-select";
-import AsyncSelect from "react-select/async";
 import { toast } from "react-hot-toast";
-import { Input } from "components/ui/forms";
-import {
-  classNames,
-  styledReactSelect,
-  styledReactSelectAdd,
-  IconOption,
-  ValueOption,
-  createParam,
-} from "components/utils";
+import { ReactSelect } from "components/ui/forms";
+import clsx from "clsx";
 import { PrimaryButton } from "components/ui/button/primary-button";
 import { SecondaryButton } from "components/ui/button/secondary-button";
 import { Spinner } from "components/ui/svg/spinner";
@@ -60,40 +50,11 @@ export default function addTicket({ user }) {
   const [selectedFile, setSelectedFile] = useState([]);
 
   const sourceManualOptions = [
-    { value: "Whatsapp", label: "Whatsapp" },
+    { value: "WhatsApp", label: "WhatsApp" },
+    { value: "E-Mail", label: "E-Mail" },
+    { value: "Phone", label: "Phone" },
     { value: "Telegram", label: "Telegram" },
   ];
-
-  // Get data applications with async
-  const loadApplications = (value, callback) => {
-    clearTimeout(timeoutId);
-
-    if (value.length < 3) return callback([]);
-
-    const timeoutId = setTimeout(() => {
-      axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}&status=A`
-        )
-        .then((res) => {
-          const cachedOptions = res.data.data.map((d) => ({
-            value: d.id,
-            label: d.subName,
-          }));
-
-          callback(cachedOptions);
-        })
-        .catch((err) => toast.error(`Application ${err}`));
-    }, 500);
-  };
-
-  const NoOptionsMessage = (props) => {
-    return (
-      <components.NoOptionsMessage {...props}>
-        <span>Type at least 3 letters of application name</span>
-      </components.NoOptionsMessage>
-    );
-  };
 
   // Get data ticket type
   useEffect(() => {
@@ -114,6 +75,10 @@ export default function addTicket({ user }) {
   const onSubmit = async (data, e) => {
     e.preventDefault();
     await sleep(1000);
+
+    Object.assign(data, {
+      sourceManual: data.sourceManual.value,
+    });
 
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/tickets`, data, {
@@ -273,17 +238,19 @@ export default function addTicket({ user }) {
                         <label className="block mb-1 text-sm font-medium text-gray-700">
                           Source Ticket
                         </label>
-                        <input
-                          {...register("sourceManual", {
-                            required: "This is required",
-                          })}
-                          id="sourceManual"
+                        {/* <ReactSelect options={sourceManualOptions} /> */}
+                        <Controller
                           name="sourceManual"
-                          type="text"
-                          options={sourceManualOptions}
-                          className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                          placeholder="Describe Source Ticket, ex : Whatsapp and Telegram"
-                          defaultValue={""}
+                          control={control}
+                          rules={{ required: "This is required" }}
+                          render={({ field }) => (
+                            <ReactSelect
+                              {...field}
+                              instanceId={"sourceManual"}
+                              isSearchable={false}
+                              options={sourceManualOptions}
+                            />
+                          )}
                         />
                         {errors.sourceManual && (
                           <p className="mt-2 text-sm text-red-600">
@@ -302,7 +269,7 @@ export default function addTicket({ user }) {
                           })}
                           id="content"
                           name="content"
-                          rows={10}
+                          rows={5}
                           className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           placeholder="Describe the systems affected or Problem"
                           defaultValue={""}
@@ -376,7 +343,7 @@ export default function addTicket({ user }) {
                             </span>
                             <span className="flex items-center ml-6 h-7">
                               <ChevronDownIcon
-                                className={classNames(
+                                className={clsx(
                                   open ? "-rotate-180" : "rotate-0",
                                   "h-6 w-6 transform"
                                 )}

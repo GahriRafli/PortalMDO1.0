@@ -182,7 +182,6 @@ export default function TicketList(props) {
 
   const [newEditDefaultValues, setNewEditDefaultValues] =
     useState(editDefaultValue);
-  console.log(newEditDefaultValues);
 
   const {
     formState: { errors: errors3, isSubmitting: isSubmitting3 },
@@ -416,7 +415,7 @@ export default function TicketList(props) {
         },
       },
       {
-        Header: "Reporter",
+        Header: "Complainer",
         accessor: "paramCreatedBy.fullname",
         Cell: AvatarCell,
         disableSortBy: true,
