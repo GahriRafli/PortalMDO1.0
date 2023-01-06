@@ -61,18 +61,18 @@ export const navigation = [
       },
     ],
   },
-  // {
-  //   name: "Tickets",
-  //   icon: ChatAlt2Icon,
-  //   href: "/tickets",
-  //   children: [
-  //     {
-  //       name: "Ticket List",
-  //       href: "/tickets",
-  //       permission: "all",
-  //     },
-  //   ],
-  // },
+  {
+    name: "Tickets",
+    icon: ChatAlt2Icon,
+    href: "/tickets",
+    children: [
+      {
+        name: "Ticket List",
+        href: "/tickets",
+        permission: "all",
+      },
+    ],
+  },
   {
     name: "Report",
     icon: DocumentReportIcon,

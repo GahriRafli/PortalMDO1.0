@@ -7,14 +7,14 @@ import Link from "next/link";
 import AvatarCell from "components/tickets/avatar-cell";
 import PageHeader from "components/tickets/page-header";
 import Table from "components/tickets/table";
-import CardStats from 'components/tickets/card-stats';
+import CardStats from "components/tickets/card-stats";
 import {
   ChevronUpIcon,
   DotsVerticalIcon,
   CheckCircleIcon,
   UserAddIcon,
   PencilIcon,
-} from '@heroicons/react/solid';
+} from "@heroicons/react/solid";
 import clsx from "clsx";
 // import {
 //   SelectColumnFilter,
@@ -54,7 +54,12 @@ import {
 } from "components/ui/button/index";
 import { ReactSelect, TextareaInput } from "components/ui/forms";
 import AsyncSelect from "react-select/async";
-import { styledReactSelect, createParam, IconOption, ValueOption } from "components/utils";
+import {
+  styledReactSelect,
+  createParam,
+  IconOption,
+  ValueOption,
+} from "components/utils";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { useAsyncDebounce } from "react-table";
@@ -85,13 +90,13 @@ export default function TicketList(props) {
   const startLoading = () => setLoading(true);
   const stopLoading = () => setLoading(false);
   const router = useRouter();
-  const [ticketID, setTicketID] = useState('');
-  const [editID, setEditID] = useState('');
-  const [closeID, setCloseID] = useState('');
-   // Assign
+  const [ticketID, setTicketID] = useState("");
+  const [editID, setEditID] = useState("");
+  const [closeID, setCloseID] = useState("");
+  // Assign
   const [assignModalIsOpen, setAssignModalIsOpen] = useState(false);
   const [assignIsLoading, setAssignIsLoading] = useState(false);
-   //errmsgclose
+  //errmsgclose
   const [errorMsg, setErrorMsg] = useState([]);
   //Edit
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
@@ -156,26 +161,27 @@ export default function TicketList(props) {
   // };
 
   const editDefaultValue = {
-    idApps : {
-      value:'',
-      label: '',
+    idApps: {
+      value: "",
+      label: "",
     },
     idTicketType: {
-      value: '',
-      label: ''
+      value: "",
+      label: "",
     },
     idPriorityTicket: {
-      value: '',
-      label: ''
+      value: "",
+      label: "",
     },
     idEscalatedGroup: {
-      value: '',
-      label: ''
+      value: "",
+      label: "",
     },
-    escalatedRole: ''
-  }
+    escalatedRole: "",
+  };
 
-  const [newEditDefaultValues, setNewEditDefaultValues] = useState(editDefaultValue)
+  const [newEditDefaultValues, setNewEditDefaultValues] =
+    useState(editDefaultValue);
   console.log(newEditDefaultValues);
 
   const {
@@ -216,8 +222,8 @@ export default function TicketList(props) {
       });
   }, []);
 
-   //Pagination
-   useEffect(() => {
+  //Pagination
+  useEffect(() => {
     router.events.on("routeChangeStart", startLoading);
     router.events.on("routeChangeComplete", stopLoading);
 
@@ -227,8 +233,8 @@ export default function TicketList(props) {
     };
   }, []);
 
-   // Get data aplikai async
-   const loadApplications = (value, callback) => {
+  // Get data aplikai async
+  const loadApplications = (value, callback) => {
     clearTimeout(timeoutId);
 
     if (value.length < 3) {
@@ -311,8 +317,8 @@ export default function TicketList(props) {
     handleSubmit: handleSubmit2,
   } = useForm();
 
-   // Handle react-select dropdown position
-   useEffect(() => {
+  // Handle react-select dropdown position
+  useEffect(() => {
     if (typeof window !== "undefined") {
       // browser code
       setPortalTarget(document.querySelector("body"));
@@ -330,7 +336,7 @@ export default function TicketList(props) {
               <Link href={`/tickets/${props.row.original.id}`}>
                 <a className="text-blue-500 hover:text-blue-900">
                   {props.value.length > 100
-                    ? `${props.value.substring(0, 150).concat('...')}`
+                    ? `${props.value.substring(0, 150).concat("...")}`
                     : `${props.value}`}
                 </a>
               </Link>
@@ -339,14 +345,12 @@ export default function TicketList(props) {
                 <div className="flex justify-between mt-2 text-sm text-gray-500">
                   {props.row.original.picName
                     ? `@${props.row.original.picName} - `
-                    : ''}
-                    {props.row.original.id
-                      ? `${props.row.original.branchCode}`
-                      : ''}
+                    : ""}
+                  {props.row.original.id
+                    ? `${props.row.original.branchCode}`
+                    : ""}
                   <p>
-                    {props.row.original.id
-                      ? `${props.row.original.id}`
-                      : ''}
+                    {props.row.original.id ? `${props.row.original.id}` : ""}
                   </p>
                 </div>
               </div>
@@ -355,47 +359,47 @@ export default function TicketList(props) {
         },
       },
       {
-        Header: 'Application',
-        accessor: 'paramTicketApps.subName',
+        Header: "Application",
+        accessor: "paramTicketApps.subName",
         Cell: (props) => {
           return (
             <div>
               <p className="mb-2 text-black">
                 {props.row.original.paramTicketApps
                   ? ` ${props.row.original.paramTicketApps.subName}`
-                  : '-'}
+                  : "-"}
               </p>
               <p className="mb-2 text-gray-500">
                 {props.row.original.paramTicketType
                   ? ` ${props.row.original.paramTicketType.ticketType}`
-                  : ''}
+                  : ""}
               </p>
             </div>
           );
         },
       },
       {
-        Header: 'Priority',
-        accessor: 'paramTicketPriority.priorityTicket',
+        Header: "Priority",
+        accessor: "paramTicketPriority.priorityTicket",
         Cell: StatusPill,
         disableSortBy: true,
       },
       {
-        Header: 'Status',
-        accessor: 'ticketStatus',
+        Header: "Status",
+        accessor: "ticketStatus",
         Cell: StatusTicket,
         disableSortBy: true,
       },
       {
-        Header: 'Started At',
-        accessor: 'createdAt',
+        Header: "Started At",
+        accessor: "createdAt",
         Cell: (props) => {
           return (
             <div>
               <div className="text-xs text-gray-900">
                 {format(
                   new Date(props.row.original.createdAt),
-                  'dd MMM yyyy HH:mm'
+                  "dd MMM yyyy HH:mm"
                 )}
               </div>
               <div className="text-xs text-gray-500">
@@ -404,7 +408,7 @@ export default function TicketList(props) {
                     {props.row.original.closedAt} minutes
                   </span>
                 ) : (
-                  '-'
+                  "-"
                 )}
               </div>
             </div>
@@ -418,61 +422,75 @@ export default function TicketList(props) {
         disableSortBy: true,
       },
       {
-          Header: ' ',
-          accessor: 'paramTicketEscalatedGroup.groupName',
-          Cell: (props) => {
-            return (
-              <div>
-                <Menu
-                  as="div"
-                  className="relative inline-block text-left"
-                >
-                  {({ open }) => (
-                    <>
-                      <div>
-                        <Menu.Button className="inline-flex justify-center w-full text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none">
-                          <DotsVerticalIcon
-                            className="w-5 h-5 ml-5 text-black"
-                            aria-hidden="true"
-                          />
-                        </Menu.Button>
-                      </div>
-  
-                      <Transition
-                        show={open}
-                        as={Fragment}
-                        enter="transition ease-out duration-100"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
-                        leave="transition ease-in duration-75"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
+        Header: " ",
+        accessor: "paramTicketEscalatedGroup.groupName",
+        Cell: (props) => {
+          return (
+            <div>
+              <Menu as="div" className="relative inline-block text-left">
+                {({ open }) => (
+                  <>
+                    <div>
+                      <Menu.Button className="inline-flex justify-center w-full text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none">
+                        <DotsVerticalIcon
+                          className="w-5 h-5 ml-5 text-black"
+                          aria-hidden="true"
+                        />
+                      </Menu.Button>
+                    </div>
+
+                    <Transition
+                      show={open}
+                      as={Fragment}
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Menu.Items
+                        static
+                        className="absolute right-0 w-56 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                       >
-                        <Menu.Items
-                          static
-                          className="absolute right-0 w-56 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                        >
-                          <div className="py-1">
-                            <Menu.Item>
-                              {({ active }) => (
+                        <div className="py-1">
+                          <Menu.Item>
+                            {({ active }) => (
+                              <Link href={`/tickets/${props.row.original.id}`}>
                                 <a
-                                  href="#"
-                                  onClick={() =>
-                                    {setAssignModalIsOpen(true)
-                                    setTicketID(props.row.original.id)}
-                                  }
                                   className={clsx(
                                     active
-                                      ? 'bg-gray-100 text-gray-900'
-                                      : 'text-gray-700',
-                                    'block px-4 py-2 text-sm'
+                                      ? "bg-gray-100 text-gray-900"
+                                      : "text-gray-700",
+                                    "block px-4 py-2 text-sm"
                                   )}
                                 >
-                                  Assign to me
+                                  View
                                 </a>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
+                              </Link>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                href="#"
+                                onClick={() => {
+                                  setAssignModalIsOpen(true);
+                                  setTicketID(props.row.original.id);
+                                }}
+                                className={clsx(
+                                  active
+                                    ? "bg-gray-100 text-gray-900"
+                                    : "text-gray-700",
+                                  "block px-4 py-2 text-sm"
+                                )}
+                              >
+                                Assign to me
+                              </a>
+                            )}
+                          </Menu.Item>
+                          {/* Dimatikan dulu karena masih belum sempirna */}
+                          {/* <Menu.Item>
                               {({ active }) => (
                                 <a
                                   href="#"
@@ -513,37 +531,37 @@ export default function TicketList(props) {
                                   Edit
                                 </a>
                               )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <a
-                                  href="#"
-                                  onClick={() =>
-                                    {setSolveModalIsOpen(true)
-                                    setCloseID(props.row.original.id)}
-                                  }
-                                  className={clsx(
-                                    active
-                                      ? 'bg-gray-100 text-gray-900'
-                                      : 'text-gray-700',
-                                    'block px-4 py-2 text-sm'
-                                  )}
-                                >
-                                  Close issue
-                                </a>
-                              )}
-                            </Menu.Item>
-                          </div>
-                        </Menu.Items>
-                      </Transition>
-                    </>
-                  )}
-                </Menu>
-              </div>
-            );
-          },
-          disableSortBy: true,
+                            </Menu.Item> */}
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                href="#"
+                                onClick={() => {
+                                  setSolveModalIsOpen(true);
+                                  setCloseID(props.row.original.id);
+                                }}
+                                className={clsx(
+                                  active
+                                    ? "bg-gray-100 text-gray-900"
+                                    : "text-gray-700",
+                                  "block px-4 py-2 text-sm"
+                                )}
+                              >
+                                Close issue
+                              </a>
+                            )}
+                          </Menu.Item>
+                        </div>
+                      </Menu.Items>
+                    </Transition>
+                  </>
+                )}
+              </Menu>
+            </div>
+          );
         },
+        disableSortBy: true,
+      },
     ],
     []
   );
@@ -552,9 +570,13 @@ export default function TicketList(props) {
   const handleAssignTicket = () => {
     setAssignIsLoading(true);
     axios
-      .patch(`${process.env.NEXT_PUBLIC_API_URL}/tickets/${ticketID}/assign`, "", {
-        headers: { Authorization: `Bearer ${props.user.accessToken}` },
-      })
+      .patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/tickets/${ticketID}/assign`,
+        "",
+        {
+          headers: { Authorization: `Bearer ${props.user.accessToken}` },
+        }
+      )
       .then((res) => {
         if (res.status !== 200) {
           toast.error(res.status);
@@ -630,9 +652,13 @@ export default function TicketList(props) {
   const handleCloseSubmit = (data) => {
     setSolveIsLoading(true);
     axios
-      .patch(`${process.env.NEXT_PUBLIC_API_URL}/tickets/${closeID}/close`, data, {
-        headers: { Authorization: `Bearer ${props.user.accessToken}` },
-      })
+      .patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/tickets/${closeID}/close`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${props.user.accessToken}` },
+        }
+      )
       .then((res) => {
         if (res.status !== 200) {
           toast.error(res.status);
@@ -671,8 +697,8 @@ export default function TicketList(props) {
       query: currentQuery,
     });
   };
- 
-  //Handle Tiket Number 
+
+  //Handle Tiket Number
   const handleTicketNumChange = (value) => {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
@@ -962,23 +988,21 @@ export default function TicketList(props) {
                           Search
                         </label>
                         <InputTag
-                                allowClear
-                                onChange={(e) =>
-                                  handleSearchChange(e.target.value)
-                                }
-                                placeholder={`${count} records...`}
-                                prefix={
-                                  <SearchIcon
-                                    className="w-5 h-5 text-gray-400"
-                                    aria-hidden="true"
-                                  />
-                                }
-                                style={{
-                                  borderRadius: "0.375rem",
-                                  width: "100%",
-                                  height: "38px",
-                                }}
-                              />
+                          allowClear
+                          onChange={(e) => handleSearchChange(e.target.value)}
+                          placeholder={`${count} records...`}
+                          prefix={
+                            <SearchIcon
+                              className="w-5 h-5 text-gray-400"
+                              aria-hidden="true"
+                            />
+                          }
+                          style={{
+                            borderRadius: "0.375rem",
+                            width: "100%",
+                            height: "38px",
+                          }}
+                        />
                       </div>
 
                       <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
@@ -993,7 +1017,9 @@ export default function TicketList(props) {
                           onPressEnter={(e) =>
                             handleTicketNumChange(e.target.value)
                           }
-                          onChange={(e) => handleTicketNumChange(e.target.value)}
+                          onChange={(e) =>
+                            handleTicketNumChange(e.target.value)
+                          }
                           placeholder=" "
                           suffix={
                             <TooltipTag title="Press Enter to Search">
@@ -1009,7 +1035,7 @@ export default function TicketList(props) {
                           }}
                         />
                       </div>
-                      
+
                       <div className="col-span-6 sm:col-span-6 lg:col-span-2 xxl:col-span-1">
                         <label
                           htmlFor="date-filter"
@@ -1132,295 +1158,289 @@ export default function TicketList(props) {
 
         {/* START -- place Modal component here */}
         <Modal
-            show={solveModalIsOpen}
-            onClose={setSolveModalIsOpen}
-            size="medium"
-          >
-            <form key={2} onSubmit={handleSubmit2(handleCloseSubmit)}>
-              <ModalBody>
-                <div className="sm:flex sm:items-start">
-                  <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-green-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                    <CheckCircleIcon
-                      className="w-6 h-6 text-green-500"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg font-medium leading-6 text-gray-900">
-                      Close Issue
-                    </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to close this issue? All of your
-                        data will be saved. This action cannot be undone.
-                      </p>
-                      {errorMsg.length > 0 && (
-                        <CustomAlert
-                          type="danger"
-                          title="Something went wrong!"
-                          className="mt-2"
-                          dismissButton={true}
-                        >
-                          <p>{errorMsg}</p>
-                        </CustomAlert>
-                      )}
-                      <TextareaInput
-                        {...register2("resolution", {
-                          required: "This is required",
-                        })}
-                        className="mt-3"
-                        placeholder="Add your resolution..."
-                      />
-
-                      {errors2.resolution && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {errors2.resolution.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <PrimaryButton
-                  type="submit"
-                  className={
-                    solveIsLoading
-                      ? "disabled:opacity-50 cursor-not-allowed"
-                      : ""
-                  }
-                  disabled={solveIsLoading}
-                >
-                  {solveIsLoading ? (
-                    <>
-                      <Spinner /> Sending...
-                    </>
-                  ) : (
-                    "Submit"
-                  )}
-                </PrimaryButton>
-                <WhiteButton
-                  type="button"
-                  className="mr-2"
-                  onClick={() => setSolveModalIsOpen(false)}
-                >
-                  Cancel
-                </WhiteButton>
-              </ModalFooter>
-            </form>
-          </Modal>
-
-          {/* Coba Modal Edit */}
-          <Modal
-            show={editModalIsOpen}
-            onClose={setEditModalIsOpen}
-            size="x-large"
-          >
-            <form key={3} onSubmit={handleSubmit3(OnEditSubmit)}>
-              <ModalBody>
-                <div className="sm:flex sm:items-center">
-                  <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-gray-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                    <PencilIcon
-                      className="w-6 h-6 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg font-medium leading-6 text-gray-900">
-                      Edit ticket
-                    </h3>
-                  </div>
-                </div>
-                <div className="grid grid-cols-4 gap-6 mt-5">
-                  <div className="col-span-2 sm:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Application
-                    </label>
-                    <Controller
-                      name="idApps"
-                      control={control3}
-                      rules={{ required: "This is required" }}
-                      render={({ field }) => (
-                        <AsyncSelect
-                          {...field}
-                          name="idApps"
-                          instanceId={"idApps"}
-                          styles={styledReactSelect}
-                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Search for application"
-                          loadOptions={loadApplications}
-                          components={{
-                            Option: IconOption,
-                            SingleValue: ValueOption,
-                          }}
-                        />
-                      )}
-                    />
-                    {errors3.idApps && (
-                      <p className="mt-2 text-sm text-red-600">
-                        {errors3.idApps.message}
-                      </p>
-                    )}
-                    <span className="mt-2 text-xs italic font-normal text-gray-500">
-                      Type at least 3 letters of application name
-                    </span>
-                  </div>
-                  <div className="col-span-2 sm:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Ticket Type
-                    </label>
-                    <Controller
-                      name="idTicketType"
-                      control={control3}
-                      rules={{ required: "This is required" }}
-                      render={({ field }) => (
-                        <ReactSelect
-                          {...field}
-                          instanceId={"idTicketType"}
-                          options={optionList.ticketType}
-                          isSearchable={false}
-                        />
-                      )}
-                    />
-                    {errors3.idTicketType && (
-                      <p className="mt-2 text-sm text-red-600">
-                        {errors3.idTicketType.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="col-span-2 sm:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Ticket Priority
-                    </label>
-                    <Controller
-                      name="idPriorityTicket"
-                      control={control3}
-                      rules={{ required: "This is required" }}
-                      render={({ field }) => (
-                        <ReactSelect
-                          {...field}
-                          instanceId={"idPriorityTicket"}
-                          options={optionList.ticketPriority}
-                          menuPortalTarget={portalTarget}
-                          isSearchable={false}
-                        />
-                      )}
-                    />
-                    {errors3.idPriorityTicket && (
-                      <p className="mt-2 text-sm text-red-600">
-                        {errors3.idPriorityTicket.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="col-span-2 sm:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Escalated Group
-                    </label>
-                    <Controller
-                      name="idEscalatedGroup"
-                      control={control3}
-                      rules={{ required: "This is required" }}
-                      render={({ field }) => (
-                        <ReactSelect
-                          {...field}
-                          instanceId={"idEscalatedGroup"}
-                          options={optionList.listGroupEdit}
-                          menuPortalTarget={portalTarget}
-                        />
-                      )}
-                    />
-                    {errors3.idEscalatedGroup && (
-                      <p className="mt-2 text-sm text-red-600">
-                        {errors3.idEscalatedGroup.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <PrimaryButton
-                  type="submit"
-                  className={
-                    editIsLoading
-                      ? "disabled:opacity-50 cursor-not-allowed"
-                      : ""
-                  }
-                  disabled={editIsLoading}
-                >
-                  {editIsLoading ? (
-                    <>
-                      <Spinner /> Sending...
-                    </>
-                  ) : (
-                    "Submit"
-                  )}
-                </PrimaryButton>
-                <WhiteButton
-                  type="button"
-                  className="mr-2"
-                  onClick={() => {
-                    // reset3(newEditDefaultValues);
-                    setEditModalIsOpen(false);
-                  }}
-                >
-                  Cancel
-                </WhiteButton>
-              </ModalFooter>
-            </form>
-          </Modal>
-
-          {/* Coba Modal Assigne */}
-          <Modal show={assignModalIsOpen} onClose={setAssignModalIsOpen}>
+          show={solveModalIsOpen}
+          onClose={setSolveModalIsOpen}
+          size="medium"
+        >
+          <form key={2} onSubmit={handleSubmit2(handleCloseSubmit)}>
             <ModalBody>
               <div className="sm:flex sm:items-start">
-                <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-blue-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                  <UserAddIcon
-                    className="w-6 h-6 text-blue-500"
+                <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-green-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                  <CheckCircleIcon
+                    className="w-6 h-6 text-green-500"
                     aria-hidden="true"
                   />
                 </div>
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                   <h3 className="text-lg font-medium leading-6 text-gray-900">
-                    Assign ticket
+                    Close Issue
                   </h3>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Are you sure you want to assign this ticket ? This action
-                      cannot be undone.
+                      Are you sure you want to close this issue? All of your
+                      data will be saved. This action cannot be undone.
                     </p>
+                    {errorMsg.length > 0 && (
+                      <CustomAlert
+                        type="danger"
+                        title="Something went wrong!"
+                        className="mt-2"
+                        dismissButton={true}
+                      >
+                        <p>{errorMsg}</p>
+                      </CustomAlert>
+                    )}
+                    <TextareaInput
+                      {...register2("resolution", {
+                        required: "This is required",
+                      })}
+                      className="mt-3"
+                      placeholder="Add your resolution..."
+                    />
+
+                    {errors2.resolution && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors2.resolution.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
             </ModalBody>
             <ModalFooter>
               <PrimaryButton
-                type="button"
-                onClick={handleAssignTicket}
-                disabled={assignIsLoading}
+                type="submit"
                 className={
-                  assignIsLoading
-                    ? "disabled:opacity-50 cursor-not-allowed"
-                    : ""
+                  solveIsLoading ? "disabled:opacity-50 cursor-not-allowed" : ""
                 }
+                disabled={solveIsLoading}
               >
-                {assignIsLoading ? (
+                {solveIsLoading ? (
                   <>
-                    {" "}
-                    <Spinner /> Assigning...
+                    <Spinner /> Sending...
                   </>
                 ) : (
-                  "Assign"
+                  "Submit"
                 )}
               </PrimaryButton>
               <WhiteButton
                 type="button"
                 className="mr-2"
-                onClick={() => setAssignModalIsOpen(false)}
+                onClick={() => setSolveModalIsOpen(false)}
               >
                 Cancel
               </WhiteButton>
             </ModalFooter>
-          </Modal>
+          </form>
+        </Modal>
+
+        {/* Coba Modal Edit */}
+        <Modal
+          show={editModalIsOpen}
+          onClose={setEditModalIsOpen}
+          size="x-large"
+        >
+          <form key={3} onSubmit={handleSubmit3(OnEditSubmit)}>
+            <ModalBody>
+              <div className="sm:flex sm:items-center">
+                <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-gray-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                  <PencilIcon
+                    className="w-6 h-6 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">
+                    Edit ticket
+                  </h3>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-6 mt-5">
+                <div className="col-span-2 sm:col-span-2">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Application
+                  </label>
+                  <Controller
+                    name="idApps"
+                    control={control3}
+                    rules={{ required: "This is required" }}
+                    render={({ field }) => (
+                      <AsyncSelect
+                        {...field}
+                        name="idApps"
+                        instanceId={"idApps"}
+                        styles={styledReactSelect}
+                        className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Search for application"
+                        loadOptions={loadApplications}
+                        components={{
+                          Option: IconOption,
+                          SingleValue: ValueOption,
+                        }}
+                      />
+                    )}
+                  />
+                  {errors3.idApps && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors3.idApps.message}
+                    </p>
+                  )}
+                  <span className="mt-2 text-xs italic font-normal text-gray-500">
+                    Type at least 3 letters of application name
+                  </span>
+                </div>
+                <div className="col-span-2 sm:col-span-2">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Ticket Type
+                  </label>
+                  <Controller
+                    name="idTicketType"
+                    control={control3}
+                    rules={{ required: "This is required" }}
+                    render={({ field }) => (
+                      <ReactSelect
+                        {...field}
+                        instanceId={"idTicketType"}
+                        options={optionList.ticketType}
+                        isSearchable={false}
+                      />
+                    )}
+                  />
+                  {errors3.idTicketType && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors3.idTicketType.message}
+                    </p>
+                  )}
+                </div>
+                <div className="col-span-2 sm:col-span-2">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Ticket Priority
+                  </label>
+                  <Controller
+                    name="idPriorityTicket"
+                    control={control3}
+                    rules={{ required: "This is required" }}
+                    render={({ field }) => (
+                      <ReactSelect
+                        {...field}
+                        instanceId={"idPriorityTicket"}
+                        options={optionList.ticketPriority}
+                        menuPortalTarget={portalTarget}
+                        isSearchable={false}
+                      />
+                    )}
+                  />
+                  {errors3.idPriorityTicket && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors3.idPriorityTicket.message}
+                    </p>
+                  )}
+                </div>
+                <div className="col-span-2 sm:col-span-2">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Escalated Group
+                  </label>
+                  <Controller
+                    name="idEscalatedGroup"
+                    control={control3}
+                    rules={{ required: "This is required" }}
+                    render={({ field }) => (
+                      <ReactSelect
+                        {...field}
+                        instanceId={"idEscalatedGroup"}
+                        options={optionList.listGroupEdit}
+                        menuPortalTarget={portalTarget}
+                      />
+                    )}
+                  />
+                  {errors3.idEscalatedGroup && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors3.idEscalatedGroup.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <PrimaryButton
+                type="submit"
+                className={
+                  editIsLoading ? "disabled:opacity-50 cursor-not-allowed" : ""
+                }
+                disabled={editIsLoading}
+              >
+                {editIsLoading ? (
+                  <>
+                    <Spinner /> Sending...
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </PrimaryButton>
+              <WhiteButton
+                type="button"
+                className="mr-2"
+                onClick={() => {
+                  // reset3(newEditDefaultValues);
+                  setEditModalIsOpen(false);
+                }}
+              >
+                Cancel
+              </WhiteButton>
+            </ModalFooter>
+          </form>
+        </Modal>
+
+        {/* Coba Modal Assigne */}
+        <Modal show={assignModalIsOpen} onClose={setAssignModalIsOpen}>
+          <ModalBody>
+            <div className="sm:flex sm:items-start">
+              <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-blue-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                <UserAddIcon
+                  className="w-6 h-6 text-blue-500"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 className="text-lg font-medium leading-6 text-gray-900">
+                  Assign ticket
+                </h3>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">
+                    Are you sure you want to assign this ticket ? This action
+                    cannot be undone.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <PrimaryButton
+              type="button"
+              onClick={handleAssignTicket}
+              disabled={assignIsLoading}
+              className={
+                assignIsLoading ? "disabled:opacity-50 cursor-not-allowed" : ""
+              }
+            >
+              {assignIsLoading ? (
+                <>
+                  {" "}
+                  <Spinner /> Assigning...
+                </>
+              ) : (
+                "Assign"
+              )}
+            </PrimaryButton>
+            <WhiteButton
+              type="button"
+              className="mr-2"
+              onClick={() => setAssignModalIsOpen(false)}
+            >
+              Cancel
+            </WhiteButton>
+          </ModalFooter>
+        </Modal>
 
         {/* Awal pagination */}
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
@@ -1497,7 +1517,6 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   const branchCode = query.branchCode || "";
   const escalatedRole = query.escalatedRole || "";
   const content = query.content || "";
-  
 
   if (
     query.page ||
@@ -1523,7 +1542,6 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     url.searchParams.append("branchCode", branchCode);
     url.searchParams.append("escalatedRole", escalatedRole);
     url.searchParams.append("content", content);
-
   } else {
     url.searchParams.append("page", page);
   }
