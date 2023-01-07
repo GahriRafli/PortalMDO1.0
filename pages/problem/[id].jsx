@@ -1,6 +1,4 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import Head from "next/head";
-import Layout from "../../components/layout";
 import format from "date-fns/format";
 import withSession from "lib/session";
 import axios from "axios";
@@ -27,10 +25,12 @@ import {
 import { PencilIcon, XIcon, CheckIcon } from "@heroicons/react/solid";
 import AssignModule from "components/problems/AssignModule";
 import RootCauseCard from "components/problems/RootCauseCard";
-import { LayoutRoot } from "components/layout/layout-root";
-import { CustomToaster } from "components/ui/notifications/custom-toast";
-import { LayoutSidebar } from "components/layout/layout-sidebar";
-import { LayoutNav } from "components/layout/layout-nav";
+
+import {
+  LayoutPage,
+  LayoutPageContent,
+  LayoutPageHeader,
+} from "components/layout/index";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -334,29 +334,15 @@ function ProblemDetail({ user, problem, idProblem }) {
       .catch((err) => toast.error(`Follow Up ${err}`));
   }, []);
 
+  const pageTitle = `${problem.problemNumber}
+  ${problem.app ? problem.app.subname : null} -
+  Shield`;
+
   return (
     <>
-      <LayoutRoot>
-        <Head>
-          <title>
-            {problem.problemNumber} {problem.app ? problem.app.subname : null} -
-            Shield
-          </title>
-          <meta
-            name="description"
-            content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."
-          />
-          <meta
-            name="viewport"
-            content="initial-scale=1.0, width=device-width"
-          />
-          <meta name="robots" content="noindex,nofollow" />
-          <link rel="shortcut icon" href="/favicon.ico" />
-        </Head>
-        <CustomToaster />
-        <LayoutSidebar session={user} />
-        <div className="flex flex-col w-0 flex-1 overflow-auto">
-          <LayoutNav session={user} searchNotif={false} />
+      <LayoutPage session={user} pageTitle={pageTitle}>
+        <LayoutPageHeader></LayoutPageHeader>
+        <LayoutPageContent>
           <section>
             <div className="py-6">
               <div className="max-w-full mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-full lg:px-12">
@@ -796,8 +782,8 @@ function ProblemDetail({ user, problem, idProblem }) {
               </div>
             </div>
           </section>
-        </div>
-      </LayoutRoot>
+        </LayoutPageContent>
+      </LayoutPage>
     </>
   );
 }
