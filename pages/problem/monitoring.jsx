@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import Head from "next/head";
 import PageHeader from "components/problems/ProblemHeader";
 import withSession from "lib/session";
@@ -190,19 +190,18 @@ export default function Report({ user, data }) {
       "-" +
       new Date().getDate()
     }`;
-    if (value == null) {
-      sethandlerStartPeriodOptions("2022-01-01");
-      sethandlerEndPeriodOptions(endDate);
-    } else {
-      sethandlerStartPeriodOptions(dateString[0]);
-      sethandlerEndPeriodOptions(dateString[1]);
-    }
+    sethandlerStartPeriodOptions(dateString[0]);
+    sethandlerEndPeriodOptions(dateString[1]);
   };
 
   const handleGetData = () => {
     axios
       .get(
-        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/all?startDate=${handlerStartPeriodOptions}&endDate=${handlerEndPeriodOptions}`
+        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/all${
+          handlerStartPeriodOptions && handlerStartPeriodOptions
+            ? `?startDate=${handlerStartPeriodOptions}&endDate=${handlerEndPeriodOptions}`
+            : ""
+        }`
       )
       .then((res) => {
         const dataHit = res.data.data;
@@ -458,7 +457,7 @@ export default function Report({ user, data }) {
               {/* <div className="col-span-2"> */}
               <div className="col-span-2">
                 <div className="bg-white shadow sm:rounded-lg">
-                  <div className="px-8 py-8">
+                  <div className="px-8 py-8 mb-10">
                     <div id="formHitPeriod" name="formHitPeriod">
                       <label
                         htmlFor="EachAssignee"

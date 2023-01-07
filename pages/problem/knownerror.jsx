@@ -72,7 +72,7 @@ const KnownError = ({ user, kedb }) => {
 
   return (
     <>
-      <LayoutPage session={user} pageTitle="Known Error">
+      <LayoutPage session={user} pageTitle="Known Error" isShowNotif={false}>
         <LayoutPageHeader></LayoutPageHeader>
         <LayoutPageContent>
           {/* <div className="flex flex-col w-0 flex-1 overflow-auto"> */}

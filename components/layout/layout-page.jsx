@@ -5,7 +5,7 @@ import { LayoutRoot } from "./layout-root";
 import { LayoutSidebar } from "./layout-sidebar";
 import { Toaster } from "react-hot-toast";
 
-export const LayoutPage = ({ children, session, pageTitle }) => {
+export const LayoutPage = ({ children, session, pageTitle, isShowNotif }) => {
   return (
     <LayoutRoot>
       <Head>
@@ -34,7 +34,7 @@ export const LayoutPage = ({ children, session, pageTitle }) => {
       />
       <LayoutSidebar session={session} />
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
-        <LayoutNav session={session} searchNotif={true} />
+        <LayoutNav session={session} isShowNotif={isShowNotif} />
         <LayoutMain>{children}</LayoutMain>
       </div>
     </LayoutRoot>
