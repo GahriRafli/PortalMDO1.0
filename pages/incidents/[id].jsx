@@ -705,7 +705,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                         <dt className="text-sm font-medium text-gray-900">
                           Application
                         </dt>
-                        <dd className="mt-2 text-sm text-gray-500">
+                        <dd className="mt-2 text-sm">
                           <Controller
                             name="idApps"
                             control={control}
@@ -741,7 +741,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                         <dt className="text-sm font-medium text-gray-900">
                           Incident Type
                         </dt>
-                        <dd className="text-sm text-gray-500">
+                        <dd className="text-sm">
                           <Controller
                             name="idIncidentType"
                             control={control}

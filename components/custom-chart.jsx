@@ -1,53 +1,58 @@
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  BarElement,
   Title,
   Tooltip,
   Legend,
-  ArcElement,
-  LineController,
-  BarController,
+  Filler,
 } from "chart.js";
-import { Chart } from "react-chartjs-2";
-import { Line } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  LineController,
-  BarController,
   PointElement,
   LineElement,
-  BarElement,
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  Filler
 );
 
-export const CustomChart = ({ chartData, title, chartType }) => {
+export const LineChartGradient = ({ chartData, title }) => {
+  const options = {
+    // maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+    elements: {
+      line: {
+        tension: 0.35,
+      },
+    },
+    plugins: {
+      title: { display: title ? true : false, text: `${title}` },
+      legend: { display: false, position: "bottom" },
+      filler: {
+        propagate: false,
+      },
+    },
+    interaction: {
+      intersect: true,
+    },
+  };
+
   return (
     <div>
-      <Chart
-        type={chartType}
-        data={chartData}
-        options={{
-          responsive: true,
-          plugins: {
-            title: { display: true, text: `${title}` },
-            legend: { display: false, position: "bottom" },
-          },
-          scale: {
-            ticks: {
-              precision: 0,
-            },
-          },
-        }}
-      />
+      <Line data={chartData} options={options} />
     </div>
   );
 };
