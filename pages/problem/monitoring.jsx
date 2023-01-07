@@ -99,7 +99,7 @@ export default function Report({ user, data }) {
       {
         label: "Total Problems",
         data: data.problemsByPeriod.map((d) => d.TotalProblemPerPeriode),
-        backgroundColor: palette("cb-Set3", lblChartProblems.length).map(
+        backgroundColor: palette("tol-rainbow", lblChartProblems.length).map(
           function (hex) {
             return "#" + hex;
           }
@@ -183,7 +183,13 @@ export default function Report({ user, data }) {
   const [handlerEndPeriodOptions, sethandlerEndPeriodOptions] = useState([]);
 
   const onChangeHandlerPeriode = (value, dateString) => {
-    const endDate = `${new Date().getFullYear()+"-"+ (new Date().getMonth()+1) +"-"+new Date().getDate()}`;
+    const endDate = `${
+      new Date().getFullYear() +
+      "-" +
+      (new Date().getMonth() + 1) +
+      "-" +
+      new Date().getDate()
+    }`;
     if (value == null) {
       sethandlerStartPeriodOptions("2022-01-01");
       sethandlerEndPeriodOptions(endDate);
@@ -194,125 +200,119 @@ export default function Report({ user, data }) {
   };
 
   const handleGetData = () => {
-     axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/all?startDate=${handlerStartPeriodOptions}&endDate=${handlerEndPeriodOptions}`
-        )
-        .then((res) => {
-          const dataHit = res.data.data;
-          const lblChartProblems = [];
-          const lblChartImpacted = [];
-          const lblChartFUP = [];
-          const lblChartSources = [];
-          countDataAssignee = [];
-          if (res.status == 200) {
-            dataHit.problemsByPeriod.map((getLabel) => {
-              if (getLabel.hasOwnProperty("DateStringPeriode")) {
-                lblChartProblems.push(getLabel.DateStringPeriode);
-              }
-            });
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/all?startDate=${handlerStartPeriodOptions}&endDate=${handlerEndPeriodOptions}`
+      )
+      .then((res) => {
+        const dataHit = res.data.data;
+        const lblChartProblems = [];
+        const lblChartImpacted = [];
+        const lblChartFUP = [];
+        const lblChartSources = [];
+        countDataAssignee = [];
+        if (res.status == 200) {
+          dataHit.problemsByPeriod.map((getLabel) => {
+            if (getLabel.hasOwnProperty("DateStringPeriode")) {
+              lblChartProblems.push(getLabel.DateStringPeriode);
+            }
+          });
 
-            dataHit.impactedByPeriod.map((getLabel) => {
-              if (getLabel.app.subName != "Others") {
-                lblChartImpacted.push(getLabel.app.subName);
-              }
-            });
+          dataHit.impactedByPeriod.map((getLabel) => {
+            if (getLabel.app.subName != "Others") {
+              lblChartImpacted.push(getLabel.app.subName);
+            }
+          });
 
-            dataHit.fupByPeriod.map((getLabel) => {
-              if (getLabel.hasOwnProperty("followUp")) {
-                lblChartFUP.push(getLabel.followUp.label);
-              }
-            });
+          dataHit.fupByPeriod.map((getLabel) => {
+            if (getLabel.hasOwnProperty("followUp")) {
+              lblChartFUP.push(getLabel.followUp.label);
+            }
+          });
 
-            dataHit.problemsSource.map((getLabel) => {
-              if (getLabel.hasOwnProperty("problemSource")) {
-                lblChartSources.push(getLabel.problemSource.label);
-              }
-            });
+          dataHit.problemsSource.map((getLabel) => {
+            if (getLabel.hasOwnProperty("problemSource")) {
+              lblChartSources.push(getLabel.problemSource.label);
+            }
+          });
 
-            setChartDataProblems({
-              labels: lblChartProblems,
-              datasets: [
-                {
-                  label: "Total Problems",
-                  data: dataHit.problemsByPeriod.map(
-                    (d) => d.TotalProblemPerPeriode
-                  ),
-                  backgroundColor: palette(
-                    "cb-Set3",
-                    lblChartProblems.length
-                  ).map(function (hex) {
+          setChartDataProblems({
+            labels: lblChartProblems,
+            datasets: [
+              {
+                label: "Total Problems",
+                data: dataHit.problemsByPeriod.map(
+                  (d) => d.TotalProblemPerPeriode
+                ),
+                backgroundColor: palette(
+                  "tol-rainbow",
+                  lblChartProblems.length
+                ).map(function (hex) {
+                  return "#" + hex;
+                }),
+                borderColor: "#afafaf8c",
+                // tension: 0.2,
+              },
+            ],
+          });
+
+          setChartDataImpacted({
+            labels: lblChartImpacted,
+            datasets: [
+              {
+                label: "Total Problems Impacted",
+                data: dataHit.impactedByPeriod.map((d) => d.TotalProblemPerApp),
+                backgroundColor: palette(
+                  "cb-RdYlBu",
+                  lblChartImpacted.length
+                ).map(function (hex) {
+                  return "#" + hex;
+                }),
+              },
+            ],
+          });
+
+          setChartDataFUP({
+            labels: lblChartFUP,
+            datasets: [
+              {
+                label: "Total Follow Up",
+                data: dataHit.fupByPeriod.map((d) => d.TotalProblemPerFollowup),
+                backgroundColor: palette("tol-rainbow", lblChartFUP.length).map(
+                  function (hex) {
                     return "#" + hex;
-                  }),
-                  borderColor: "#afafaf8c",
-                  // tension: 0.2,
-                },
-              ],
-            });
+                  }
+                ),
+                borderColor: "#afafaf8c",
+              },
+            ],
+          });
 
-            setChartDataImpacted({
-              labels: lblChartImpacted,
-              datasets: [
-                {
-                  label: "Total Problems Impacted",
-                  data: dataHit.impactedByPeriod.map(
-                    (d) => d.TotalProblemPerApp
-                  ),
-                  backgroundColor: palette(
-                    "cb-RdYlBu",
-                    lblChartImpacted.length
-                  ).map(function (hex) {
-                    return "#" + hex;
-                  }),
-                },
-              ],
-            });
+          setChartDataSources({
+            labels: lblChartSources,
+            datasets: [
+              {
+                label: "Problem Source",
+                data: dataHit.problemsSource.map(
+                  (d) => d.TotalProblemPerSource
+                ),
+                backgroundColor: palette(
+                  "tol-rainbow",
 
-            setChartDataFUP({
-              labels: lblChartFUP,
-              datasets: [
-                {
-                  label: "Total Follow Up",
-                  data: dataHit.fupByPeriod.map(
-                    (d) => d.TotalProblemPerFollowup
-                  ),
-                  backgroundColor: palette(
-                    "tol-rainbow",
-                    lblChartFUP.length
-                  ).map(function (hex) {
-                    return "#" + hex;
-                  }),
-                  borderColor: "#afafaf8c",
-                },
-              ],
-            });
+                  lblChartSources.length
+                ).map(function (hex) {
+                  return "#" + hex;
+                }),
+              },
+            ],
+          });
 
-            setChartDataSources({
-              labels: lblChartSources,
-              datasets: [
-                {
-                  label: "Problem Source",
-                  data: dataHit.problemsSource.map(
-                    (d) => d.TotalProblemPerSource
-                  ),
-                  backgroundColor: palette(
-                    "tol-rainbow",
-
-                    lblChartSources.length
-                  ).map(function (hex) {
-                    return "#" + hex;
-                  }),
-                },
-              ],
-            });
-
-            setDataAssignee(dataHit.assigneeByPeriod);
-          } else {
-            toast.info("Data not updated for that Period");
-          }
-        });
-    
-  }
+          setDataAssignee(dataHit.assigneeByPeriod);
+        } else {
+          toast.info("Data not updated for that Period");
+        }
+      });
+  };
 
   return (
     <>
