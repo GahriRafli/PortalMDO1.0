@@ -20,6 +20,8 @@ import {
   LayoutPageHeader,
   LayoutPageContent,
 } from "components/layout/index";
+import { LineChartGradient } from "components/custom-chart";
+import { DefaultCard } from "components/ui/card/default-card";
 
 export default function ThirdParty({ user }) {
   const [portalTarget, setPortalTarget] = useState("");
@@ -43,52 +45,48 @@ export default function ThirdParty({ user }) {
     startTime: null,
     endTime: null,
   });
-  const initialChartData = {
+  const initialIncidentChartData = {
     labels: [],
     datasets: [
       {
         data: [],
-        backgroundColor: [],
+        fill: "start",
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+          gradient.addColorStop(0, "rgba(250,174,50,1)");
+          gradient.addColorStop(1, "rgba(250,174,50,0)");
+          return gradient;
+        },
+        borderColor: "#ff6c23",
       },
     ],
   };
 
-  const config = {
-    data: [],
-    smooth: true,
-    xField: "metric",
-    yField: "value",
-    xAxis: {
-      range: [0, 1],
-      tickCount: 5,
-    },
-    areaStyle: () => {
-      return {
-        fill: "l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff",
-      };
-    },
+  const initialDowntimeChartData = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        fill: "start",
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+          gradient.addColorStop(0, "rgba(21, 170, 255, 1)");
+          gradient.addColorStop(1, "rgba(21, 170, 255, 0)");
+          return gradient;
+        },
+        borderColor: "#15aaff",
+      },
+    ],
   };
 
-  const config2 = {
-    data: [],
-    smooth: true,
-    xField: "metric",
-    yField: "value",
-    xAxis: {
-      range: [0, 1],
-      tickCount: 5,
-    },
-    areaStyle: () => {
-      return {
-        fill: "l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff",
-      };
-    },
-  };
-
-  const [incidentChartData, setIncidentChartData] = useState(config);
-  // const [downtimeChartData, setDowntimeChartData] = useState(initialChartData);
-  const [downtimeChartData, setDowntimeChartData] = useState(config2);
-  //console.log(downtimeChartData);
+  const [incidentChartData, setIncidentChartData] = useState(
+    initialIncidentChartData
+  );
+  const [downtimeChartData, setDowntimeChartData] = useState(
+    initialDowntimeChartData
+  );
 
   const stats = [
     {
@@ -246,18 +244,21 @@ export default function ThirdParty({ user }) {
       setIncidentChartData((incidentChartData) => ({
         ...incidentChartData,
         labels: chartLabels,
-        data: data.incidentSummaryData.map((d) => ({
-          metric: d.incidentDate,
-          value: d.numberOfIncident,
-        })),
+        datasets: [
+          {
+            data: data.incidentSummaryData.map((d) => d.numberOfIncident),
+          },
+        ],
       }));
 
       setDowntimeChartData((downtimeChartData) => ({
         ...downtimeChartData,
-        data: data.incidentSummaryData.map((d) => ({
-          metric: d.incidentDate,
-          value: d.totalDowntime,
-        })),
+        labels: chartLabels,
+        datasets: [
+          {
+            data: data.incidentSummaryData.map((d) => d.totalDowntime),
+          },
+        ],
       }));
 
       setTableData(data.incidentDetailData);
@@ -328,12 +329,10 @@ export default function ThirdParty({ user }) {
                       Partner
                     </label>
                     <ReactSelect
-                      isClearable
-                      className="text-sm block w-full"
                       menuPortalTarget={portalTarget}
-                      id="thirdPartyName"
                       instanceId={"thirdPartyName"}
                       options={partnerOptions}
+                      isClearable
                       onChange={handlePartnerChange}
                     />
                   </div>
@@ -466,53 +465,21 @@ export default function ThirdParty({ user }) {
               </div>
               {/* End of Stats */}
 
-              {/* Card */}
-
-              {/* End of Card */}
-
               <div className="grid grid-cols-6 gap-6 print:grid-cols-1">
-                <div className="col-span-3 print:col-span-1">
-                  {/* New Card */}
-                  <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
-                    <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
-                      <div className="px-1 py-2 sm:px-6 sm:flex-1">
-                        <h2 className="text-sm leading-6 font-medium text-gray-900">
-                          Total Incident
-                        </h2>
-                      </div>
-                    </div>
-                    <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
-                      {/* <Area {...incidentChartData} /> */}
-                      <div className="flex flex-1 justify-center space-x-2">
-                        <ShieldExclamationIcon className="h-5 w-5 text-gray-300" />
-                        <span>Sorry! Chart is under construction.</span>
-                      </div>
-                    </div>
-                  </div>
+                <div className="col-span-3">
+                  <DefaultCard title={"Total Incident"}>
+                    <LineChartGradient chartData={incidentChartData} />
+                  </DefaultCard>
                 </div>
-                <div className="col-span-3 print:col-span-1">
-                  {/* New Card */}
-                  <div className="mb-5 bg-white shadow overfow-hidden sm:rounded-lg">
-                    <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
-                      <div className="px-1 py-2 sm:px-6 sm:flex-1">
-                        <h2 className="text-sm leading-6 font-medium text-gray-900">
-                          Total Downtime (minutes)
-                        </h2>
-                      </div>
-                    </div>
-                    <div className="border-t border-gray-200 px-6 py-7 sm:px-6">
-                      {/* <Area {...downtimeChartData} /> */}
-                      <div className="flex flex-1 justify-center space-x-2">
-                        <ShieldExclamationIcon className="h-5 w-5 text-gray-300" />
-                        <span>Sorry! Chart is under construction.</span>
-                      </div>
-                    </div>
-                  </div>
+                <div className="col-span-3">
+                  <DefaultCard title={"Total Downtime"} subtitle={"in minutes"}>
+                    <LineChartGradient chartData={downtimeChartData} />
+                  </DefaultCard>
                 </div>
               </div>
 
               {/* Start Table */}
-              <div className="mt-6 print:mt-96">
+              <div className="mt-3 print:mt-96">
                 <h2 className="mb-3 text-lg leading-6 font-medium text-gray-900">
                   Timeout Incident Details
                 </h2>
