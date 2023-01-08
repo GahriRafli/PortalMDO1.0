@@ -76,6 +76,7 @@ export const navigation = [
   {
     name: "Report",
     icon: DocumentReportIcon,
+    href: "/report",
     children: [
       {
         name: "Third Party",

@@ -9,7 +9,6 @@ import {
   FolderIcon,
   DesktopComputerIcon,
 } from "@heroicons/react/solid";
-import { ArrowCircleLeftIcon } from "@heroicons/react/outline";
 import { format } from "date-fns";
 import { Spin } from "antd";
 import {
@@ -162,74 +161,76 @@ export default function SearchIncident(props) {
                 <ul className="divide-y divide-gray-200">
                   {props.search.map((result) => (
                     <li key={result.id}>
-                      <a href="#" className="block hover:bg-gray-50">
-                        <div className="px-4 py-4 sm:px-6">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-blue-600 truncate">
-                              {result.incidentName}
-                            </p>
-                            <div className="ml-2 flex-shrink-0 flex">
-                              <p
-                                className={clsx(
-                                  "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
-                                  getIncidenStatus(result.incidentStatus)
-                                )}
-                              >
-                                {result.incidentStatus}
+                      <Link href={`/incidents/${result.id}`}>
+                        <a className="block hover:bg-gray-50">
+                          <div className="px-4 py-4 sm:px-6">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-blue-600 truncate">
+                                {result.incidentName}
+                              </p>
+                              <div className="ml-2 flex-shrink-0 flex">
+                                <p
+                                  className={clsx(
+                                    "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                                    getIncidenStatus(result.incidentStatus)
+                                  )}
+                                >
+                                  {result.incidentStatus}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-2">
+                              <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                                Impacted System : {result.impactedSystem}
+                              </p>
+                              <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                                Root Cause : {result.rootCause}
+                              </p>
+                              <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                                Action : {result.actionItem}
                               </p>
                             </div>
-                          </div>
-                          <div className="mt-2">
-                            <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                              Impacted System : {result.impactedSystem}
-                            </p>
-                            <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                              Root Cause : {result.rootCause}
-                            </p>
-                            <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                              Action : {result.actionItem}
-                            </p>
-                          </div>
-                          <div className="mt-2 sm:flex sm:justify-between">
-                            <div className="sm:flex">
-                              <p className="flex items-center text-sm text-gray-500">
-                                <DesktopComputerIcon
+                            <div className="mt-2 sm:flex sm:justify-between">
+                              <div className="sm:flex">
+                                <p className="flex items-center text-sm text-gray-500">
+                                  <DesktopComputerIcon
+                                    className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                                    aria-hidden="true"
+                                  />
+                                  {result.paramApps.subName}
+                                </p>
+                                <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                                  <FolderIcon
+                                    className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                                    aria-hidden="true"
+                                  />
+                                  {result.paramIncidentType
+                                    ? result.paramIncidentType.incidentType
+                                    : "-"}
+                                </p>
+                              </div>
+                              <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                <CalendarIcon
                                   className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                                   aria-hidden="true"
                                 />
-                                {result.paramApps.subName}
-                              </p>
-                              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                <FolderIcon
-                                  className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                                  aria-hidden="true"
-                                />
-                                {result.paramIncidentType
-                                  ? result.paramIncidentType.incidentType
-                                  : "-"}
-                              </p>
-                            </div>
-                            <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                              <CalendarIcon
-                                className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                                aria-hidden="true"
-                              />
-                              <p>
-                                Started at{" "}
-                                <time dateTime={result.logStartTime}>
-                                  {result.logStartTime
-                                    ? format(
-                                        new Date(result.logStartTime),
-                                        "dd MMMM yyyy HH:mm",
-                                        "id-ID"
-                                      )
-                                    : "-"}{" "}
-                                </time>
-                              </p>
+                                <p>
+                                  Started at{" "}
+                                  <time dateTime={result.logStartTime}>
+                                    {result.logStartTime
+                                      ? format(
+                                          new Date(result.logStartTime),
+                                          "dd MMMM yyyy HH:mm",
+                                          "id-ID"
+                                        )
+                                      : "-"}{" "}
+                                  </time>
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </a>
+                        </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

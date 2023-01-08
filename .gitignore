@@ -39,6 +39,7 @@ yarn-error.log*
 #exclude main file
 pages/sample.jsx
 *.bck
+example.jsx
 
 # package-lock
 package-lock.json

@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment } from "react";
+import Link from "next/link";
 import withSession from "../../lib/session";
 import { Tab, Menu, Transition } from "@headlessui/react";
 import {
@@ -23,8 +24,8 @@ import {
   WhiteButton,
 } from "components/ui/button/index";
 import { ReactSelect, TextareaInput } from "components/ui/forms";
-import { formatDistanceToNowStrict } from "date-fns";
-import { Space, Image as AntdImage, Upload } from "antd";
+import { formatDistanceToNowStrict, format } from "date-fns";
+import { Space, Image as AntdImage, Upload, Tooltip } from "antd";
 import { TicketRightSection } from "components/tickets/ticket-right-section";
 import clsx from "clsx";
 import { Controller, useForm } from "react-hook-form";
@@ -51,10 +52,12 @@ import {
   getTicketType,
 } from "lib/api-helper";
 import {
+  ArrowCircleLeftIcon,
   DocumentTextIcon,
   PaperClipIcon,
   RefreshIcon,
 } from "@heroicons/react/outline";
+import ReactPlayer from "react-player";
 
 const URL = process.env.NEXT_PUBLIC_API_URL;
 const tabs = [
@@ -202,7 +205,7 @@ export default function ReplyTicket({
 
   // Get list Application
   const loadApplications = (value, callback) => {
-    getApplication(value, callback);
+    getApplication(value, callback, user.accessToken);
   };
 
   // Get param ticket type
@@ -519,7 +522,10 @@ export default function ReplyTicket({
   };
 
   return (
-    <LayoutPage session={user} pageTitle="Reply Tickets - Shield">
+    <LayoutPage
+      session={user}
+      pageTitle={`Reply Ticket ${ticketData.id}  - Shield`}
+    >
       <LayoutPageHeader></LayoutPageHeader>
       <LayoutPageContent>
         <DefaultCard>
@@ -529,7 +535,7 @@ export default function ReplyTicket({
                 <div>
                   {/* Ticket header start */}
                   <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:border-b xl:pb-6">
-                    <div>
+                    {/* <div>
                       <h1 className="text-2xl font-bold text-gray-900">
                         Ticket ID #{ticketData.id}
                       </h1>
@@ -540,6 +546,35 @@ export default function ReplyTicket({
                           {ticketData.branchName} ({ticketData.branchCode})
                         </a>
                       </p>
+                    </div> */}
+                    <div className="flex flex-row space-x-4">
+                      <div className="flex w-8 h-8 items-center justify-center">
+                        <a
+                          href="#"
+                          onClick={() => router.back()}
+                          aria-label="Back"
+                          className="text-blue-500 hover:text-blue-700"
+                          title="Back"
+                        >
+                          <ArrowCircleLeftIcon
+                            aria-hidden
+                            className="w-8 h-8"
+                          />
+                        </a>
+                      </div>
+                      <div>
+                        <h1 className="text-2xl font-semibold">
+                          {" "}
+                          Ticket ID #{ticketData.id}
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500">
+                          Opened by{" "}
+                          <a href="#" className="font-medium text-gray-900">
+                            {ticketData.picName} - {ticketData.picPN} •{" "}
+                            {ticketData.branchName} ({ticketData.branchCode})
+                          </a>
+                        </p>
+                      </div>
                     </div>
                     <div className="flex mt-4 space-x-3 md:mt-0">
                       <WhiteButton type="button" onClick={() => refreshData()}>
@@ -737,10 +772,20 @@ export default function ReplyTicket({
                                         </div>
                                         <div className="mt-0.5 text-xs text-gray-500">
                                           Replied{" "}
-                                          {formatDistanceToNowStrict(
-                                            new Date(item.createdAt)
-                                          )}{" "}
-                                          ago
+                                          <Tooltip
+                                            placement="right"
+                                            title={format(
+                                              new Date(item.createdAt),
+                                              "dd MMM yyyy, HH:mm"
+                                            )}
+                                          >
+                                            <time>
+                                              {formatDistanceToNowStrict(
+                                                new Date(item.createdAt)
+                                              )}{" "}
+                                              ago
+                                            </time>
+                                          </Tooltip>
                                           {item.isSentToUker === "N" &&
                                             item.isFromUker === "N" && (
                                               <>
@@ -802,8 +847,21 @@ export default function ReplyTicket({
                                               </div>
                                             </div>
                                           </div>
+                                        ) : item.historyType === "video" ? (
+                                          <ReactPlayer
+                                            url={item.historyContent}
+                                            controls={true}
+                                            width="20vw"
+                                            height="20vh"
+                                            style={{
+                                              borderRadius: "8px",
+                                              overflow: "hidden",
+                                            }}
+                                          />
                                         ) : (
-                                          <p>{item.historyContent}</p>
+                                          <p className="whitespace-pre-wrap">
+                                            {item.historyContent}
+                                          </p>
                                         )}
                                       </div>
                                     </div>
@@ -830,193 +888,235 @@ export default function ReplyTicket({
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
-                            {/* Tabs reply Start */}
-                            <div className="hidden pb-4 sm:block">
-                              <div className="border-b border-gray-200">
-                                <Tab.Group onChange={handleTicketDest}>
-                                  <Tab.List className="flex -mb-px space-x-8">
-                                    {tabs.map((tab, idx) => (
-                                      <Tab
-                                        key={idx}
-                                        className={({ selected }) =>
-                                          clsx(
-                                            "whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm",
-                                            selected
-                                              ? "border-blue-500 text-blue-600"
-                                              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                          )
-                                        }
-                                      >
-                                        {tab.name}
-                                      </Tab>
-                                    ))}
-                                  </Tab.List>
-                                </Tab.Group>
-                              </div>
-                            </div>
-                            {/* Tabs reply End */}
-                            <form onSubmit={handleSubmit(onSubmit)}>
-                              <div
-                                className={clsx(
-                                  "mb-4",
-                                  visibility.otherDepartment
-                                )}
-                              >
-                                <div className="relative w-1/2 mt-1 rounded-md shadow-sm">
-                                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <UsersIcon
-                                      className="w-5 h-5 text-gray-400"
-                                      aria-hidden="true"
-                                    />
+                            {!ticketData.closedBy ? (
+                              <>
+                                {/* Tabs reply Start */}
+                                <div className="hidden pb-4 sm:block">
+                                  <div className="border-b border-gray-200">
+                                    <Tab.Group onChange={handleTicketDest}>
+                                      <Tab.List className="flex -mb-px space-x-8">
+                                        {tabs.map((tab, idx) => (
+                                          <Tab
+                                            key={idx}
+                                            className={({ selected }) =>
+                                              clsx(
+                                                "whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm",
+                                                selected
+                                                  ? "border-blue-500 text-blue-600"
+                                                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                              )
+                                            }
+                                          >
+                                            {tab.name}
+                                          </Tab>
+                                        ))}
+                                      </Tab.List>
+                                    </Tab.Group>
                                   </div>
-                                  <select
-                                    {...register("idEscalatedGroup", {
-                                      required: {
-                                        value: required.idEscalatedGroup,
-                                        message: "This is required",
-                                      },
-                                    })}
-                                    name="idEscalatedGroup"
-                                    className="block w-full pl-10 text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    defaultValue={null}
+                                </div>
+                                {/* Tabs reply End */}
+                                <form onSubmit={handleSubmit(onSubmit)}>
+                                  <div
+                                    className={clsx(
+                                      "mb-4",
+                                      visibility.otherDepartment
+                                    )}
                                   >
-                                    <option value="">Select...</option>
-                                    {optionList.listGroupReply.map((group) => (
-                                      <option
-                                        value={group.prefix}
-                                        key={group.value}
-                                      >
-                                        {group.label}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                                {errors.idEscalatedGroup && (
-                                  <p className="mt-2 text-sm text-red-600">
-                                    {errors.idEscalatedGroup.message}
-                                  </p>
-                                )}
-                              </div>
-                              {/* Internal SDK Destination Start */}
-                              <div
-                                className={clsx(
-                                  "flex mb-4",
-                                  visibility.internalNote
-                                )}
-                              >
-                                <div className="flex items-center mr-4">
-                                  <input
-                                    {...register("escalatedRole", {
-                                      required: required.escalatedRole,
-                                    })}
-                                    type="radio"
-                                    value={0}
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                  />
-                                  <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                    Operator
-                                  </label>
-                                </div>
-                                <div className="flex items-center mr-4">
-                                  <input
-                                    {...register("escalatedRole", {
-                                      required: required.escalatedRole,
-                                    })}
-                                    type="radio"
-                                    value={1}
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                  />
-                                  <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                    Engineer
-                                  </label>
-                                </div>
-                                {errors.escalatedRole && (
-                                  <p className="text-sm text-red-600">
-                                    {errors.escalatedRole.message}
-                                  </p>
-                                )}
-                              </div>
-                              {/* Internal SDK Destination End */}
-                              {/* Reply section (Textarea & Button) start */}
-                              <div>
-                                <div>
-                                  <label
-                                    htmlFor="historyContent"
-                                    className="sr-only"
-                                  >
-                                    historyContent
-                                  </label>
-
-                                  <TextareaInput
-                                    {...register("historyContent", {
-                                      required: required.replyTextArea,
-                                    })}
-                                    placeholder="Add a reply..."
-                                    className={visibility.replyTextArea}
-                                  />
-
-                                  {errors.historyContent && (
-                                    <p className="mt-2 text-sm text-red-600">
-                                      {errors.historyContent.message}
-                                    </p>
-                                  )}
-
-                                  {/* Upload section start */}
-                                  <div className="mt-2">
-                                    <Upload
-                                      beforeUpload={(file) => {
-                                        setShowList(true);
-                                        setFileList(file);
-                                      }}
-                                      onRemove={() => setFileList([])}
-                                      listType="picture"
-                                      maxCount={1}
-                                      showUploadList={showList}
-                                    >
-                                      <button
-                                        onClick={handleUpload}
-                                        type="button"
-                                        className="inline-flex items-center px-4 py-2 text-sm italic text-gray-400 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                                      >
-                                        <PaperClipIcon
-                                          className="flex-shrink-0 w-5 h-5 mr-2 text-gray-400"
+                                    <div className="relative w-1/2 mt-1 rounded-md shadow-sm">
+                                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <UsersIcon
+                                          className="w-5 h-5 text-gray-400"
                                           aria-hidden="true"
                                         />
-                                        Attach a file or drag here
-                                      </button>
-                                    </Upload>
-                                  </div>
-                                  {/* Upload section end */}
-                                </div>
-
-                                <div className="flex items-center justify-end mt-6 space-x-3">
-                                  <SecondaryButton
-                                    type="button"
-                                    onClick={handleResetButton}
-                                  >
-                                    Reset
-                                  </SecondaryButton>
-                                  <PrimaryButton
-                                    type="submit"
-                                    className={
-                                      replyIsLoading
-                                        ? "disabled:opacity-50 cursor-not-allowed"
-                                        : ""
-                                    }
-                                    disabled={replyIsLoading}
-                                  >
-                                    {replyIsLoading ? (
-                                      <>
-                                        <Spinner /> Sending...
-                                      </>
-                                    ) : (
-                                      "Reply"
+                                      </div>
+                                      <select
+                                        {...register("idEscalatedGroup", {
+                                          required: {
+                                            value: required.idEscalatedGroup,
+                                            message: "This is required",
+                                          },
+                                        })}
+                                        name="idEscalatedGroup"
+                                        className="block w-full pl-10 text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        defaultValue={null}
+                                      >
+                                        <option value="">Select...</option>
+                                        {optionList.listGroupReply.map(
+                                          (group) => (
+                                            <option
+                                              value={group.prefix}
+                                              key={group.value}
+                                            >
+                                              {group.label}
+                                            </option>
+                                          )
+                                        )}
+                                      </select>
+                                    </div>
+                                    {errors.idEscalatedGroup && (
+                                      <p className="mt-2 text-sm text-red-600">
+                                        {errors.idEscalatedGroup.message}
+                                      </p>
                                     )}
-                                  </PrimaryButton>
+                                  </div>
+                                  {/* Internal SDK Destination Start */}
+                                  <div
+                                    className={clsx(
+                                      "flex mb-4",
+                                      visibility.internalNote
+                                    )}
+                                  >
+                                    <div className="flex items-center mr-4">
+                                      <input
+                                        {...register("escalatedRole", {
+                                          required: required.escalatedRole,
+                                        })}
+                                        type="radio"
+                                        value={0}
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                      />
+                                      <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                        Operator
+                                      </label>
+                                    </div>
+                                    <div className="flex items-center mr-4">
+                                      <input
+                                        {...register("escalatedRole", {
+                                          required: required.escalatedRole,
+                                        })}
+                                        type="radio"
+                                        value={1}
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                      />
+                                      <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                        Engineer
+                                      </label>
+                                    </div>
+                                    {errors.escalatedRole && (
+                                      <p className="text-sm text-red-600">
+                                        {errors.escalatedRole.message}
+                                      </p>
+                                    )}
+                                  </div>
+                                  {/* Internal SDK Destination End */}
+                                  {/* Reply section (Textarea & Button) start */}
+                                  <div>
+                                    <div>
+                                      <label
+                                        htmlFor="historyContent"
+                                        className="sr-only"
+                                      >
+                                        historyContent
+                                      </label>
+
+                                      <TextareaInput
+                                        {...register("historyContent", {
+                                          required: required.replyTextArea,
+                                        })}
+                                        placeholder="Add a reply..."
+                                        className={visibility.replyTextArea}
+                                      />
+
+                                      {errors.historyContent && (
+                                        <p className="mt-2 text-sm text-red-600">
+                                          {errors.historyContent.message}
+                                        </p>
+                                      )}
+
+                                      {/* Upload section start */}
+                                      <div className="mt-2">
+                                        <Upload
+                                          beforeUpload={(file) => {
+                                            setShowList(true);
+                                            setFileList(file);
+                                          }}
+                                          onRemove={() => setFileList([])}
+                                          listType="picture"
+                                          maxCount={1}
+                                          showUploadList={showList}
+                                        >
+                                          <button
+                                            onClick={handleUpload}
+                                            type="button"
+                                            className="inline-flex items-center px-4 py-2 text-sm italic text-gray-400 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
+                                          >
+                                            <PaperClipIcon
+                                              className="flex-shrink-0 w-5 h-5 mr-2 text-gray-400"
+                                              aria-hidden="true"
+                                            />
+                                            Attach a file or drag here
+                                          </button>
+                                        </Upload>
+                                      </div>
+                                      {/* Upload section end */}
+                                    </div>
+
+                                    <div className="flex items-center justify-end mt-6 space-x-3">
+                                      <SecondaryButton
+                                        type="button"
+                                        onClick={handleResetButton}
+                                      >
+                                        Reset
+                                      </SecondaryButton>
+                                      <PrimaryButton
+                                        type="submit"
+                                        className={
+                                          replyIsLoading
+                                            ? "disabled:opacity-50 cursor-not-allowed"
+                                            : ""
+                                        }
+                                        disabled={replyIsLoading}
+                                      >
+                                        {replyIsLoading ? (
+                                          <>
+                                            <Spinner /> Sending...
+                                          </>
+                                        ) : (
+                                          "Reply"
+                                        )}
+                                      </PrimaryButton>
+                                    </div>
+                                  </div>
+                                  {/* Reply section (Textarea & Button) end */}
+                                </form>
+                              </>
+                            ) : (
+                              <div className="min-w-0 flex-1 py-1.5">
+                                <div>
+                                  <div className="text-sm text-gray-500">
+                                    <a
+                                      href="#"
+                                      className="font-medium text-gray-900"
+                                    >
+                                      {ticketData.paramTicketClosedBy?.fullname}
+                                    </a>{" "}
+                                    <span className="mr-0.5">
+                                      <CheckCircleIcon className="h-6 w-6 text-green-500 inline-flex" />
+                                    </span>
+                                    closed this issue{" "}
+                                    <Tooltip
+                                      placement="right"
+                                      title={format(
+                                        new Date(ticketData.closedAt),
+                                        "dd MMM yyyy, HH:mm"
+                                      )}
+                                    >
+                                      <span className="whitespace-nowrap">
+                                        {formatDistanceToNowStrict(
+                                          new Date(ticketData.closedAt)
+                                        )}{" "}
+                                        ago
+                                      </span>
+                                    </Tooltip>
+                                  </div>
+                                </div>
+                                <div className="mt-2 text-sm text-gray-700">
+                                  <CustomAlert type={"info"} title="Resolution">
+                                    <p>{ticketData.resolution}</p>
+                                  </CustomAlert>
                                 </div>
                               </div>
-                              {/* Reply section (Textarea & Button) end */}
-                            </form>
+                            )}
                           </div>
                         </div>
                       </div>
