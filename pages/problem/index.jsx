@@ -240,7 +240,7 @@ export default function TaskList({ user, data }) {
 
   return (
     <>
-      <LayoutPage session={user} pageTitle="Known Error" isShowNotif={false}>
+      <LayoutPage session={user} pageTitle="My Task" isShowNotif={false}>
         <LayoutPageHeader></LayoutPageHeader>
         <LayoutPageContent>
           <section id="problem-list-section">
