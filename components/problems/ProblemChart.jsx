@@ -66,6 +66,8 @@ export const ProblemChart = ({
                   return label;
                 }
               },
+              beginAtZero: true,
+              min: 0,
             },
           },
           y: {
@@ -86,6 +88,8 @@ export const ProblemChart = ({
                 }
               },
             },
+            beginAtZero: true,
+            min: 0,
           },
         },
       }}
