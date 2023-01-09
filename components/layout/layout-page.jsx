@@ -5,7 +5,12 @@ import { LayoutRoot } from "./layout-root";
 import { LayoutSidebar } from "./layout-sidebar";
 import { Toaster } from "react-hot-toast";
 
-export const LayoutPage = ({ children, session, pageTitle, isShowNotif }) => {
+export const LayoutPage = ({
+  children,
+  session,
+  pageTitle,
+  isShowNotif = true,
+}) => {
   return (
     <LayoutRoot>
       <Head>
