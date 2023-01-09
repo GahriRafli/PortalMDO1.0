@@ -521,6 +521,39 @@ export default function ReplyTicket({
     setEditModalIsOpen(false);
   };
 
+  function getTelegramDisplayName() {
+    let style;
+
+    if (ticketData.paramTicketUserBot) {
+      if (ticketData.paramTicketUserBot.username) {
+        style = (
+          <a href="#" className="font-medium text-gray-900">
+            {ticketData.paramTicketUserBot.firstName}{" "}
+            {ticketData.paramTicketUserBot.lastName || ""}{" "}
+            <span className="font-normal text-gray-500">
+              @{ticketData.paramTicketUserBot.username}
+            </span>
+          </a>
+        );
+      } else {
+        style = (
+          <a href="#" className="font-medium text-gray-900">
+            `${ticketData.paramTicketUserBot.firstName} $
+            {ticketData.paramTicketUserBot.lastName || ""}`
+          </a>
+        );
+      }
+    } else {
+      style = (
+        <a href="#" className="font-medium text-gray-900">
+          {ticketData.picName}
+        </a>
+      );
+    }
+
+    return style;
+  }
+
   return (
     <LayoutPage
       session={user}
@@ -760,15 +793,19 @@ export default function ReplyTicket({
                                     <div className="flex-1 min-w-0">
                                       <div>
                                         <div className="text-sm">
-                                          <a
-                                            href="#"
-                                            className="font-medium text-gray-900"
-                                          >
-                                            {
-                                              item.paramHistoryCreatedBy
-                                                .fullname
-                                            }
-                                          </a>
+                                          {item.isFromUker === "N" ? (
+                                            <a
+                                              href="#"
+                                              className="font-medium text-gray-900"
+                                            >
+                                              {
+                                                item.paramHistoryCreatedBy
+                                                  .fullname
+                                              }
+                                            </a>
+                                          ) : (
+                                            getTelegramDisplayName()
+                                          )}
                                         </div>
                                         <div className="mt-0.5 text-xs text-gray-500">
                                           Replied{" "}
