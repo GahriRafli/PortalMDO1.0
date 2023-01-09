@@ -3,14 +3,12 @@ import ReactPaginate from "react-paginate";
 import { useRouter } from "next/router";
 import PageHeader from "../../components/problems/ProblemHeader";
 import withSession from "lib/session";
-import Head from "next/head";
 import Link from "next/link";
 import { CodeIcon } from "@heroicons/react/solid";
 import {
   LayoutPage,
   LayoutPageContent,
   LayoutPageHeader,
-  LayoutNav,
 } from "components/layout/index";
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
@@ -75,9 +73,6 @@ const KnownError = ({ user, kedb }) => {
       <LayoutPage session={user} pageTitle="Known Error" isShowNotif={false}>
         <LayoutPageHeader></LayoutPageHeader>
         <LayoutPageContent>
-          {/* <div className="flex flex-col w-0 flex-1 overflow-auto"> */}
-          {/* <LayoutNav session={user} searchNotif={false} /> */}
-
           {/* content section  */}
           <section id="known-error-section">
             {/* Page title & actions */}
@@ -276,7 +271,6 @@ const KnownError = ({ user, kedb }) => {
               </div>
             </div>
           </section>
-          {/* </div> */}
         </LayoutPageContent>
       </LayoutPage>
     </>

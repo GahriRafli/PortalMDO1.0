@@ -7,7 +7,8 @@ import { useEffect, useState } from "react";
 import { CardTitle } from "components/ui/card-title";
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useRouter } from "next/router";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import { Spinner } from "components/ui/svg/spinner";
@@ -334,13 +335,13 @@ function ProblemDetail({ user, problem, idProblem }) {
       .catch((err) => toast.error(`Follow Up ${err}`));
   }, []);
 
-  const pageTitle = `${problem.problemNumber}
-  ${problem.app ? problem.app.subname : null} -
+  const pageTitle = `${problem.problemNumber ? problem.problemNumber : ""}
+  ${problem.app ? problem.app.subname : ""} -
   Shield`;
 
   return (
     <>
-      <LayoutPage session={user} pageTitle={pageTitle}>
+      <LayoutPage session={user} pageTitle={pageTitle} isShowNotif={false}>
         <LayoutPageHeader></LayoutPageHeader>
         <LayoutPageContent>
           <section>
