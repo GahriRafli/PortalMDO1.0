@@ -6,7 +6,8 @@ import axios from "axios";
 import * as ProblemHelper from "components/problems/ProblemHelper";
 import { Spinner } from "components/ui/svg/spinner";
 import { ButtonCircle } from "components/ui/button/button-circle";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { PencilIcon, UserCircleIcon, BanIcon } from "@heroicons/react/solid";
 import { styledReactSelect } from "components/utils";
 

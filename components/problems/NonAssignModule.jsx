@@ -3,7 +3,8 @@ import { Dialog, Transition } from "@headlessui/react";
 import { InformationCircleIcon } from "@heroicons/react/outline";
 import { useForm } from "react-hook-form";
 import { Spinner } from "components/ui/svg/spinner";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useRouter } from "next/router";
 import axios from "axios";
 

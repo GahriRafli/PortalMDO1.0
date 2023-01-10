@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { useRouter } from "next/router";
 import withSession from "lib/session";
-import Head from "next/head";
 import Link from "next/link";
 import { SearchIcon, CodeIcon } from "@heroicons/react/solid";
 import { classNames } from "components/utils";
 import { Spin, Alert } from "antd";
 import { PrimaryAnchorButton as Button } from "components/ui/button/primary-anchor-button";
 import { Input } from "antd";
-import { LayoutRoot } from 'components/layout/layout-root';
-import { CustomToaster } from 'components/ui/notifications/custom-toast';
-import { LayoutSidebar } from 'components/layout/layout-sidebar';
-import { LayoutNav } from 'components/layout/layout-nav';
+import {
+  LayoutPage,
+  LayoutPageContent,
+  LayoutPageHeader,
+} from "components/layout/index";
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
@@ -249,176 +249,168 @@ const ProblemSearch = (props) => {
 
   return (
     <>
-      <LayoutRoot>
-        <Head>
-          <title>Problem Search</title>
-          <meta
-            name="description"
-            content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."
-          />
-          <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-          <meta name="robots" content="noindex,nofollow" />
-          <link rel="shortcut icon" href="/favicon.ico" />
-        </Head>
-        <CustomToaster />
-        <LayoutSidebar session={props.user} />
-        <div className="flex flex-col w-0 flex-1 overflow-auto">
-          <LayoutNav session={props.user} searchNotif={false} />
+      <LayoutPage
+        session={props.user}
+        pageTitle="Problem Search"
+        isShowNotif={false}
+      >
+        <LayoutPageHeader></LayoutPageHeader>
+        <LayoutPageContent>
           <div
-              className="flex-1 flex flex-col overflow-auto"
-              id="problem-matching-section"
-            >
-              <div className="mt-10 mb-5 max-w-full sm:px-6 lg:max-w-full lg:px-12">
-                <div className="flex gap-x-2">
-                  <div className="flex-auto">
-                    <label
-                      htmlFor="search"
-                      className="mb-1 block text-sm font-medium text-gray-700"
-                    >
-                      Search
-                    </label>
-                    <form action="#" method="GET">
-                      <Input
-                        onKeyPress={onSearch}
-                        disabled={false}
-                        allowClear
-                        placeholder="Search problem name, problem assignee, root cause &amp; action"
-                        prefix={
-                          <SearchIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                        }
-                        style={{
-                          borderRadius: "0.375rem",
-                          height: "38px",
-                        }}
-                      />
-                    </form>
-                  </div>
-                </div>
-
-                {props.search && props.search.status > 400 ? (
-                  <>
-                    <Alert
-                      message="This page is specifically for searches related to problem name, root causes and actions of problems. Please type a word related to these three things"
-                      type="info"
-                      showIcon
-                      style={{ borderRadius: "0.375rem" }}
-                    />
-                    <div className="relative mx-auto">
-                      <div className="relative">
-                        <img
-                          className="mx-auto w-2/5"
-                          src="/search-engines-rafiki.svg"
-                          alt="Workcation"
+            className="flex-1 flex flex-col overflow-auto"
+            id="problem-matching-section"
+          >
+            <div className="mt-10 mb-5 max-w-full sm:px-6 lg:max-w-full lg:px-12">
+              <div className="flex gap-x-2">
+                <div className="flex-auto">
+                  <label
+                    htmlFor="search"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Search
+                  </label>
+                  <form action="#" method="GET">
+                    <Input
+                      onKeyPress={onSearch}
+                      disabled={false}
+                      allowClear
+                      placeholder="Search problem name, problem assignee, root cause &amp; action"
+                      prefix={
+                        <SearchIcon
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
                         />
-                        <div className="-mt-12 mb-3 max-w-3xl mx-auto text-center">
-                          <Link href="/problem" passHref>
-                            <Button>Back to Problem List</Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : props.search &&
-                  props.search.status !== 400 &&
-                  props.search.data.count === 0 ? (
+                      }
+                      style={{
+                        borderRadius: "0.375rem",
+                        height: "38px",
+                      }}
+                    />
+                  </form>
+                </div>
+              </div>
+
+              {props.search && props.search.status > 400 ? (
+                <>
+                  <Alert
+                    message="This page is specifically for searches related to problem name, root causes and actions of problems. Please type a word related to these three things"
+                    type="info"
+                    showIcon
+                    style={{ borderRadius: "0.375rem" }}
+                  />
                   <div className="relative mx-auto">
                     <div className="relative">
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <img
-                          className="w-2/5"
-                          src="/nodata-rafiki.svg"
-                          alt="Workcation"
-                        />
-                      </div>
-                      <div className="-mt-16 mb-3 max-w-3xl mx-auto text-center leading-9">
-                        <p className="text-2xl font-bold text-gray-900">
-                          Oops, Problems not found
-                        </p>
-                        <p className="mb-3">
-                          Try another keyword or back to problem list
-                        </p>
-                        <Link
-                          href={{
-                            pathname: "list",
-                          }}
-                          passHref
-                        >
+                      <img
+                        className="mx-auto w-2/5"
+                        src="/search-engines-rafiki.svg"
+                        alt="Workcation"
+                      />
+                      <div className="-mt-12 mb-3 max-w-3xl mx-auto text-center">
+                        <Link href="/problem" passHref>
                           <Button>Back to Problem List</Button>
                         </Link>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <>
-                    {/* Ini Component Content Dinamis nya */}
-                    {content}
-                    {props.keyword !== undefined ? (
-                      <div className="mt-3 hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-sm text-gray-700">
-                            Showing{" "}
-                            <span className="font-medium">
-                              {props.search.paging.Page}
-                            </span>{" "}
-                            to{" "}
-                            <span className="font-medium">
-                              {props.search.paging.totalPages}
-                            </span>{" "}
-                            of{" "}
-                            <span className="font-medium">
-                              {props.search.paging.totalData}
-                            </span>{" "}
-                            results
-                          </p>
-                        </div>
-                        <div>
-                          <ReactPaginate
-                            initialPage={props.search.paging.Page - 1}
-                            pageCount={props.search.paging.totalPages}
-                            previousLabel={"Prev"}
-                            onPageChange={paginationHandler}
-                            containerClassName={
-                              "relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                            }
-                            pageLinkClassName={
-                              "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                            }
-                            previousLinkClassName={
-                              "relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                            }
-                            nextLinkClassName={
-                              "relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                            }
-                            breakLabel={"..."}
-                            breakLinkClassName={
-                              "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                            }
-                            activeLinkClassName={
-                              "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
-                            }
-                            onClick={() =>
-                              document
-                                .getElementById("problem-matching-section")
-                                .scrollIntoView()
-                            }
-                          />
-                        </div>
+                </>
+              ) : props.search &&
+                props.search.status !== 400 &&
+                props.search.data.count === 0 ? (
+                <div className="relative mx-auto">
+                  <div className="relative">
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        className="w-2/5"
+                        src="/nodata-rafiki.svg"
+                        alt="Workcation"
+                      />
+                    </div>
+                    <div className="-mt-16 mb-3 max-w-3xl mx-auto text-center leading-9">
+                      <p className="text-2xl font-bold text-gray-900">
+                        Oops, Problems not found
+                      </p>
+                      <p className="mb-3">
+                        Try another keyword or back to problem list
+                      </p>
+                      <Link
+                        href={{
+                          pathname: "list",
+                        }}
+                        passHref
+                      >
+                        <Button>Back to Problem List</Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Ini Component Content Dinamis nya */}
+                  {content}
+                  {props.keyword !== undefined ? (
+                    <div className="mt-3 hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm text-gray-700">
+                          Showing{" "}
+                          <span className="font-medium">
+                            {props.search.paging.Page}
+                          </span>{" "}
+                          to{" "}
+                          <span className="font-medium">
+                            {props.search.paging.totalPages}
+                          </span>{" "}
+                          of{" "}
+                          <span className="font-medium">
+                            {props.search.paging.totalData}
+                          </span>{" "}
+                          results
+                        </p>
                       </div>
-                    ) : null}
-                  </>
-                )}
-              </div>
+                      <div>
+                        <ReactPaginate
+                          initialPage={props.search.paging.Page - 1}
+                          pageCount={props.search.paging.totalPages}
+                          previousLabel={"Prev"}
+                          onPageChange={paginationHandler}
+                          containerClassName={
+                            "relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                          }
+                          pageLinkClassName={
+                            "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                          }
+                          previousLinkClassName={
+                            "relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                          }
+                          nextLinkClassName={
+                            "relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                          }
+                          breakLabel={"..."}
+                          breakLinkClassName={
+                            "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                          }
+                          activeLinkClassName={
+                            "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                          }
+                          onClick={() =>
+                            document
+                              .getElementById("problem-matching-section")
+                              .scrollIntoView()
+                          }
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </>
+              )}
             </div>
-        </div>
-      </LayoutRoot>
+          </div>
+        </LayoutPageContent>
+      </LayoutPage>
     </>
   );
 };

@@ -54,17 +54,42 @@ export const ProblemChart = ({
               callback: function (value, index, ticks_array) {
                 let characterLimit = stringLimit;
                 let label = this.getLabelForValue(value);
-                if (label.length >= characterLimit) {
-                  return (
-                    label
-                      .slice(0, label.length)
-                      .substring(0, characterLimit - 1)
-                      .trim() + "..."
-                  );
+                if (!label.includes(".")) {
+                  if (label.length >= characterLimit) {
+                    return (
+                      label
+                        .slice(0, label.length)
+                        .substring(0, characterLimit - 1)
+                        .trim() + "..."
+                    );
+                  }
+                  return label;
                 }
-                return label;
+              },
+              beginAtZero: true,
+              min: 0,
+            },
+          },
+          y: {
+            ticks: {
+              callback: function (value, index, ticks_array) {
+                let characterLimit = stringLimit;
+                let label = this.getLabelForValue(value);
+                if (!label.includes(".")) {
+                  if (label.length >= characterLimit) {
+                    return (
+                      label
+                        .slice(0, label.length)
+                        .substring(0, characterLimit - 1)
+                        .trim() + "..."
+                    );
+                  }
+                  return label;
+                }
               },
             },
+            beginAtZero: true,
+            min: 0,
           },
         },
       }}

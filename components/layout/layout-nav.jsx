@@ -17,7 +17,7 @@ const userNavigation = [
   { name: "Sign out", href: "#" },
 ];
 
-export function LayoutNav({ session, searchNotif }) {
+export function LayoutNav({ session, isShowNotif }) {
   const setSidebarOpen = useLayoutStore((state) => state.setSidebarOpen);
 
   async function logout() {
@@ -66,7 +66,7 @@ export function LayoutNav({ session, searchNotif }) {
         </div>
         <div className="ml-4 flex items-center md:ml-6">
           {/* Notification dropdown */}
-          {searchNotif ? (
+          {isShowNotif ? (
             <>
               <Menu as="div" className="ml-3 relative">
                 {({ open }) => (

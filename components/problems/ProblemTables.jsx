@@ -119,7 +119,6 @@ const ProblemTables = React.forwardRef(({ columns, data }, ref) => {
               Page <span className="font-medium">{pageIndex + 1}</span> of{" "}
               <span className="font-medium">{pageOptions.length}</span>{" "}
             </span>
-            {console.log("pageSize : ", pageSize)}
             <select
               id="page-size"
               value={pageSize}

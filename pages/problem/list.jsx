@@ -7,7 +7,8 @@ import ProblemTables from "components/problems/ProblemTables";
 import { EyeIcon } from "@heroicons/react/outline";
 import { useEffect, useState, useMemo, useRef } from "react";
 import format from "date-fns/format";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import {
   PriorityArrow,
   SourcePill,
@@ -29,10 +30,11 @@ import AsyncSelect from "react-select/async";
 import { ReactSelect } from "components/ui/forms";
 import { styledReactSelectAdd } from "components/utils";
 import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
-import { LayoutRoot } from "components/layout/layout-root";
-import { CustomToaster } from "components/ui/notifications/custom-toast";
-import { LayoutSidebar } from "components/layout/layout-sidebar";
-import { LayoutNav } from "components/layout/layout-nav";
+import {
+  LayoutPage,
+  LayoutPageContent,
+  LayoutPageHeader,
+} from "components/layout/index";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -372,24 +374,9 @@ export default function ProblemList({ user, problems, countAssign }) {
 
   return (
     <>
-      <LayoutRoot>
-        <Head>
-          <title>All Problem List</title>
-          <meta
-            name="description"
-            content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."
-          />
-          <meta
-            name="viewport"
-            content="initial-scale=1.0, width=device-width"
-          />
-          <meta name="robots" content="noindex,nofollow" />
-          <link rel="shortcut icon" href="/favicon.ico" />
-        </Head>
-        <CustomToaster />
-        <LayoutSidebar session={user} />
-        <div className="flex flex-col w-0 flex-1 overflow-auto">
-          <LayoutNav session={user} searchNotif={false} />
+      <LayoutPage session={user} pageTitle="Problem List" isShowNotif={false}>
+        <LayoutPageHeader></LayoutPageHeader>
+        <LayoutPageContent>
           <section id="problem-list-section">
             {/* Page title & actions */}
             <PageHeader title="Problem List">
@@ -574,8 +561,8 @@ export default function ProblemList({ user, problems, countAssign }) {
               </div>
             </div>
           </section>
-        </div>
-      </LayoutRoot>
+        </LayoutPageContent>
+      </LayoutPage>
     </>
   );
 }
