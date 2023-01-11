@@ -538,8 +538,8 @@ export default function ReplyTicket({
       } else {
         style = (
           <a href="#" className="font-medium text-gray-900">
-            `${ticketData.paramTicketUserBot.firstName} $
-            {ticketData.paramTicketUserBot.lastName || ""}`
+            {ticketData.paramTicketUserBot.firstName}{" "}
+            {ticketData.paramTicketUserBot.lastName || ""}
           </a>
         );
       }
