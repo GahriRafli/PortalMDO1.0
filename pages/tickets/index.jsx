@@ -343,7 +343,7 @@ export default function TicketList(props) {
               <div className="mt-6">
                 <div className="flex justify-between mt-2 text-sm text-gray-500">
                   {props.row.original.picName
-                    ? `@${props.row.original.picName} - `
+                    ? `@${props.row.original.picName} - ` 
                     : ""}
                   {props.row.original.id
                     ? `${props.row.original.branchCode}`
@@ -365,7 +365,7 @@ export default function TicketList(props) {
             <div>
               <p className="mb-2 text-black">
                 {props.row.original.paramTicketApps
-                  ? ` ${props.row.original.paramTicketApps.subName}`
+                  ? ` ${props.row.original.paramTicketApps.subName }`
                   : "-"}
               </p>
               <p className="mb-2 text-gray-500">
@@ -417,7 +417,6 @@ export default function TicketList(props) {
       {
         Header: "Complainer",
         accessor: "paramCreatedBy.fullname",
-
         Cell: AvatarCell,
         disableSortBy: true,
       },
@@ -930,32 +929,38 @@ export default function TicketList(props) {
                 bgColor="bg-red-400"
                 initials={<MailOpenIcon className="w-6 h-6" />}
                 title="Ticket Open"
-                total="0"
+                total= {props.paramReport}
                 desc="View All"
+                
+                href="/tickets?escalatedRole=0&ticketStatus=Open"
               />
               <CardStats
                 id="2"
                 bgColor="bg-green-400"
                 initials={<MailIcon className="w-6 h-6" />}
                 title="Ticket Closed "
-                total="0"
+                total={props.paramreport2}
                 desc="View All"
+                href="/tickets?escalatedRole=0&ticketStatus=Closed"
               />
               <CardStats
                 id="3"
                 bgColor="bg-yellow-300"
                 initials={<UserIcon className="w-6 h-6" />}
                 title="Ticket in Operator"
-                total="0"
+                total={props.paramreport3}
                 desc="View All"
+                href="/tickets?escalatedRole=0&ticketStatus=Open"
               />
               <CardStats
                 id="4"
                 bgColor="bg-blue-400"
                 initials={<UserGroupIcon className="w-6 h-6" />}
                 title="Ticket in Engineer"
-                total="0"
+                total={props.paramreportEng}
                 desc="View All"
+                href="/tickets?escalatedRole=1&ticketStatus=Open"
+                
               />
             </ul>
           </div>
@@ -1145,6 +1150,13 @@ export default function TicketList(props) {
                           menuPortalTarget={portalTarget}
                         />
                       </div>
+                    </div>
+                    <div className="mt-10 text-right ">
+                      <Link href="/tickets" passHref>
+                        <PrimaryButton className="text-black bg-yellow-400">
+                          Reset Filter
+                        </PrimaryButton>
+                      </Link>
                     </div>
                   </Disclosure.Panel>
                 </>
@@ -1551,6 +1563,27 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   });
   const data = await res.json();
 
+  const getReport = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/10/report`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
+  const report = await getReport.json();
+
+  const getReport2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/11/report`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
+  const report2 = await getReport2.json();
+
+  const getReport3 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/12/report`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
+  const report3 = await getReport3.json();
+
+  const getReportEng = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/13/report`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
+  const reportEng = await getReportEng.json();
+  
+
   if (!user) {
     return {
       redirect: {
@@ -1573,6 +1606,10 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
         currentPage: data.ticketPaging.page,
         perPage: data.ticketPaging.perPage,
         isLoading: false,
+        paramReport: report.data.jumlah,
+        paramreport2: report2.data.jumlah,
+        paramreport3: report3.data.jumlah,
+        paramreportEng: reportEng.data.jumlah,
       },
     };
   } else if (res.status === 401) {
