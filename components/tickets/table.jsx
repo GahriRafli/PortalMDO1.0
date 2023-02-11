@@ -39,7 +39,7 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
                       {...column.getHeaderProps(column.getSortByToggleProps())}
                       className={classNames(
                         "px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
-                        column.Header === "Incident Name" && "w-60",
+                        column.Header === "Ticket Name" && "w-1/3",
                         column.Header === "Application" && "w-72",
                         column.Header === "Started At" && "w-40",
                         column.Header === "Reporter" && "w-64",
