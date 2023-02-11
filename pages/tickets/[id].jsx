@@ -771,7 +771,13 @@ export default function ReplyTicket({
                                   <>
                                     {item.isFromUker === "N" ? (
                                       <div className="relative">
-                                        <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" />
+                                        {/* <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" /> */}
+                                        <img
+                                          loading="lazy"
+                                          className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
+                                          src={item.paramHistoryCreatedBy.photo}
+                                          alt=""
+                                        />
 
                                         <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
                                           <ChatAltIcon
@@ -914,7 +920,12 @@ export default function ReplyTicket({
                         <div className="flex space-x-3">
                           <div className="flex-shrink-0">
                             <div className="relative">
-                              <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" />
+                              {/* <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" /> */}
+                              <img
+                                className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
+                                src={user.photo}
+                                alt=""
+                              />
 
                               <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
                                 <ChatAltIcon
@@ -1149,7 +1160,9 @@ export default function ReplyTicket({
                                 </div>
                                 <div className="mt-2 text-sm text-gray-700">
                                   <CustomAlert type={"info"} title="Resolution">
-                                    <p>{ticketData.resolution}</p>
+                                    <p className="whitespace-pre-wrap">
+                                      {ticketData.resolution}
+                                    </p>
                                   </CustomAlert>
                                 </div>
                               </div>

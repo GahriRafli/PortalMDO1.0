@@ -162,9 +162,15 @@ export function LayoutSidebar({ session }) {
             <a href="#" className="flex-shrink-0 w-full group block">
               <div className="flex items-center">
                 <div>
-                  <UserCircleIcon
+                  {/* <UserCircleIcon
                     className="w-9 h-9 text-gray-500"
                     aria-hidden="true"
+                  /> */}
+                  <img
+                    loading="lazy"
+                    className="w-9 h-9 text-gray-500"
+                    src={session.photo}
+                    alt="User Proflie"
                   />
                 </div>
                 <div className="ml-3">

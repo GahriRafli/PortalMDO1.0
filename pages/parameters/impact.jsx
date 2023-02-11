@@ -20,6 +20,7 @@ import { toast } from "react-hot-toast";
 import { useForm } from "react-hook-form";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function Impact({ user, data }) {
   // Table column variable
   const columns = useMemo(
