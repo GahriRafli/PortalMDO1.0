@@ -29,6 +29,8 @@ import {
   LayoutPageContent,
 } from "components/layout/index";
 import { getApplication } from "lib/api-helper";
+import { async } from "regenerator-runtime";
+import { CustomAlert } from "components/ui/alert";
 
 export default function addIncident({ user }) {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -40,6 +42,14 @@ export default function addIncident({ user }) {
   const [problemTypeOptions, setProblemTypeOptions] = useState([]);
   const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
   const [isProblem, setIsProblem] = useState(false); // Untuk toggle permanent fix
+  const [impact, setImpact] = useState("");
+  const [parameters, setParameters] = useState({
+    urgency: "",
+    isImpactDisabled: true,
+    impact: "",
+    isLoading: false,
+  });
+  const [priority, setPriority] = useState("");
 
   // Digunakan utuk fungsi reset form
   const defaultValues = {
@@ -101,6 +111,7 @@ export default function addIncident({ user }) {
         const data = response.data.data.map((d) => ({
           value: d.id,
           label: d.urgency,
+          idParamCategory: d.idParamCategory,
         }));
         setUrgencyOptions(data);
       })
@@ -115,6 +126,7 @@ export default function addIncident({ user }) {
         const data = response.data.data.map((d) => ({
           value: d.id,
           label: d.impact,
+          idParamCategory: d.idParamCategory,
         }));
         setImpactOptions(data);
       })
@@ -201,6 +213,50 @@ export default function addIncident({ user }) {
     unregister(["idProblemType", "proposedEnhancement"]);
     setIsProblem(value);
   };
+
+  // Get value of impact
+  const handleUrgency = (e, { action }) => {
+    if (e) {
+      setParameters((prevState) => {
+        return {
+          ...prevState,
+          urgency: e.idParamCategory,
+          isImpactDisabled: false,
+        };
+      });
+    } else {
+      setParameters((prevState) => {
+        return { ...prevState, urgency: "", isImpactDisabled: true };
+      });
+    }
+  };
+
+  // Get value of impact
+  const handleImpact = async (e) => {
+    if (e) {
+      setParameters((prevState) => {
+        return { ...prevState, impact: e.idParamCategory, isLoading: true };
+      });
+
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/prioritymatrix?idCategoryImpact=${e.idParamCategory}&idCategoryUrgency=${parameters.urgency}`
+        )
+        .then((res) => {
+          setPriority(res.data.data[0].mapping);
+          setParameters((prevState) => {
+            return { ...prevState, isLoading: false };
+          });
+        })
+        .catch((err) => toast.error(`Priority Mapping ${err}`));
+    } else {
+      setParameters((prevState) => {
+        return { ...prevState, impact: "" };
+      });
+    }
+  };
+
+  const handlePriority = () => {};
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
@@ -333,8 +389,7 @@ export default function addIncident({ user }) {
                           render={({ field }) => (
                             <Select
                               {...field}
-                              isClearable
-                              isSearchable={false}
+                              isSearchable={true}
                               instanceId={"idCategorySystem"}
                               options={categoryOptions}
                               styles={styledReactSelect}
@@ -451,12 +506,12 @@ export default function addIncident({ user }) {
                           render={({ field }) => (
                             <Select
                               {...field}
-                              isClearable
                               instanceId={"idUrgency"}
                               options={urgencyOptions}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
                               menuPlacement="top"
+                              onChange={handleUrgency}
                             />
                           )}
                         />
@@ -480,12 +535,13 @@ export default function addIncident({ user }) {
                           render={({ field }) => (
                             <Select
                               {...field}
-                              isClearable
                               instanceId={"idImpact"}
                               options={impactOptions}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
                               menuPlacement="top"
+                              onChange={handleImpact}
+                              isDisabled={parameters.isImpactDisabled}
                             />
                           )}
                         />
@@ -495,6 +551,16 @@ export default function addIncident({ user }) {
                           </p>
                         )}
                       </div>
+                      {priority !== "" && (
+                        <div className="col-span-6 sm:col-span-6">
+                          <CustomAlert
+                            type={"info"}
+                            title={`Incident Priority is ${priority}`}
+                          >
+                            {/* <p className="whitespace-pre-wrap">{priority}</p> */}
+                          </CustomAlert>
+                        </div>
+                      )}
                       <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">
                         <Switch.Group as="div" className="flex items-center">
                           <Switch
