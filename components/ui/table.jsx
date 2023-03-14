@@ -116,7 +116,7 @@ function Table({ columns, data, initialPageSize }) {
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="mt-1 ml-1 block text-base text-gray-700 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              defaultValue={initialPageSize}
+              // defaultValue={initialPageSize}
             >
               {[5, 10, 25, 50, 100, 500].map((pageSize) => (
                 <option key={pageSize} value={pageSize}>

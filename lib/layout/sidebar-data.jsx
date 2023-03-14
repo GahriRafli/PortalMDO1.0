@@ -82,6 +82,10 @@ export const navigation = [
         name: "Third Party",
         href: "/report/third-party",
       },
+      {
+        name: "Incidents",
+        href: "/report/incident",
+      },
     ],
   },
   {

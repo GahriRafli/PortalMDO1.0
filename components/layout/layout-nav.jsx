@@ -120,9 +120,15 @@ export function LayoutNav({ session, isShowNotif }) {
               <>
                 <div>
                   <Menu.Button className="max-w-xs bg-white rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 lg:p-2 lg:rounded-md lg:hover:bg-gray-50">
-                    <UserCircleIcon
+                    {/* <UserCircleIcon
                       className="w-9 h-9 text-gray-500"
                       aria-hidden="true"
+                    /> */}
+                    <img
+                      loading="lazy"
+                      className="w-9 h-9 text-gray-500"
+                      src={session.photo}
+                      alt="User Proflie"
                     />
                     <span className="hidden ml-3 text-gray-700 text-sm font-medium lg:block">
                       <span className="sr-only">Open user menu for </span>

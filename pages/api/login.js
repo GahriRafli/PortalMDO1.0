@@ -24,6 +24,7 @@ export default withSession(async (req, res) => {
         desc: response.data.paramUserMatrix.desc,
       },
       accessToken: response.access_token,
+      photo: response.data.photo
     };
     req.session.set("user", user);
     await req.session.save();
