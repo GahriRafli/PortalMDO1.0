@@ -41,7 +41,12 @@ const groupByParam = [
   { value: "Application", label: "Application" },
 ];
 
-export default function Home({ user, statsIncidentData, chartIncidentData }) {
+export default function Home({
+  user,
+  statsIncidentData,
+  statsProblemsData,
+  chartIncidentData,
+}) {
   const cards = [
     {
       name: "Incidents Open",
@@ -50,10 +55,10 @@ export default function Home({ user, statsIncidentData, chartIncidentData }) {
       value: statsIncidentData.data.jumlah,
     },
     {
-      name: "Problem Management",
-      href: "/problem",
+      name: "Problem Need Review",
+      href: "/problem/list",
       icon: FireIcon,
-      value: 0,
+      value: statsProblemsData.data,
     },
     {
       name: "Ticket Open",
@@ -324,7 +329,7 @@ export default function Home({ user, statsIncidentData, chartIncidentData }) {
         <div>
           <div className="grid grid-cols-1 gap-4 pb-8 sm:grid-cols-1">
             <h2 className="text-lg font-medium leading-6 text-gray-900">
-              Genneral Report
+              General Report
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {/* Card */}
@@ -451,11 +456,17 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   });
   const statsIncidentData = await res.json();
 
+  const getCountProblems = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
+  );
+  const countProblems = await getCountProblems.json();
+
   if (res.status === 200) {
     return {
       props: {
         user: req.session.get("user"),
         statsIncidentData: statsIncidentData,
+        statsProblemsData: countProblems,
         chartIncidentData: chartIncidentData,
       },
     };
