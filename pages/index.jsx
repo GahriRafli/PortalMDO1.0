@@ -159,6 +159,8 @@ export default function Home({ user, statsIncidentData }) {
       );
   }, [datePickerValue]);
 
+  console.log(Array.isArray(chart.top5App.data));
+
   return (
     <LayoutPage session={user} pageTitle="Home Dashboard - Shield">
       <LayoutPageHeader>
@@ -323,25 +325,33 @@ export default function Home({ user, statsIncidentData }) {
                     <Title>Top 5 Incident</Title>
                     {chart.top5App.loading && <DotBlink />}
                   </Flex>
+                  <div className="mt-6"></div>
+                  <Legend
+                    categories={
+                      Array.isArray(chart.top5App.data) === true
+                        ? chart.top5App.data.map((app) => app.name)
+                        : []
+                    }
+                    className="mt-6"
+                  />
+                  <div className="mt-6"></div>
+                  <DonutChart
+                    data={chart.top5App.data}
+                    category="value"
+                    index="name"
+                  />
                   <Flex
                     justifyContent="justify-start"
                     alignItems="items-baseline"
                     spaceX="space-x-2"
+                    marginTop="mt-6"
                   ></Flex>
                   <Flex marginTop="mt-6">
                     <Text>Application</Text>
                     <Text textAlignment="text-right">Total</Text>
                   </Flex>
+
                   <BarList data={chart.top5App.data} marginTop="mt-2" />
-                </Card>
-                <Card marginTop="mt-3">
-                  <Legend categories={[]} className="mt-6" />
-                  <DonutChart
-                    className="mt-6"
-                    data={chart.top5App.data}
-                    category="value"
-                    index="name"
-                  />
                 </Card>
               </div>
             </div>
