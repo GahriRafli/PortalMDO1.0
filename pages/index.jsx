@@ -75,8 +75,18 @@ export default function Home({ user, statsIncidentData }) {
     }),
     {
       totalIncident: { data: [], error: null, loading: false },
-      totalIncidentByType: { data: [], error: null, loading: false },
-      totalIncidentByCategory: { data: [], error: null, loading: false },
+      totalIncidentByType: {
+        data: [],
+        error: null,
+        loading: false,
+        categories: [],
+      },
+      totalIncidentByCategory: {
+        data: [],
+        error: null,
+        loading: false,
+        categories: [],
+      },
       averageDetect: { data: [], error: null, loading: false },
       averageResolved: { data: [], error: null, loading: false },
       top5App: { data: [], error: null, loading: false },
@@ -86,6 +96,7 @@ export default function Home({ user, statsIncidentData }) {
   let endpoints = [
     `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-total-line?startTime=${strStartDate}&endTime=${strEndDate}`,
     `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-total-type-area?startTime=${strStartDate}&endTime=${strEndDate}`,
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-total-category-area?startTime=${strStartDate}&endTime=${strEndDate}`,
     `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-avg-detect?startTime=${strStartDate}&endTime=${strEndDate}`,
     `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-avg-resolved?startTime=${strStartDate}&endTime=${strEndDate}`,
     `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-top-app-pie?startTime=${strStartDate}&endTime=${strEndDate}`,
@@ -135,6 +146,7 @@ export default function Home({ user, statsIncidentData }) {
           (
             { data: totalIncident },
             { data: totalIncidentByType },
+            { data: totalIncidentByCategory },
             { data: averageDetect },
             { data: averageResolved },
             { data: top5App }
@@ -144,11 +156,29 @@ export default function Home({ user, statsIncidentData }) {
               value: d.jumlahIncident,
             }));
 
+            const IncidentByTypeLegend =
+              totalIncidentByType.data.length > 0
+                ? Object.keys(totalIncidentByType.data[0])
+                : [];
+            IncidentByTypeLegend.shift();
+
+            const IncidentByCategoryLegend =
+              totalIncidentByCategory.data.length > 0
+                ? Object.keys(totalIncidentByCategory.data[0])
+                : [];
+            IncidentByCategoryLegend.shift();
+
             updateChart({
               totalIncident: { data: totalIncident.data, loading: false },
               totalIncidentByType: {
                 data: totalIncidentByType.data,
                 loading: false,
+                categories: IncidentByTypeLegend,
+              },
+              totalIncidentByCategory: {
+                data: totalIncidentByCategory.data,
+                loading: false,
+                categories: IncidentByCategoryLegend,
               },
               averageDetect: { data: averageDetect.data, loading: false },
               averageResolved: { data: averageResolved.data, loading: false },
@@ -158,8 +188,6 @@ export default function Home({ user, statsIncidentData }) {
         )
       );
   }, [datePickerValue]);
-
-  console.log(Array.isArray(chart.top5App.data));
 
   return (
     <LayoutPage session={user} pageTitle="Home Dashboard - Shield">
@@ -245,8 +273,8 @@ export default function Home({ user, statsIncidentData }) {
             <div className="grid grid-cols-5 gap-4">
               <div></div>
             </div>
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 xxl:grid-cols-5">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-6 xxl:grid-cols-6">
+              <div className="col-span-1 lg:col-span-4 xxl:col-span-4">
                 <Card>
                   <Flex>
                     <Title className="w-full">Total Incident</Title>
@@ -260,6 +288,44 @@ export default function Home({ user, statsIncidentData }) {
                     marginTop="mt-6"
                     yAxisWidth="w-12"
                     showLegend={false}
+                  />
+                </Card>
+              </div>
+              <div className="col-span-1 lg:col-span-2 xxl:col-span-2">
+                <Card>
+                  <Flex>
+                    <Title>Top 5 Incident</Title>
+                    {chart.top5App.loading && <DotBlink />}
+                  </Flex>
+                  <div className="mt-6"></div>
+                  <Legend
+                    categories={
+                      Array.isArray(chart.top5App.data) === true
+                        ? chart.top5App.data.map((app) => app.name)
+                        : []
+                    }
+                    className="mt-6"
+                  />
+                  <div className="mt-6"></div>
+                  <DonutChart
+                    data={chart.top5App.data}
+                    category="value"
+                    index="name"
+                  />
+                </Card>
+              </div>
+              <div className="col-span-1 lg:col-span-3 xxl:col-span-3">
+                <Card>
+                  <Flex>
+                    <Title className="w-full">Incident By Type</Title>
+                    {chart.totalIncidentByType.loading && <DotBlink />}
+                  </Flex>
+                  <AreaChart
+                    marginTop="mt-4"
+                    data={chart.totalIncidentByType.data}
+                    categories={chart.totalIncidentByType.categories}
+                    dataKey="rentangWaktu"
+                    height="h-80"
                   />
                 </Card>
                 <Card marginTop="mt-3">
@@ -281,22 +347,16 @@ export default function Home({ user, statsIncidentData }) {
                   />
                 </Card>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 lg:col-span-3 xxl:col-span-3">
                 <Card>
                   <Flex>
-                    <Title className="w-full">Incident Type</Title>
+                    <Title className="w-full">Incident By Category</Title>
                     {chart.totalIncidentByType.loading && <DotBlink />}
                   </Flex>
                   <AreaChart
                     marginTop="mt-4"
-                    data={chart.totalIncidentByType.data}
-                    categories={[
-                      "Application",
-                      "Infrastructure",
-                      "Security & Firewall",
-                      "Human Error",
-                      "Third Party & Others",
-                    ]}
+                    data={chart.totalIncidentByCategory.data}
+                    categories={chart.totalIncidentByCategory.categories}
                     dataKey="rentangWaktu"
                     height="h-80"
                   />
@@ -319,7 +379,7 @@ export default function Home({ user, statsIncidentData }) {
                   />
                 </Card>
               </div>
-              <div>
+              {/* <div>
                 <Card>
                   <Flex>
                     <Title>Top 5 Incident</Title>
@@ -353,7 +413,7 @@ export default function Home({ user, statsIncidentData }) {
 
                   <BarList data={chart.top5App.data} marginTop="mt-2" />
                 </Card>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
