@@ -126,7 +126,7 @@ export function LayoutNav({ session, isShowNotif }) {
                     /> */}
                     <img
                       loading="lazy"
-                      className="w-9 h-9 text-gray-500"
+                      className="h-8 w-8 rounded-full"
                       src={session.photo}
                       alt="User Proflie"
                     />
