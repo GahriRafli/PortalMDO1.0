@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import {
   LayoutPage,
   LayoutPageContent,
@@ -6,47 +6,33 @@ import {
 } from "components/layout/index";
 import withSession from "lib/session";
 import { Verified } from "components/ui/svg/verified-icon";
-import { OfficeBuildingIcon, UserCircleIcon } from "@heroicons/react/solid";
+import { OfficeBuildingIcon } from "@heroicons/react/solid";
 import {
   ShieldCheckIcon,
   FireIcon,
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
 import { StatsWithIcon } from "components/ui/stats/stats-with-icon";
-import { DefaultCard } from "components/ui/card/default-card";
-import DateRangeFilter from "components/incidents/daterange-filter";
-import { ReactSelect } from "components/ui/forms";
-import AsyncSelect from "react-select/async";
-import { getNickName, styledReactSelect } from "components/utils";
-import { ShowChart } from "components/chart";
-import palette from "google-palette";
-import { format, getYear } from "date-fns";
+import { getNickName } from "components/utils";
+import { format } from "date-fns";
 import axios from "axios";
-import { getApplication, getCriticalityApp, useAxios } from "lib/api-helper";
 import { toast } from "react-toastify";
+import {
+  Card,
+  AreaChart,
+  Title,
+  BarChart,
+  Subtitle,
+  Flex,
+  BarList,
+  Text,
+  DateRangePicker,
+  DonutChart,
+  Legend,
+} from "@tremor/react";
+import { DotBlink } from "components/ui/svg/spinner";
 
-const initialChartData = {
-  groupBy: "Periodic",
-  periodeAwal: format(new Date(getYear(new Date()), 0, 1), "yyyy-MM-dd"),
-  periodeAkhir: format(new Date(), "yyyy-MM-dd"),
-  criticality: null,
-  application: null,
-};
-
-const groupByParam = [
-  { value: "Periodic", label: "Periode" },
-  { value: "CritApps", label: "Criticality" },
-  { value: "RootCause", label: "RootCause" },
-  { value: "PIC", label: "PIC" },
-  { value: "Application", label: "Application" },
-];
-
-export default function Home({
-  user,
-  statsIncidentData,
-  statsProblemsData,
-  chartIncidentData,
-}) {
+export default function Home({ user, statsIncidentData }) {
   const cards = [
     {
       name: "Incidents Open",
@@ -55,10 +41,10 @@ export default function Home({
       value: statsIncidentData.data.jumlah,
     },
     {
-      name: "Problem Need Review",
-      href: "/problem/list",
+      name: "Problem Management",
+      href: "/problem",
       icon: FireIcon,
-      value: statsProblemsData.data,
+      value: 0,
     },
     {
       name: "Ticket Open",
@@ -68,209 +54,140 @@ export default function Home({
     },
   ];
 
-  // Master data dashboard incident is here
-  const [dashboardIncidentData, setDashboardIncidentData] = useState(
-    chartIncidentData.data
-  );
-  const [filterOptions, setFilterOptions] = useState({
-    groupBy: [],
-    criticality: [],
-    application: [],
-  });
-  const [filterData, setFilterData] = useState(initialChartData);
-  const [chartLabels, setChartLabels] = useState(
-    dashboardIncidentData.map((d) => d.Periode2)
-  );
-
-  function getChartBgColor(length) {
-    return palette("tol-rainbow", length).map(function (hex) {
-      return "#" + hex;
-    });
-  }
-
-  // Get list Criticality App
-  useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/8/report`)
-      .then((res) => {
-        const optionsData = res.data.data.map((d) => ({
-          value: d.criticality_app,
-          label: d.criticality_app_desc,
-        }));
-        setFilterOptions((filterOptions) => ({
-          ...filterOptions,
-          criticality: optionsData,
-        }));
-      })
-      .catch((err) => toast.error(`Fu Plan ${err}`));
-  }, []);
-
-  // Get list Application
-  const loadApplications = (value, callback) => {
-    getApplication(value, callback);
-  };
-
-  // Get Dashboard data
-  useEffect(() => {
-    axios
-      .get(
-        `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${
-          filterData.groupBy
-        }&periodeAwal=${filterData.periodeAwal}&periodeAkhir=${
-          filterData.periodeAkhir
-        }&PIC=&CriticalApp=${
-          !filterData.criticality ? "" : filterData.criticality
-        }&AppName=${!filterData.application ? "" : filterData.application}`,
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      )
-      .then((res) => {
-        const newDasboardIncidentData = res.data.data;
-        const newChartLabel = [];
-        newDasboardIncidentData.map((d) => {
-          if (d.hasOwnProperty("Periode")) {
-            newChartLabel.push(d.Periode2);
-          } else if (d.hasOwnProperty("Criticality")) {
-            newChartLabel.push(d.Criticality);
-          } else if (d.hasOwnProperty("RootCause")) {
-            newChartLabel.push(d.RootCause);
-          } else if (d.hasOwnProperty("PIC")) {
-            newChartLabel.push(d.PIC);
-          } else if (d.hasOwnProperty("Application")) {
-            newChartLabel.push(d.Application);
-          } else {
-            return false;
-          }
-        });
-        setChartLabels(newChartLabel);
-        setDashboardIncidentData(newDasboardIncidentData);
-      })
-      .catch((err) => alert(err));
-  }, [
-    filterData.periodeAwal,
-    filterData.periodeAkhir,
-    filterData.criticality,
-    filterData.groupBy,
-    filterData.application,
+  const [datePickerValue, setDatePickerValue] = useState([
+    new Date(2022, 0, 1),
+    new Date(),
   ]);
 
-  const totalIncidentChart = {
-    labels: chartLabels,
-    datasets: [
-      {
-        data: dashboardIncidentData.map((d) => d.TotalIncident),
-        backgroundColor: getChartBgColor(dashboardIncidentData.length),
-        order: 0,
-      },
-      {
-        data: dashboardIncidentData.map((d) => d.TotalIncident),
-        backgroundColor: getChartBgColor(dashboardIncidentData.length),
-        type: "line",
-        order: 0,
-      },
-    ],
+  const handleDateRangeFilter = (value) => {
+    setDatePickerValue(value);
   };
 
-  const totalImpactedAppChart = {
-    labels: chartLabels,
-    datasets: [
-      {
-        data: dashboardIncidentData.map((d) => d.TotalApps),
-        backgroundColor: getChartBgColor(dashboardIncidentData.length),
-        order: 0,
-      },
-      {
-        data: dashboardIncidentData.map((d) => d.TotalApps),
-        backgroundColor: getChartBgColor(dashboardIncidentData.length),
-        type: "line",
-        order: 0,
-      },
-    ],
-  };
+  const strStartDate = format(datePickerValue[0], "yyyy-MM-dd");
+  const strEndDate = datePickerValue[1]
+    ? format(datePickerValue[1], "yyyy-MM-dd")
+    : "";
 
-  const mttdChart = {
-    labels: chartLabels,
-    datasets: [
-      {
-        data: dashboardIncidentData.map((d) => d.AverageDetectionDuration),
-        backgroundColor: getChartBgColor(dashboardIncidentData.length),
-        order: 0,
+  const [chart, updateChart] = useReducer(
+    (data, partialData) => ({
+      ...data,
+      ...partialData,
+    }),
+    {
+      totalIncident: { data: [], error: null, loading: false },
+      totalIncidentByType: {
+        data: [],
+        error: null,
+        loading: false,
+        categories: [],
       },
-    ],
-  };
-
-  const mttrChart = {
-    labels: chartLabels,
-    datasets: [
-      {
-        data: dashboardIncidentData.map((d) => d.AverageSolvedDuration),
-        backgroundColor: getChartBgColor(dashboardIncidentData.length),
-        order: 0,
+      totalIncidentByCategory: {
+        data: [],
+        error: null,
+        loading: false,
+        categories: [],
       },
-    ],
-  };
-
-  const handleDateRangeFilter = (value, dateString) => {
-    if (!value) {
-      setFilterData((filterData) => ({
-        ...filterData,
-        periodeAwal: initialChartData.periodeAwal,
-        periodeAkhir: initialChartData.periodeAkhir,
-      }));
-    } else {
-      const periodeAwal = dateString[0];
-      const periodeAkhir = dateString[1];
-
-      setFilterData((filterData) => ({
-        ...filterData,
-        periodeAwal: periodeAwal,
-        periodeAkhir: periodeAkhir,
-      }));
+      averageDetect: { data: [], error: null, loading: false },
+      averageResolved: { data: [], error: null, loading: false },
+      top5App: { data: [], error: null, loading: false },
     }
-  };
+  );
 
-  const handleGroupByFilter = (props) => {
-    if (!props) {
-      setFilterData((filterData) => ({
-        ...filterData,
-        groupBy: initialChartData.groupBy,
-      }));
-    } else {
-      setFilterData((filterData) => ({
-        ...filterData,
-        groupBy: props.value,
-      }));
-    }
-  };
+  let endpoints = [
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-total-line?startTime=${strStartDate}&endTime=${strEndDate}`,
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-total-type-area?startTime=${strStartDate}&endTime=${strEndDate}`,
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-total-category-area?startTime=${strStartDate}&endTime=${strEndDate}`,
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-avg-detect?startTime=${strStartDate}&endTime=${strEndDate}`,
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-avg-resolved?startTime=${strStartDate}&endTime=${strEndDate}`,
+    `${process.env.NEXT_PUBLIC_API_URL_V2}/dashboards/incident-top-app-pie?startTime=${strStartDate}&endTime=${strEndDate}`,
+  ];
 
-  const handleCriticalityFilter = (props) => {
-    if (!props) {
-      setFilterData((filterData) => ({
-        ...filterData,
-        criticality: initialChartData.criticality,
-      }));
-    } else {
-      setFilterData((filterData) => ({
-        ...filterData,
-        criticality: props.value,
-      }));
-    }
-  };
+  useEffect(() => {
+    updateChart({
+      totalIncident: { loading: true },
+      totalIncidentByType: { loading: true },
+      totalIncidentByCategory: { loading: true },
+      averageDetect: { loading: true },
+      averageResolved: { loading: true },
+      top5App: { loading: true },
+    });
 
-  const handleAppFilter = (props) => {
-    if (!props) {
-      setFilterData((filterData) => ({
-        ...filterData,
-        application: initialChartData.application,
-      }));
-    } else {
-      setFilterData((filterData) => ({
-        ...filterData,
-        application: props.label,
-      }));
-    }
-  };
+    axios
+      .all(
+        endpoints.map((endpoint) =>
+          axios
+            .get(endpoint, {
+              headers: { Authorization: `Bearer ${user.accessToken}` },
+            })
+            .catch((error) => {
+              if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                toast.error(
+                  `Server responded with an error status code: 
+                  ${error.response.status}`
+                );
+              } else if (error.request) {
+                // The request was made but no response was received
+                toast.error(
+                  `No response received from server: ${error.request}`
+                );
+              } else {
+                // Something happened in setting up the request that triggered an Error
+                toast.error(`Error setting up request: ${error.message}`);
+              }
+              // throw the error to propagate it to the next error handler or catch block
+              throw error;
+            })
+        )
+      )
+      .then(
+        axios.spread(
+          (
+            { data: totalIncident },
+            { data: totalIncidentByType },
+            { data: totalIncidentByCategory },
+            { data: averageDetect },
+            { data: averageResolved },
+            { data: top5App }
+          ) => {
+            const newTop5App = top5App.data.map((d) => ({
+              name: d.subNameAplikasi,
+              value: d.jumlahIncident,
+            }));
+
+            const IncidentByTypeLegend =
+              totalIncidentByType.data.length > 0
+                ? Object.keys(totalIncidentByType.data[0])
+                : [];
+            IncidentByTypeLegend.shift();
+
+            const IncidentByCategoryLegend =
+              totalIncidentByCategory.data.length > 0
+                ? Object.keys(totalIncidentByCategory.data[0])
+                : [];
+            IncidentByCategoryLegend.shift();
+
+            updateChart({
+              totalIncident: { data: totalIncident.data, loading: false },
+              totalIncidentByType: {
+                data: totalIncidentByType.data,
+                loading: false,
+                categories: IncidentByTypeLegend,
+              },
+              totalIncidentByCategory: {
+                data: totalIncidentByCategory.data,
+                loading: false,
+                categories: IncidentByCategoryLegend,
+              },
+              averageDetect: { data: averageDetect.data, loading: false },
+              averageResolved: { data: averageResolved.data, loading: false },
+              top5App: { data: newTop5App, loading: false },
+            });
+          }
+        )
+      );
+  }, [datePickerValue]);
 
   return (
     <LayoutPage session={user} pageTitle="Home Dashboard - Shield">
@@ -279,16 +196,11 @@ export default function Home({
           <div className="flex-1 min-w-0">
             {/* Profile */}
             <div className="flex items-center">
-              {/* <img
-                className="hidden h-16 w-16 rounded-full sm:block"
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80"
-                alt=""
-              /> */}
-              {/* <UserCircleIcon className="h-16 w-16 text-gray-500 sm:block" /> */}
               <img
                 loading="lazy"
                 className="h-16 w-16 text-gray-500 sm:block"
-                src={user.photo}
+                // src={user.photo}
+                src="/Slightly_Smiling_Face.png"
                 alt="User Proflie"
               />
               <div>
@@ -296,8 +208,12 @@ export default function Home({
                   <h1 className="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
                     Welcome back,{" "}
                     {user.fullname ? getNickName(user.fullname) : user.username}{" "}
-                    👋🏻
                   </h1>
+                  {/* <img
+                    src="/Waving_Hand.png"
+                    alt="Hand with Fingers Splayed Light Skin Tone"
+                    className="h-10 w-10"
+                  /> */}
                 </div>
                 <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
                   <dt className="sr-only">Company</dt>
@@ -322,6 +238,12 @@ export default function Home({
           </div>
           <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
             {/* You can add component in right section here */}
+            <DateRangePicker
+              className="max-w-md mx-auto"
+              value={datePickerValue}
+              onValueChange={handleDateRangeFilter}
+              // locale={es}
+            />
           </div>
         </div>
       </LayoutPageHeader>
@@ -329,7 +251,7 @@ export default function Home({
         <div>
           <div className="grid grid-cols-1 gap-4 pb-8 sm:grid-cols-1">
             <h2 className="text-lg font-medium leading-6 text-gray-900">
-              General Report
+              Genneral Report
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {/* Card */}
@@ -349,76 +271,149 @@ export default function Home({
               Incident Report
             </h2>
             <div className="grid grid-cols-5 gap-4">
-              <div>
-                <DateRangeFilter onChange={handleDateRangeFilter} />
-              </div>
-              <div>
-                <ReactSelect
-                  placeholder="Group By"
-                  instanceId={"groupBy"}
-                  options={groupByParam}
-                  isSearchable={false}
-                  isClearable
-                  onChange={handleGroupByFilter}
-                />
-              </div>
-              <div>
-                <ReactSelect
-                  placeholder="Criticality"
-                  instanceId={"criticality"}
-                  options={filterOptions.criticality}
-                  isSearchable={false}
-                  isClearable
-                  onChange={handleCriticalityFilter}
-                />
-              </div>
-              <div>
-                <AsyncSelect
-                  placeholder="Application"
-                  styles={styledReactSelect}
-                  className="text-sm focus:ring-blue-300 focus:border-blue-300"
-                  instanceId={"application"}
-                  loadOptions={loadApplications}
-                  isClearable
-                  onChange={handleAppFilter}
-                />
-              </div>
               <div></div>
             </div>
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 xxl:grid-cols-5">
-              <div className="col-span-2">
-                <DefaultCard title="Total Incident">
-                  <ShowChart chartData={totalIncidentChart} chartType="bar" />
-                </DefaultCard>
-                <DefaultCard
-                  title="Average Detection Duration"
-                  subtitle="Data in minutes"
-                >
-                  <ShowChart chartData={mttdChart} chartType="line" />
-                </DefaultCard>
-              </div>
-              <div className="col-span-2">
-                <DefaultCard title="Total Impacted Application">
-                  <ShowChart
-                    chartData={totalImpactedAppChart}
-                    chartType="bar"
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-6 xxl:grid-cols-6">
+              <div className="col-span-1 lg:col-span-4 xxl:col-span-4">
+                <Card>
+                  <Flex>
+                    <Title className="w-full">Total Incident</Title>
+                    {chart.totalIncident.loading && <DotBlink />}
+                  </Flex>
+                  <BarChart
+                    data={chart.totalIncident.data}
+                    dataKey="rentangWaktu"
+                    categories={["jumlahIncident"]}
+                    colors={["blue"]}
+                    marginTop="mt-6"
+                    yAxisWidth="w-12"
+                    showLegend={false}
                   />
-                </DefaultCard>
-                <DefaultCard
-                  title="Average Solved Duration"
-                  subtitle="Data in minutes"
-                >
-                  <ShowChart chartData={mttrChart} chartType="line" />
-                </DefaultCard>
+                </Card>
               </div>
-              <div>
-                <DefaultCard>
-                  <h1>Recent Activity</h1>
-                  <p className="text-xs font-normal text-gray-500">
-                    No Activity found
-                  </p>
-                </DefaultCard>
+              <div className="col-span-1 lg:col-span-2 xxl:col-span-2">
+                <Card>
+                  <Flex>
+                    <Title>Top 5 Incident</Title>
+                    {chart.top5App.loading && <DotBlink />}
+                  </Flex>
+                  <div className="mt-6"></div>
+                  <Legend
+                    categories={
+                      Array.isArray(chart.top5App.data) === true
+                        ? chart.top5App.data.map((app) => app.name)
+                        : []
+                    }
+                    className="mt-6"
+                  />
+                  <div className="mt-6"></div>
+                  <DonutChart
+                    data={chart.top5App.data}
+                    category="value"
+                    index="name"
+                  />
+                </Card>
               </div>
+              <div className="col-span-1 lg:col-span-3 xxl:col-span-3">
+                <Card>
+                  <Flex>
+                    <Title className="w-full">Incident By Type</Title>
+                    {chart.totalIncidentByType.loading && <DotBlink />}
+                  </Flex>
+                  <AreaChart
+                    marginTop="mt-4"
+                    data={chart.totalIncidentByType.data}
+                    categories={chart.totalIncidentByType.categories}
+                    dataKey="rentangWaktu"
+                    height="h-80"
+                  />
+                </Card>
+                <Card marginTop="mt-3">
+                  <Flex>
+                    <div>
+                      <Title>Average Detection Duration</Title>
+                      <Subtitle>Data in minutes</Subtitle>
+                    </div>
+                    {chart.averageDetect.loading && <DotBlink />}
+                  </Flex>
+                  <AreaChart
+                    marginTop="mt-4"
+                    data={chart.averageDetect.data}
+                    categories={["avgDetectInterval"]}
+                    dataKey="rentangWaktu"
+                    colors={["blue"]}
+                    height="h-80"
+                    showLegend={false}
+                  />
+                </Card>
+              </div>
+              <div className="col-span-1 lg:col-span-3 xxl:col-span-3">
+                <Card>
+                  <Flex>
+                    <Title className="w-full">Incident By Category</Title>
+                    {chart.totalIncidentByType.loading && <DotBlink />}
+                  </Flex>
+                  <AreaChart
+                    marginTop="mt-4"
+                    data={chart.totalIncidentByCategory.data}
+                    categories={chart.totalIncidentByCategory.categories}
+                    dataKey="rentangWaktu"
+                    height="h-80"
+                  />
+                </Card>
+                <Card marginTop="mt-3">
+                  <Flex>
+                    <div>
+                      <Title>Average Resolved Duration</Title>
+                      <Subtitle>Data in minutes</Subtitle>
+                    </div>
+                    {chart.averageResolved.loading && <DotBlink />}
+                  </Flex>
+                  <AreaChart
+                    marginTop="mt-4"
+                    data={chart.averageResolved.data}
+                    categories={["avgResolvedInterval"]}
+                    dataKey="rentangWaktu"
+                    height="h-80"
+                    showLegend={false}
+                  />
+                </Card>
+              </div>
+              {/* <div>
+                <Card>
+                  <Flex>
+                    <Title>Top 5 Incident</Title>
+                    {chart.top5App.loading && <DotBlink />}
+                  </Flex>
+                  <div className="mt-6"></div>
+                  <Legend
+                    categories={
+                      Array.isArray(chart.top5App.data) === true
+                        ? chart.top5App.data.map((app) => app.name)
+                        : []
+                    }
+                    className="mt-6"
+                  />
+                  <div className="mt-6"></div>
+                  <DonutChart
+                    data={chart.top5App.data}
+                    category="value"
+                    index="name"
+                  />
+                  <Flex
+                    justifyContent="justify-start"
+                    alignItems="items-baseline"
+                    spaceX="space-x-2"
+                    marginTop="mt-6"
+                  ></Flex>
+                  <Flex marginTop="mt-6">
+                    <Text>Application</Text>
+                    <Text textAlignment="text-right">Total</Text>
+                  </Flex>
+
+                  <BarList data={chart.top5App.data} marginTop="mt-2" />
+                </Card>
+              </div> */}
             </div>
           </div>
         </div>
@@ -440,34 +435,20 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
 
   const myApi = {
     url: process.env.NEXT_PUBLIC_API_URL,
+    urlv2: process.env.NEXT_PUBLIC_API_URL_V2,
     headers: { Authorization: `Bearer ${user.accessToken}` },
   };
-
-  const getChartIncidentData = await fetch(
-    `${myApi.url}/dashboards/5/report?groupBy=${initialChartData.groupBy}&periodeAwal=${initialChartData.periodeAwal}&periodeAkhir=${initialChartData.periodeAkhir}&PIC=&CriticalApp=&AppName=`,
-    {
-      headers: myApi.headers,
-    }
-  );
-  const chartIncidentData = await getChartIncidentData.json();
 
   res = await fetch(`${myApi.url}/dashboards/1/report`, {
     headers: myApi.headers,
   });
   const statsIncidentData = await res.json();
 
-  const getCountProblems = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
-  );
-  const countProblems = await getCountProblems.json();
-
   if (res.status === 200) {
     return {
       props: {
         user: req.session.get("user"),
         statsIncidentData: statsIncidentData,
-        statsProblemsData: countProblems,
-        chartIncidentData: chartIncidentData,
       },
     };
   }
