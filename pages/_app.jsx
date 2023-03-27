@@ -6,6 +6,7 @@ import "../styles/globals.css";
 import "../styles/antd.css";
 import "nprogress/nprogress.css";
 import "react-toastify/dist/ReactToastify.css";
+import "@tremor/react/dist/esm/tremor.css";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();

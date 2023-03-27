@@ -4,49 +4,47 @@ import fetcher from "./fetchJson";
 const URL = process.env.NEXT_PUBLIC_API_URL;
 const API_V2 = process.env.NEXT_PUBLIC_API_URL_V2;
 
-const useAxios = (url) => {
-  const [data, setData] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+const useAxios = (axiosParams) => {
+  const [response, setResponse] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async (params) => {
+    try {
+      const result = await axios.request(params);
+      setResponse(result.data);
+    } catch (error) {
+      // Error 😨
+      if (error.response) {
+        /*
+         * The request was made and the server responded with a
+         * status code that falls out of the range of 2xx
+         */
+        setError(
+          error.response.data || error.response.status || error.response.headers
+        );
+      } else if (error.request) {
+        /*
+         * The request was made but no response was received, `error.request`
+         * is an instance of XMLHttpRequest in the browser and an instance
+         * of http.ClientRequest in Node.js
+         */
+        setError(error.request);
+      } else {
+        // Something happened in setting up the request and triggered an Error
+        setError("Error ", error.message);
+      }
+      setError(error.config);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = () => {
-      axios
-        .get(url)
-        .then((response) => {
-          setIsLoaded(true);
-          setData(response.data);
-        })
-        .catch((error) => {
-          // Error 😨
-          if (error.response) {
-            /*
-             * The request was made and the server responded with a
-             * status code that falls out of the range of 2xx
-             */
-            setError(
-              error.response.data ||
-                error.response.status ||
-                error.response.headers
-            );
-          } else if (error.request) {
-            /*
-             * The request was made but no response was received, `error.request`
-             * is an instance of XMLHttpRequest in the browser and an instance
-             * of http.ClientRequest in Node.js
-             */
-            setError(error.request);
-          } else {
-            // Something happened in setting up the request and triggered an Error
-            setError("Error ", error.message);
-          }
-          setError(error.config);
-        });
-    };
-    fetchData();
-  }, [url]);
+    fetchData(axiosParams);
+  }, []); // execute once only
 
-  return { error, isLoaded, data };
+  return { response, error, loading };
 };
 
 function getApplication(value, callback, accessToken) {

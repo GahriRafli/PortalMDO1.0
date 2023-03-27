@@ -20,7 +20,7 @@ import {
 } from "components/utils";
 import { PrimaryButton } from "components/ui/button/primary-button";
 import { SecondaryButton } from "components/ui/button/secondary-button";
-import { Spinner } from "components/ui/svg/spinner";
+import { DotBlink, Spinner } from "components/ui/svg/spinner";
 import docs from "components/incidents/docs.json";
 import withSession from "lib/session";
 import {
@@ -76,6 +76,7 @@ export default function addIncident({ user }) {
     formState,
     reset,
     getValues,
+    setValue,
   } = useForm({
     mode: "onSubmit",
     reValidateMode: "onChange",
@@ -217,6 +218,7 @@ export default function addIncident({ user }) {
   // Get value of impact
   const handleUrgency = (e, { action }) => {
     if (e) {
+      setValue("idUrgency", e);
       setParameters((prevState) => {
         return {
           ...prevState,
@@ -234,6 +236,7 @@ export default function addIncident({ user }) {
   // Get value of impact
   const handleImpact = async (e) => {
     if (e) {
+      setValue("idImpact", e);
       setParameters((prevState) => {
         return { ...prevState, impact: e.idParamCategory, isLoading: true };
       });
@@ -512,6 +515,7 @@ export default function addIncident({ user }) {
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
                               menuPlacement="top"
                               onChange={handleUrgency}
+                              value={field.value}
                             />
                           )}
                         />
@@ -542,6 +546,7 @@ export default function addIncident({ user }) {
                               menuPlacement="top"
                               onChange={handleImpact}
                               isDisabled={parameters.isImpactDisabled}
+                              value={field.value}
                             />
                           )}
                         />
@@ -555,7 +560,13 @@ export default function addIncident({ user }) {
                         <div className="col-span-6 sm:col-span-6">
                           <CustomAlert
                             type={"info"}
-                            title={`Incident Priority is ${priority}`}
+                            title={
+                              parameters.isLoading ? (
+                                <DotBlink />
+                              ) : (
+                                `Incident Priority is ${priority}`
+                              )
+                            }
                           >
                             {/* <p className="whitespace-pre-wrap">{priority}</p> */}
                           </CustomAlert>
