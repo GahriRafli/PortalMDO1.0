@@ -11,6 +11,8 @@ import format from "date-fns/format";
 import AsyncSelect from "react-select/async";
 
 import CreateInformation from "./CreateInformation";
+import HCInformation from "components/healthcheck/HCInformation";
+import HCTabs from "components/healthcheck/HCTabs";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -74,11 +76,24 @@ const CreateForm = ({ user }) => {
     );
   };
 
-  const handleAppChange = (event) => {
-    if (event == null) {
-      setApps("");
-    } else {
-      setApps(event.value);
+  const [preketek, setPreketek] = useState(null);
+
+  const handleAppChange = async (event, { action }) => {
+    try {
+      if (action === "select-option") {
+        setApps(event.value);
+        const uhuyres = await fetch(
+          `http://127.0.0.1:3030/v1/probman/hc/apps/${event.value}`
+        );
+        let preketekDump = await uhuyres.json();
+        console.info(preketekDump.data.hcResults[4].description.split(";"));
+        console.info(preketekDump.data.ipAddress.split(";"));
+        setPreketek(preketekDump);
+      } else {
+        setPreketek(null);
+      }
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -299,6 +314,7 @@ const CreateForm = ({ user }) => {
                           className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
                           placeholder="Search for application"
                           components={{ NoOptionsMessage }}
+                          onChange={handleAppChange}
                         />
                       )}
                     />
@@ -497,7 +513,22 @@ const CreateForm = ({ user }) => {
           </section>
         </div>
 
-        <CreateInformation />
+        <section
+          aria-labelledby="problem-create-info"
+          className="lg:col-start-3 lg:col-span-1"
+        >
+          <CreateInformation />
+          {preketek != null && preketek.data.updated_by != undefined ? (
+            <HCInformation data={preketek.data} />
+          ) : (
+            <div className="py-4">
+              <div className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                No Health Check Recommendation
+              </div>
+            </div>
+          )}
+          <HCTabs />
+        </section>
       </div>
     </>
   );
