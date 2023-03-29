@@ -23,7 +23,7 @@ function noData() {
           justifyContent: "center",
         }}
       >
-        <text className="text-4xl font-medium text-gray-500">No Data</text>
+        <span className="text-4xl font-medium text-gray-500">No Data</span>
       </div>
     </>
   );

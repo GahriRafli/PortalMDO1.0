@@ -24,7 +24,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   }
 });
 
-export default function Recommendation({ user }) {
+export default function Input({ user }) {
   // begin of define column
   // const columns = useMemo(
   //   () => [
@@ -148,14 +148,14 @@ export default function Recommendation({ user }) {
 
   return (
     <>
-      <LayoutPage session={user} pageTitle="Recommendation" isShowNotif={false}>
+      <LayoutPage session={user} pageTitle="Create Report" isShowNotif={false}>
         <LayoutPageHeader></LayoutPageHeader>
         <LayoutPageContent>
-          <section id="recommendation-list-section">
+          <section id="create-list-section">
             {/* Page title & actions */}
-            <PageHeader title="Recommendation"></PageHeader>
+            <PageHeader title="Create Health Check Report"></PageHeader>
 
-            {/* Recommendation Tables table (small breakpoint and up) */}
+            {/* CreateInput Report Tables table (small breakpoint and up) */}
             <div className="hidden sm:block mt-3">
               <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
                 <h2>Blah Blah Blah Recommendasi</h2>

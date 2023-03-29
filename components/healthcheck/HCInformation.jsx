@@ -3,12 +3,14 @@ import { Dialog, Transition } from "@headlessui/react";
 import { HeartIcon } from "@heroicons/react/outline";
 import CellResult from "./CellResult";
 import CellMetric from "./CellMetric";
+import HCTabs from "./HCTabs";
 
 const styleHead =
   "px-6 py-3 border-b border-gray-200 bg-gray-50 text-center font-medium text-gray-500 uppercase tracking-wider";
 
 const HCInformation = ({ data }) => {
   const [open, setOpen] = useState(false);
+  let listIP = data.ipAddress.split(";");
   return (
     <>
       <Transition.Root show={open} as={Fragment}>
@@ -62,14 +64,38 @@ const HCInformation = ({ data }) => {
                   <div className="mt-3 sm:mt-5">
                     <Dialog.Title
                       as="h3"
-                      className="text-lg leading-6 text-center font-medium text-gray-500"
+                      className="leading-6 text-center font-medium text-gray-700"
                     >
-                      <b>{data.healthcheckNumber}</b>
+                      <b className="text-lg">
+                        {data.app.name} - {data.app.subName}
+                      </b>
+                      <p className="text-sm text-gray-500">
+                        {data.healthcheckNumber}
+                      </p>
                     </Dialog.Title>
                     <div>
-                      <p className="text-sm text-center text-gray-500">
-                        {data.app.name} - {data.app.subName}
-                      </p>
+                      {/* Section IP Address */}
+                      <table className="table-fixed my-2">
+                        <thead>
+                          <tr className="border-t border-gray-200">
+                            <th className={styleHead}>List of IP Address</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                          {listIP.map((ip, i) => {
+                            return (
+                              <tr key={`list-ip-${i}`}>
+                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                  {ip}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+
+                      <HCTabs />
+
                       <table className="table-fixed">
                         <thead>
                           <tr className="border-t border-gray-200">
