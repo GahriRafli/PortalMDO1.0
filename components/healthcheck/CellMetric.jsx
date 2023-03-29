@@ -1,7 +1,7 @@
-const CellMetric = ({ row }) => {
+const CellMetric = ({ row, i }) => {
   return (
     <>
-      <tr className="text-left bg-blue-50">
+      <tr key={`cell-metric-${i}`} className="text-left bg-blue-50">
         <td className="px-6 py-3 text-sm text-gray-500 font-normal">
           <b>{row.hcMetric.name}</b>
         </td>
