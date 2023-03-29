@@ -8,10 +8,6 @@ import {
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
-  const fetchHC = await fetch(`${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/all`, {
-    headers: { Authorization: `Bearer ${user.accessToken}` },
-  });
-  const getHC = await fetchHC.json();
   if (!user) {
     return {
       redirect: {
@@ -19,32 +15,16 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         permanent: false,
       },
     };
-  }
-  if (getHC.status === 200) {
-    return {
-      props: {
-        user: user,
-        hc: getHC.data,
-      },
-    };
-  } else if (getHC.status === 202) {
-    return {
-      props: {
-        user: user,
-        hc: getHC.data,
-      },
-    };
   } else {
     return {
       props: {
         user: user,
-        hc: null,
       },
     };
   }
 });
 
-export default function HCReport({ user, hc }) {
+export default function Input({ user }) {
   // begin of define column
   // const columns = useMemo(
   //   () => [
@@ -166,62 +146,19 @@ export default function HCReport({ user, hc }) {
   // );
   // end of define column
 
-  const styleHead =
-    "px-6 py-3 border-b border-gray-200 bg-gray-50 text-center font-medium text-gray-500 uppercase tracking-wider";
-  const styleData = "px-6 py-3 text-sm text-gray-500 font-normal";
-
   return (
     <>
-      <LayoutPage
-        session={user}
-        pageTitle="Health Check Report"
-        isShowNotif={false}
-      >
+      <LayoutPage session={user} pageTitle="Create Report" isShowNotif={false}>
         <LayoutPageHeader></LayoutPageHeader>
         <LayoutPageContent>
-          <section id="report-list-section">
+          <section id="create-list-section">
             {/* Page title & actions */}
-            <PageHeader title="Health Check Report"></PageHeader>
+            <PageHeader title="Create Health Check Report"></PageHeader>
 
-            {/* Recommendation Tables table (small breakpoint and up) */}
+            {/* CreateInput Report Tables table (small breakpoint and up) */}
             <div className="hidden sm:block mt-3">
               <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-                <table className="table-fixed">
-                  <thead>
-                    <tr className="border-t border-gray-200">
-                      <th className={styleHead}>No</th>
-                      <th className={styleHead}>Report Number</th>
-                      <th className={styleHead}>Application</th>
-                      <th className={styleHead}>Criticality</th>
-                      <th className={styleHead}>Function</th>
-                      <th className={styleHead}>Maker</th>
-                      <th className={styleHead}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-100">
-                    {hc.map((data) => {
-                      return (
-                        <tr key={`hc-data-${data.id}`}>
-                          <td className={styleData}>{data.id}</td>
-                          <td className={styleData}>
-                            {data.healthcheckNumber}
-                          </td>
-                          <td className={styleData}>{data.app.subName}</td>
-                          <td className={styleData}>
-                            {data.app.criticalityApp}
-                          </td>
-                          <td className={styleData}>
-                            {data.userGroup.groupName}
-                          </td>
-                          <td className={styleData}>
-                            {data.created_by.fullName}
-                          </td>
-                          <td className={styleData}>{data.status}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <h2>Blah Blah Blah Recommendasi</h2>
               </div>
             </div>
           </section>
