@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import format from "date-fns/format";
 import AsyncSelect from "react-select/async";
 import DatePicker from "components/ui/datepicker";
-import { PhotographIcon, DocumentAddIcon } from "@heroicons/react/solid";
+import { Input as InputTag, Tooltip as TooltipTag, Space } from "antd";
 
 import CreateInformation from "components/problems/CreateInformation";
 
@@ -20,6 +20,7 @@ import {
   LayoutPageContent,
   LayoutPageHeader,
 } from "components/layout/index";
+import { InputArch, InputDocument } from "components/healthcheck/InputFile";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -61,11 +62,6 @@ export default function InputHealthCheck({ user }) {
   const { errors, isSubmitting } = formState;
   const [enabled, setEnabled] = useState(false);
   const [spinner, setSpinner] = useState(false);
-  const [typeOptions, setTypeOptions] = useState([]);
-  const [sourceOptions, setSourceOptions] = useState([]);
-  const [urgencyOptions, setUrgencyOptions] = useState([]);
-  const [impactOptions, setImpactOptions] = useState([]);
-  const [followupOptions, setFollowupOptions] = useState([]);
   const router = useRouter();
 
   // Get Data Aplikasi Async
@@ -126,152 +122,93 @@ export default function InputHealthCheck({ user }) {
     );
   };
 
-  const [recommend, setRecommend] = useState(null);
-
-  const handleAppChange = async (event, { action }) => {
-    try {
-      if (action === "select-option") {
-        setApps(event.value);
-        const fetchRecommend = await fetch(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/apps/${event.value}`
-        );
-        let getRecommend = await fetchRecommend.json();
-        setRecommend(getRecommend);
-      } else {
-        setRecommend(null);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  // Get data urgency
-  useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`)
-      .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.urgency,
-        }));
-        setUrgencyOptions(data);
-      })
-      .catch((err) => toast.error(`Urgency ${err}`));
-  }, []);
-
-  // Get data Impact
-  useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`)
-      .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.impact,
-        }));
-        setImpactOptions(data);
-      })
-      .catch((err) => toast.error(`Impact ${err}`));
-  }, []);
-
-  // Get data Type
-  useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/type/all`)
-      .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.type,
-        }));
-        setTypeOptions(data);
-      })
-      .catch((err) => toast.error(`Type ${err}`));
-  }, []);
-
-  // Get data Source Problem
-  useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`)
-      .then((response) => {
-        const data = response.data.data
-          .filter((value) => {
-            return !value.label.startsWith("Incident");
-          })
-          .map((d) => ({
-            value: d.id,
-            label: d.label,
-          }));
-        setSourceOptions(data);
-      })
-      .catch((err) => toast.error(`Type ${err}`));
-  }, []);
-
-  // Get data Follow Up Plan
-  useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/followup/all`)
-      .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.label,
-        }));
-        setFollowupOptions(data);
-      })
-      .catch((err) => toast.error(`Type ${err}`));
-  }, []);
-
   // Ini dilakukan saat onSubmit
-  const createProblem = async (data, event) => {
-    event.preventDefault();
-    let checkFollowup = null;
-    if (event.target.idFollowup.value !== null) {
-      checkFollowup = parseInt(event.target.idFollowup.value);
-    } else if (event.target.idFollowup.value === null) {
-      checkFollowup = 4;
-    }
-    Object.assign(data, {
-      problemName: event.target.problemName.value,
-      jiraProblem: event.target.jiraProblem.value,
-      idApps: data.idApps.value,
-      idType: parseInt(event.target.idType.value),
-      idSource: parseInt(event.target.idSource.value),
-      idUrgency: parseInt(event.target.idUrgency.value),
-      idImpact: parseInt(event.target.idImpact.value),
-      idFollowup: checkFollowup,
-      assignedTo: user.id,
-      createdBy: user.id,
-    });
+  // const createProblem = async (data, event) => {
+  //   event.preventDefault();
+  //   let checkFollowup = null;
+  //   if (event.target.idFollowup.value !== null) {
+  //     checkFollowup = parseInt(event.target.idFollowup.value);
+  //   } else if (event.target.idFollowup.value === null) {
+  //     checkFollowup = 4;
+  //   }
+  //   Object.assign(data, {
+  //     problemName: event.target.problemName.value,
+  //     jiraProblem: event.target.jiraProblem.value,
+  //     idApps: data.idApps.value,
+  //     idType: parseInt(event.target.idType.value),
+  //     idSource: parseInt(event.target.idSource.value),
+  //     idUrgency: parseInt(event.target.idUrgency.value),
+  //     idImpact: parseInt(event.target.idImpact.value),
+  //     idFollowup: checkFollowup,
+  //     assignedTo: user.id,
+  //     createdBy: user.id,
+  //   });
 
-    setSpinner(true);
+  //   setSpinner(true);
 
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/create`, data, {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      })
-      .then(function (response) {
-        if (response.status === 201 || postProblem) {
-          toast.success("Problem Sucessfully Created");
-          setTimeout(
-            () => router.push(`/problem/${response.data.data.id}`),
-            1000
-          );
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          toast.error(
-            `${error.response.data.message} (Code: ${error.response.status})`
-          );
-        } else if (error.request) {
-          setSpinner(false);
-          toast.error(`Request: ${error.request}`);
-        } else {
-          setSpinner(false);
-          toast.error(`Message: ${error.message}`);
-        }
-      });
-  };
+  //   axios
+  //     .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/create`, data, {
+  //       headers: { Authorization: `Bearer ${user.accessToken}` },
+  //     })
+  //     .then(function (response) {
+  //       if (response.status === 201 || postProblem) {
+  //         toast.success("Problem Sucessfully Created");
+  //         setTimeout(
+  //           () => router.push(`/problem/${response.data.data.id}`),
+  //           1000
+  //         );
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       if (error.response) {
+  //         toast.error(
+  //           `${error.response.data.message} (Code: ${error.response.status})`
+  //         );
+  //       } else if (error.request) {
+  //         setSpinner(false);
+  //         toast.error(`Request: ${error.request}`);
+  //       } else {
+  //         setSpinner(false);
+  //         toast.error(`Message: ${error.message}`);
+  //       }
+  //     });
+  // };
 
   const [apps, setApps] = useState("");
+
+  // Coba Bikin Form Dinamis
+  const inputArr = [
+    {
+      type: "text",
+      id: 1,
+      value: "",
+    },
+  ];
+  const [arr, setArr] = useState(inputArr);
+
+  const addInput = () => {
+    setArr((s) => {
+      return [
+        ...s,
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    });
+  };
+
+  const handleAddForm = (e) => {
+    e.preventDefault();
+
+    const index = e.target.id;
+    setArr((s) => {
+      const newArr = s.slice();
+      newArr[index].value = e.target.value;
+
+      return newArr;
+    });
+  };
 
   return (
     <>
@@ -292,7 +229,8 @@ export default function InputHealthCheck({ user }) {
                         aria-labelledby="create-problem"
                         className="space-y-6 lg:col-start-1 lg:col-span-2"
                       >
-                        <form onSubmit={handleSubmit(createProblem)}>
+                        {/* <form onSubmit={handleSubmit(createProblem)}> */}
+                        <form>
                           <div className="bg-white shadow overflow-visible sm:rounded-lg static">
                             {/* First Row */}
                             <div className="grid grid-cols-6 gap-6 pt-6 px-6">
@@ -360,42 +298,23 @@ export default function InputHealthCheck({ user }) {
                                   Health Check Number
                                 </label>
                                 <div className="pt-1">
-                                  <textarea
-                                    id="problemName"
-                                    name="problemName"
-                                    {...register("problemName", {
-                                      required: "This is required!",
-                                      minLength: {
-                                        value: 10,
-                                        message:
-                                          "Please lengthen this text to 10 characters or more.",
-                                      },
-                                      maxLength: {
-                                        value: 60,
-                                        message:
-                                          "Please shorten this text to 60 characters or less.",
-                                      },
-                                    })}
-                                    rows={1}
+                                  <InputTag
+                                    allowClear
+                                    // onPressEnter={(e) =>
+                                    //   handleIRNumChange(e.target.value)
+                                    // }
+                                    // onChange={(e) =>
+                                    //   handleIRNumChange(e.target.value)
+                                    // }
+                                    placeholder="HC_-__/APP/AES/__"
                                     style={{
-                                      resize: "none",
+                                      borderRadius: "0.375rem",
+                                      height: "38px",
                                     }}
-                                    className={classNames(
-                                      errors.problemName
-                                        ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                        : "focus:ring-blue-500 focus:border-blue-500",
-                                      "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                    )}
-                                    placeholder="Problem Happening"
                                   />
-                                  {errors.problemName && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                      {errors.problemName.message}
-                                    </p>
-                                  )}
                                 </div>
                                 <p className="pt-2 text-sm text-gray-500">
-                                  Write a few sentences about problem.
+                                  Document numbering.
                                 </p>
                               </div>
 
@@ -430,89 +349,89 @@ export default function InputHealthCheck({ user }) {
                                   )}
                                 </div>
                                 <p className="pt-2 text-sm text-gray-500">
-                                  Write a few sentences about problem.
+                                  Date a document was created.
                                 </p>
                               </div>
                             </div>
 
                             {/* Third Row */}
-                            <div className="pt-6 px-6">
-                              <label className="block text-sm font-medium text-gray-700">
-                                List of IP Address
-                              </label>
-                              <div className="pt-1"></div>
+                            <div className="grid grid-cols-6 gap-6 pt-6 px-6">
+                              <div className="col-span-6 sm:col-span-3">
+                                <label className="block text-sm font-medium text-gray-700">
+                                  List of IP Address
+                                  <span
+                                    className="px-2 mx-2 text-xs font-semibold rounded-full bg-blue-100 text-gray-800"
+                                    onClick={addInput}
+                                  >
+                                    add
+                                  </span>
+                                </label>
+                                <div className="pt-1">
+                                  {/* <div> */}
+                                  {arr.map((item, i) => {
+                                    return (
+                                      <>
+                                        {/* <input
+                                          onChange={handleAddForm}
+                                          value={item.value}
+                                          id={i}
+                                          type={item.type}
+                                          size="40"
+                                        /> */}
+
+                                        <textarea
+                                          id={`ipAddress-${i}`}
+                                          onChange={handleAddForm}
+                                          // value={item.value}
+                                          // type={item.type}
+                                          name="ipAddress"
+                                          {...register("ipAddress", {
+                                            required: "This is required!",
+                                            minLength: {
+                                              value: 10,
+                                              message:
+                                                "Please lengthen this text to 10 characters or more.",
+                                            },
+                                            maxLength: {
+                                              value: 60,
+                                              message:
+                                                "Please shorten this text to 60 characters or less.",
+                                            },
+                                          })}
+                                          rows={1}
+                                          style={{
+                                            resize: "none",
+                                          }}
+                                          className={classNames(
+                                            errors.ipAddress
+                                              ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                              : "focus:ring-blue-500 focus:border-blue-500",
+                                            "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                          )}
+                                          placeholder="Server: Address"
+                                        />
+
+                                        {errors.ipAddress && (
+                                          <p className="mt-1 text-sm text-red-600">
+                                            {errors.ipAddress.message}
+                                          </p>
+                                        )}
+                                      </>
+                                    );
+                                  })}
+                                  {/* </div> */}
+                                </div>
+                              </div>
                             </div>
 
                             {/* Fourth Row */}
                             <div className="grid grid-cols-6 gap-6 pt-6 px-6">
                               <div className="col-span-6 sm:col-span-3">
-                                <label
-                                  htmlFor="cover-photo"
-                                  className="block text-sm font-medium text-gray-700"
-                                >
-                                  Topology Architecture
-                                </label>
-                                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                                  <div className="text-center">
-                                    <PhotographIcon
-                                      className="mx-auto h-12 w-12 text-gray-300"
-                                      aria-hidden="true"
-                                    />
-                                    <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                      <label
-                                        htmlFor="file-upload"
-                                        className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                                      >
-                                        <span>Upload a file</span>
-                                        <input
-                                          id="file-upload"
-                                          name="file-upload"
-                                          type="file"
-                                          className="sr-only"
-                                        />
-                                      </label>
-                                      <p className="pl-1">or drag and drop</p>
-                                    </div>
-                                    <p className="text-xs leading-5 text-gray-600">
-                                      PNG, JPG, GIF up to 10MB
-                                    </p>
-                                  </div>
-                                </div>
+                                <InputArch />
                               </div>
 
                               <div className="col-span-6 sm:col-span-3">
-                                <label
-                                  htmlFor="cover-photo"
-                                  className="block text-sm font-medium text-gray-700"
-                                >
-                                  Document
-                                </label>
-                                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                                  <div className="text-center">
-                                    <DocumentAddIcon
-                                      className="mx-auto h-12 w-12 text-gray-300"
-                                      aria-hidden="true"
-                                    />
-                                    <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                      <label
-                                        htmlFor="file-upload"
-                                        className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                                      >
-                                        <span>Upload a file</span>
-                                        <input
-                                          id="file-upload"
-                                          name="file-upload"
-                                          type="file"
-                                          className="sr-only"
-                                        />
-                                      </label>
-                                      <p className="pl-1">or drag and drop</p>
-                                    </div>
-                                    <p className="text-xs leading-5 text-gray-600">
-                                      PNG, JPG, GIF up to 10MB
-                                    </p>
-                                  </div>
-                                </div>
+                                <InputDocument />
                               </div>
                             </div>
 
