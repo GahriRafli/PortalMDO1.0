@@ -294,7 +294,7 @@ export default function Home({ user, statsIncidentData }) {
               <div className="col-span-1 lg:col-span-2 xxl:col-span-2">
                 <Card>
                   <Flex>
-                    <Title>Top 5 Incident</Title>
+                    <Title>Top 5 Incident By Application</Title>
                     {chart.top5App.loading && <DotBlink />}
                   </Flex>
                   <div className="mt-6"></div>
@@ -317,7 +317,9 @@ export default function Home({ user, statsIncidentData }) {
               <div className="col-span-1 lg:col-span-3 xxl:col-span-3">
                 <Card>
                   <Flex>
-                    <Title className="w-full">Incident By Type</Title>
+                    <Title className="w-full">
+                      Total Incident By Incident Type
+                    </Title>
                     {chart.totalIncidentByType.loading && <DotBlink />}
                   </Flex>
                   <AreaChart
@@ -350,7 +352,9 @@ export default function Home({ user, statsIncidentData }) {
               <div className="col-span-1 lg:col-span-3 xxl:col-span-3">
                 <Card>
                   <Flex>
-                    <Title className="w-full">Incident By Category</Title>
+                    <Title className="w-full">
+                      Total Incident By Category System
+                    </Title>
                     {chart.totalIncidentByType.loading && <DotBlink />}
                   </Flex>
                   <AreaChart
@@ -439,7 +443,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   };
 
-  res = await fetch(`${myApi.url}/dashboards/1/report`, {
+  res = await fetch(`${myApi.urlv2}/dashboards/incident-open`, {
     headers: myApi.headers,
   });
   const statsIncidentData = await res.json();
