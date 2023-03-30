@@ -1,8 +1,7 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { HeartIcon } from "@heroicons/react/outline";
-import CellResult from "./CellResult";
-import CellMetric from "./CellMetric";
+import { CellMetric, CellResult } from "./Cell";
 import HCTabs from "./HCTabs";
 
 const styleHead =
