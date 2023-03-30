@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { styledReactSelect, styledReactSelectAdd } from "components/utils";
+import { styledReactSelectAdd } from "components/utils";
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
 import { toast } from "react-hot-toast";
@@ -9,10 +9,6 @@ import { useRouter } from "next/router";
 import format from "date-fns/format";
 import AsyncSelect from "react-select/async";
 import DatePicker from "components/ui/datepicker";
-import { Input as InputTag, Tooltip as TooltipTag, Space } from "antd";
-
-import CreateInformation from "components/problems/CreateInformation";
-
 import PageHeader from "../../components/problems/ProblemHeader";
 import withSession from "../../lib/session";
 import {
@@ -21,6 +17,10 @@ import {
   LayoutPageHeader,
 } from "components/layout/index";
 import { InputArch, InputDocument } from "components/healthcheck/InputFile";
+import MetricsOne from "components/healthcheck/MetricsOne";
+import MetricsTwo from "components/healthcheck/MetricsTwo";
+import MetricsThree from "components/healthcheck/MetricsThree";
+import MetricsFour from "components/healthcheck/MetricsFour";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -122,91 +122,33 @@ export default function InputHealthCheck({ user }) {
     );
   };
 
-  // Ini dilakukan saat onSubmit
-  // const createProblem = async (data, event) => {
-  //   event.preventDefault();
-  //   let checkFollowup = null;
-  //   if (event.target.idFollowup.value !== null) {
-  //     checkFollowup = parseInt(event.target.idFollowup.value);
-  //   } else if (event.target.idFollowup.value === null) {
-  //     checkFollowup = 4;
-  //   }
-  //   Object.assign(data, {
-  //     problemName: event.target.problemName.value,
-  //     jiraProblem: event.target.jiraProblem.value,
-  //     idApps: data.idApps.value,
-  //     idType: parseInt(event.target.idType.value),
-  //     idSource: parseInt(event.target.idSource.value),
-  //     idUrgency: parseInt(event.target.idUrgency.value),
-  //     idImpact: parseInt(event.target.idImpact.value),
-  //     idFollowup: checkFollowup,
-  //     assignedTo: user.id,
-  //     createdBy: user.id,
-  //   });
-
-  //   setSpinner(true);
-
-  //   axios
-  //     .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/create`, data, {
-  //       headers: { Authorization: `Bearer ${user.accessToken}` },
-  //     })
-  //     .then(function (response) {
-  //       if (response.status === 201 || postProblem) {
-  //         toast.success("Problem Sucessfully Created");
-  //         setTimeout(
-  //           () => router.push(`/problem/${response.data.data.id}`),
-  //           1000
-  //         );
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       if (error.response) {
-  //         toast.error(
-  //           `${error.response.data.message} (Code: ${error.response.status})`
-  //         );
-  //       } else if (error.request) {
-  //         setSpinner(false);
-  //         toast.error(`Request: ${error.request}`);
-  //       } else {
-  //         setSpinner(false);
-  //         toast.error(`Message: ${error.message}`);
-  //       }
-  //     });
-  // };
-
   const [apps, setApps] = useState("");
 
-  // Coba Bikin Form Dinamis
-  const inputArr = [
-    {
-      type: "text",
-      id: 1,
-      value: "",
-    },
-  ];
-  const [arr, setArr] = useState(inputArr);
-
-  const addInput = () => {
-    setArr((s) => {
-      return [
-        ...s,
-        {
-          type: "text",
-          value: "",
-        },
-      ];
-    });
-  };
-
-  const handleAddForm = (e) => {
-    e.preventDefault();
-
-    const index = e.target.id;
-    setArr((s) => {
-      const newArr = s.slice();
-      newArr[index].value = e.target.value;
-
-      return newArr;
+  const createHealthCheck = async (data, event) => {
+    event.preventDefault();
+    let mecahBaris = event.target.ipAddress.value.split("\n");
+    console.log({
+      app: data.idApps.value,
+      function: data.idFunction.value,
+      hcNumber: event.target.hcNumber.value,
+      dayDate: event.target.dayDate.value,
+      ipAddress: mecahBaris,
+      arch: {
+        description: event.target.archDesc.value,
+        result: event.target.archResult.value,
+      },
+      monitoring: {
+        description: event.target.monitoringDesc.value,
+        result: event.target.monitoringResult.value,
+      },
+      version: {
+        description: event.target.versionDesc.value,
+        result: event.target.versionResult.value,
+      },
+      connection: {
+        description: event.target.connectionDesc.value,
+        result: event.target.connectionResult.value,
+      },
     });
   };
 
@@ -229,10 +171,20 @@ export default function InputHealthCheck({ user }) {
                         aria-labelledby="create-problem"
                         className="space-y-6 lg:col-start-1 lg:col-span-2"
                       >
-                        {/* <form onSubmit={handleSubmit(createProblem)}> */}
-                        <form>
+                        <form onSubmit={handleSubmit(createHealthCheck)}>
                           <div className="bg-white shadow overflow-visible sm:rounded-lg static">
                             {/* First Row */}
+                            <div
+                              className="py-2 px-6 bg-green-200"
+                              style={{
+                                borderTopLeftRadius: "0.5rem",
+                                borderTopRightRadius: "0.5rem",
+                              }}
+                            >
+                              <label className="block text-lg font-medium text-green-500">
+                                General Information
+                              </label>
+                            </div>
                             <div className="grid grid-cols-6 gap-6 pt-6 px-6">
                               <div className="col-span-6 sm:col-span-3">
                                 <label className="block text-sm font-medium text-gray-700">
@@ -241,7 +193,7 @@ export default function InputHealthCheck({ user }) {
                                 <Controller
                                   name="idApps"
                                   control={control}
-                                  rules={{ required: "This is required" }}
+                                  // rules={{ required: "This is required" }}
                                   render={({ field }) => (
                                     <AsyncSelect
                                       {...field}
@@ -269,7 +221,7 @@ export default function InputHealthCheck({ user }) {
                                 <Controller
                                   name="idFunction"
                                   control={control}
-                                  rules={{ required: "This is required" }}
+                                  // rules={{ required: "This is required" }}
                                   render={({ field }) => (
                                     <AsyncSelect
                                       {...field}
@@ -297,22 +249,28 @@ export default function InputHealthCheck({ user }) {
                                 <label className="block text-sm font-medium text-gray-700">
                                   Health Check Number
                                 </label>
-                                <div className="pt-1">
-                                  <InputTag
-                                    allowClear
-                                    // onPressEnter={(e) =>
-                                    //   handleIRNumChange(e.target.value)
-                                    // }
-                                    // onChange={(e) =>
-                                    //   handleIRNumChange(e.target.value)
-                                    // }
-                                    placeholder="HC_-__/APP/AES/__"
-                                    style={{
-                                      borderRadius: "0.375rem",
-                                      height: "38px",
-                                    }}
-                                  />
-                                </div>
+                                <textarea
+                                  name="hcNumber"
+                                  {...register("hcNumber", {
+                                    // required: "This is required!",
+                                  })}
+                                  rows={1}
+                                  style={{
+                                    resize: "none",
+                                  }}
+                                  className={classNames(
+                                    errors.hcNumber
+                                      ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                      : "focus:ring-blue-500 focus:border-blue-500",
+                                    "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                  )}
+                                  placeholder="HC_-__/APP/AES/__"
+                                />
+                                {errors.hcNumber && (
+                                  <p className="mt-1 text-sm text-red-600">
+                                    {errors.hcNumber.message}
+                                  </p>
+                                )}
                                 <p className="pt-2 text-sm text-gray-500">
                                   Document numbering.
                                 </p>
@@ -325,12 +283,11 @@ export default function InputHealthCheck({ user }) {
                                 <div className="pt-1">
                                   <Controller
                                     control={control}
-                                    rules={{ required: "This is required" }}
-                                    name="dayDate"
+                                    // rules={{ required: "This is required" }}
                                     render={({ field }) => (
                                       <DatePicker
                                         allowClear
-                                        // showTime={{ format: "HH:mm" }}
+                                        name="dayDate"
                                         format="d MMMM yyyy"
                                         onChange={(e) => field.onChange(e)}
                                         value={field.value}
@@ -342,9 +299,9 @@ export default function InputHealthCheck({ user }) {
                                       />
                                     )}
                                   />
-                                  {errors.problemName && (
+                                  {errors.dayDate && (
                                     <p className="mt-1 text-sm text-red-600">
-                                      {errors.problemName.message}
+                                      {errors.dayDate.message}
                                     </p>
                                   )}
                                 </div>
@@ -359,67 +316,33 @@ export default function InputHealthCheck({ user }) {
                               <div className="col-span-6 sm:col-span-3">
                                 <label className="block text-sm font-medium text-gray-700">
                                   List of IP Address
-                                  <span
-                                    className="px-2 mx-2 text-xs font-semibold rounded-full bg-blue-100 text-gray-800"
-                                    onClick={addInput}
-                                  >
-                                    add
-                                  </span>
                                 </label>
                                 <div className="pt-1">
-                                  {/* <div> */}
-                                  {arr.map((item, i) => {
-                                    return (
-                                      <>
-                                        {/* <input
-                                          onChange={handleAddForm}
-                                          value={item.value}
-                                          id={i}
-                                          type={item.type}
-                                          size="40"
-                                        /> */}
-
-                                        <textarea
-                                          id={`ipAddress-${i}`}
-                                          onChange={handleAddForm}
-                                          // value={item.value}
-                                          // type={item.type}
-                                          name="ipAddress"
-                                          {...register("ipAddress", {
-                                            required: "This is required!",
-                                            minLength: {
-                                              value: 10,
-                                              message:
-                                                "Please lengthen this text to 10 characters or more.",
-                                            },
-                                            maxLength: {
-                                              value: 60,
-                                              message:
-                                                "Please shorten this text to 60 characters or less.",
-                                            },
-                                          })}
-                                          rows={1}
-                                          style={{
-                                            resize: "none",
-                                          }}
-                                          className={classNames(
-                                            errors.ipAddress
-                                              ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                              : "focus:ring-blue-500 focus:border-blue-500",
-                                            "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                          )}
-                                          placeholder="Server: Address"
-                                        />
-
-                                        {errors.ipAddress && (
-                                          <p className="mt-1 text-sm text-red-600">
-                                            {errors.ipAddress.message}
-                                          </p>
-                                        )}
-                                      </>
-                                    );
-                                  })}
-                                  {/* </div> */}
+                                  <textarea
+                                    name="ipAddress"
+                                    // {...register("idAddress", {
+                                    //   required: "This is required!",
+                                    // })}
+                                    rows={3}
+                                    style={{
+                                      resize: "vertical",
+                                    }}
+                                    className={classNames(
+                                      errors.ipAddress
+                                        ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                        : "focus:ring-blue-500 focus:border-blue-500",
+                                      "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                    )}
+                                    placeholder="Server: Address"
+                                  />
+                                  {errors.ipAddress && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                      {errors.ipAddress.message}
+                                    </p>
+                                  )}
+                                  <p className="pt-2 text-sm text-gray-500">
+                                    Use 'enter' to separate server.
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -434,6 +357,38 @@ export default function InputHealthCheck({ user }) {
                                 <InputDocument />
                               </div>
                             </div>
+
+                            {/* Fifth Row */}
+                            <div className="mt-4 py-2 px-6 bg-blue-200">
+                              <label className="block text-lg font-medium text-blue-500">
+                                Configuration and Monitoring Tools
+                              </label>
+                            </div>
+                            <MetricsOne />
+
+                            {/* Sixth Row */}
+                            <div className="mt-4 py-2 px-6 bg-blue-200">
+                              <label className="block text-lg font-medium text-blue-500">
+                                Performance Efficiency
+                              </label>
+                            </div>
+                            <MetricsTwo />
+
+                            {/* Seventh Row */}
+                            <div className="mt-4 py-2 px-6 bg-blue-200">
+                              <label className="block text-lg font-medium text-blue-500">
+                                Resource Utilization
+                              </label>
+                            </div>
+                            <MetricsThree />
+
+                            {/* Eighth Row */}
+                            <div className="mt-4 py-2 px-6 bg-blue-200">
+                              <label className="block text-lg font-medium text-blue-500">
+                                Reliability Measures
+                              </label>
+                            </div>
+                            <MetricsFour />
 
                             {/* Footer Section */}
                             <div className="py-6 pr-6">
@@ -453,9 +408,9 @@ export default function InputHealthCheck({ user }) {
                                       : null,
                                     "ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                   )}
-                                  disabled={spinner}
+                                  // disabled={spinner}
                                 >
-                                  {spinner && <Spinner />}
+                                  {/* {spinner && <Spinner />} */}
                                   Submit
                                 </button>
                               </div>
@@ -465,12 +420,12 @@ export default function InputHealthCheck({ user }) {
                       </section>
                     </div>
 
-                    <section
+                    {/* <section
                       aria-labelledby="problem-create-info"
                       className="lg:col-start-3 lg:col-span-1"
                     >
                       <CreateInformation />
-                    </section>
+                    </section> */}
                   </div>
                 </>
               </div>
