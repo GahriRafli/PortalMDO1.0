@@ -98,11 +98,11 @@ export default function AssignList({ user, assign }) {
                     })
                   : "Multiple Incident"}{" "}
                 |
-                <text className="text-gray-600 hover:text-gray-900">
+                <span className="text-gray-600 hover:text-gray-900">
                   {props.row.original.problemNumber != null
                     ? ` ${props.row.original.problemNumber}`
                     : " -"}
-                </text>
+                </span>
               </div>
               <div className="text-base text-gray-900">
                 <a

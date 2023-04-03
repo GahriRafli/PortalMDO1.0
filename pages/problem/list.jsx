@@ -243,11 +243,11 @@ export default function ProblemList({ user, problems, countAssign }) {
                     })
                   : "Multiple Incident"}{" "}
                 |
-                <text className="text-gray-600 hover:text-gray-900">
+                <span className="text-gray-600 hover:text-gray-900">
                   {props.row.original.problemNumber != null
                     ? ` ${props.row.original.problemNumber}`
                     : " -"}
-                </text>
+                </span>
               </div>
               <div className="text-base text-gray-900 font-medium">
                 <a
