@@ -127,28 +127,101 @@ export default function InputHealthCheck({ user }) {
   const createHealthCheck = async (data, event) => {
     event.preventDefault();
     let mecahBaris = event.target.ipAddress.value.split("\n");
-    console.log({
-      app: data.idApps.value,
-      function: data.idFunction.value,
-      hcNumber: event.target.hcNumber.value,
+    const cobaKirim = {
+      idApps: data.idApps.value,
+      idFunction: data.idFunction.value,
+      healthcheckNumber: event.target.hcNumber.value,
       dayDate: event.target.dayDate.value,
       ipAddress: mecahBaris,
+      appendix: null,
+      createdBy: user.id,
       arch: {
+        idMetric: 1,
+        idSubmetric: 1,
         description: event.target.archDesc.value,
         result: event.target.archResult.value,
       },
       monitoring: {
+        idMetric: 1,
+        idSubmetric: 2,
         description: event.target.monitoringDesc.value,
         result: event.target.monitoringResult.value,
       },
       version: {
+        idMetric: 1,
+        idSubmetric: 3,
         description: event.target.versionDesc.value,
         result: event.target.versionResult.value,
       },
       connection: {
+        idMetric: 1,
+        idSubmetric: 4,
         description: event.target.connectionDesc.value,
         result: event.target.connectionResult.value,
       },
+      percentileResponse: {
+        idMetric: 2,
+        idSubmetric: 5,
+        description: event.target.percentileResponseDesc.value,
+        result: event.target.percentileResponseResult.value,
+      },
+      adequacyResponse: {
+        idMetric: 2,
+        idSubmetric: 6,
+        description: event.target.adequacyResponseDesc.value,
+        result: event.target.adequacyResponseResult.value,
+      },
+      throughput: {
+        idMetric: 2,
+        idSubmetric: 7,
+        description: event.target.throughputDesc.value,
+        result: event.target.throughputResult.value,
+      },
+      processorUtil: {
+        idMetric: 3,
+        idSubmetric: 8,
+        description: event.target.processorUtilDesc.value,
+        result: event.target.processorUtilResult.value,
+      },
+      memoryUtil: {
+        idMetric: 3,
+        idSubmetric: 9,
+        description: event.target.memoryUtilDesc.value,
+        result: event.target.memoryUtilResult.value,
+      },
+      ioDevices: {
+        idMetric: 3,
+        idSubmetric: 10,
+        description: event.target.ioDevicesDesc.value,
+        result: event.target.ioDevicesResult.value,
+      },
+      bandwidthUtil: {
+        idMetric: 3,
+        idSubmetric: 11,
+        description: event.target.bandwidthUtilDesc.value,
+        result: event.target.bandwidthUtilResult.value,
+      },
+      successRate: {
+        idMetric: 4,
+        idSubmetric: 12,
+        description: event.target.successRateDesc.value,
+        result: event.target.successRateResult.value,
+      },
+      mtbf: {
+        idMetric: 4,
+        idSubmetric: 13,
+        description: event.target.mtbfDesc.value,
+        result: event.target.mtbfResult.value,
+      },
+      availability: {
+        idMetric: 4,
+        idSubmetric: 14,
+        description: event.target.availabilityDesc.value,
+        result: event.target.availabilityResult.value,
+      },
+    };
+    axios.post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/create`, cobaKirim, {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
     });
   };
 
@@ -171,7 +244,8 @@ export default function InputHealthCheck({ user }) {
                         aria-labelledby="create-problem"
                         className="space-y-6 lg:col-start-1 lg:col-span-2"
                       >
-                        <form onSubmit={handleSubmit(createHealthCheck)}>
+                        {/* <form onSubmit={handleSubmit(createHealthCheck)}> */}
+                        <form>
                           <div className="bg-white shadow overflow-visible sm:rounded-lg static">
                             {/* First Row */}
                             <div
@@ -401,12 +475,12 @@ export default function InputHealthCheck({ user }) {
                                   Cancel
                                 </button>
                                 <button
-                                  type="submit"
+                                  type="button"
                                   className={classNames(
                                     spinner
                                       ? "px-4 disabled:opacity-50 cursor-not-allowed"
                                       : null,
-                                    "ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    "ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-not-allowed"
                                   )}
                                   // disabled={spinner}
                                 >

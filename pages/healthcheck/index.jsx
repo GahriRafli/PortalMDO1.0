@@ -199,7 +199,7 @@ export default function HCReport({ user, hc }) {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
-                    {hc.map((data) => {
+                    {/* {hc.map((data) => {
                       return (
                         <tr key={`hc-data-${data.id}`}>
                           <td className={styleData}>{data.id}</td>
@@ -219,7 +219,7 @@ export default function HCReport({ user, hc }) {
                           <td className={styleData}>{data.status}</td>
                         </tr>
                       );
-                    })}
+                    })} */}
                   </tbody>
                 </table>
               </div>
