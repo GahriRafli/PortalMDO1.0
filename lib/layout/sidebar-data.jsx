@@ -3,6 +3,7 @@ import {
   HomeIcon,
   ShieldCheckIcon,
   FireIcon,
+  ClipboardCheckIcon,
   ChatAlt2Icon,
   ViewGridIcon,
 } from "@heroicons/react/solid";
@@ -57,6 +58,23 @@ export const navigation = [
       {
         name: "Known Error",
         href: "/problem/knownerror",
+        permission: "all",
+      },
+    ],
+  },
+  {
+    name: "Health Check",
+    icon: ClipboardCheckIcon,
+    href: "/healthcheck",
+    children: [
+      {
+        name: "Create",
+        href: "/healthcheck/create",
+        permission: "all",
+      },
+      {
+        name: "Report",
+        href: "/healthcheck",
         permission: "all",
       },
     ],
