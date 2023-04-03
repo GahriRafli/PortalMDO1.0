@@ -32,7 +32,7 @@ import {
 } from "@tremor/react";
 import { DotBlink } from "components/ui/svg/spinner";
 
-export default function Home({ user, statsIncidentData }) {
+export default function Home({ user, statsIncidentData, statsProblemData }) {
   const cards = [
     {
       name: "Incidents Open",
@@ -41,10 +41,10 @@ export default function Home({ user, statsIncidentData }) {
       value: statsIncidentData.data.jumlah,
     },
     {
-      name: "Problem Management",
+      name: "Problem Needs Review",
       href: "/problem",
       icon: FireIcon,
-      value: 0,
+      value: statsProblemData,
     },
     {
       name: "Ticket Open",
@@ -448,11 +448,17 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   });
   const statsIncidentData = await res.json();
 
+  const fetchProblemData = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
+  );
+  const statsProblemData = await fetchProblemData.json();
+
   if (res.status === 200) {
     return {
       props: {
         user: req.session.get("user"),
         statsIncidentData: statsIncidentData,
+        statsProblemData: statsProblemData.data,
       },
     };
   }
