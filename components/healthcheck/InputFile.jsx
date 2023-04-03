@@ -4,7 +4,7 @@ const InputArch = () => {
   return (
     <>
       <label
-        htmlFor="cover-photo"
+        htmlFor="topologyArch"
         className="block text-sm font-medium text-gray-700"
       >
         Topology Architecture
@@ -17,16 +17,16 @@ const InputArch = () => {
           />
           <div className="mt-4 flex text-sm leading-6 text-gray-600">
             <label
-              htmlFor="file-upload"
+              htmlFor="topologyArch"
               className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
             >
               <span>Upload a file</span>
-              <input
-                id="file-upload"
-                name="file-upload"
-                type="file"
+              {/* <input
+                id="topologyArch"
+                name="topologyArch"
+                type="image"
                 className="sr-only"
-              />
+              /> */}
             </label>
             <p className="pl-1">or drag and drop</p>
           </div>
@@ -42,7 +42,7 @@ const InputDocument = () => {
   return (
     <>
       <label
-        htmlFor="cover-photo"
+        htmlFor="appendixFile"
         className="block text-sm font-medium text-gray-700"
       >
         Document
@@ -55,16 +55,16 @@ const InputDocument = () => {
           />
           <div className="mt-4 flex text-sm leading-6 text-gray-600">
             <label
-              htmlFor="file-upload"
+              htmlFor="appendixFile"
               className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
             >
               <span>Upload a file</span>
-              <input
-                id="file-upload"
-                name="file-upload"
+              {/* <input
+                id="appendixFile"
+                name="appendixFile"
                 type="file"
                 className="sr-only"
-              />
+              /> */}
             </label>
             <p className="pl-1">or drag and drop</p>
           </div>

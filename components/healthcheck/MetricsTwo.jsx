@@ -40,40 +40,34 @@ const MetricsTwo = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
+            id="percentileResponseDesc"
+            name="percentileResponseDesc"
+            {...register("percentileResponseDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.percentileResponseDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.percentileResponseDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.percentileResponseDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="percentileResponseResult"
+            name="percentileResponseResult"
             isDisabled={false}
             options={selectResult}
             isClearable
@@ -92,40 +86,34 @@ const MetricsTwo = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
+            id="adequacyResponseDesc"
+            name="adequacyResponseDesc"
+            {...register("adequacyResponseDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.adequacyResponseDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.adequacyResponseDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.adequacyResponseDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="adequacyResponseResult"
+            name="adequacyResponseResult"
             isDisabled={false}
             options={selectResult}
             isClearable
@@ -144,40 +132,34 @@ const MetricsTwo = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
+            id="throughputDesc"
+            name="throughputDesc"
+            {...register("throughputDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.throughputDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.throughputDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.throughputDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="throughputResult"
+            name="throughputResult"
             isDisabled={false}
             options={selectResult}
             isClearable

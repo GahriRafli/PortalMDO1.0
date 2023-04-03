@@ -40,40 +40,34 @@ const MetricsFour = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
-              required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
+            id="successRateDesc"
+            name="successRateDesc"
+            {...register("successRateDesc", {
+              // required: "This is required!",
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.successRateDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.successRateDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.successRateDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="successRateResult"
+            name="successRateResult"
             isDisabled={false}
             options={selectResult}
             isClearable
@@ -90,40 +84,34 @@ const MetricsFour = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
-              required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
+            id="mtbfDesc"
+            name="mtbfDesc"
+            {...register("mtbfDesc", {
+              // required: "This is required!",
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.mtbfDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.mtbfDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.mtbfDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="mtbfResult"
+            name="mtbfResult"
             isDisabled={false}
             options={selectResult}
             isClearable
@@ -142,40 +130,34 @@ const MetricsFour = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
-              required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
+            id="availabilityDesc"
+            name="availabilityDesc"
+            {...register("availabilityDesc", {
+              // required: "This is required!",
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.availabilityDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.availabilityDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.availabilityDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="availabilityResult"
+            name="availabilityResult"
             isDisabled={false}
             options={selectResult}
             isClearable

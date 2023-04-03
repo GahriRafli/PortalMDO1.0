@@ -40,40 +40,34 @@ const MetricsThree = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
+            id="processorUtilDesc"
+            name="processorUtilDesc"
+            {...register("processorUtilDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.processorUtilDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.processorUtilDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.processorUtilDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="processorUtilResult"
+            name="processorUtilResult"
             isDisabled={false}
             options={selectResult}
             isClearable
@@ -92,40 +86,34 @@ const MetricsThree = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
+            id="memoryUtilDesc"
+            name="memoryUtilDesc"
+            {...register("memoryUtilDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.memoryUtilDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.memoryUtilDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.memoryUtilDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="memoryUtilResult"
+            name="memoryUtilResult"
             isDisabled={false}
             options={selectResult}
             isClearable
@@ -144,40 +132,32 @@ const MetricsThree = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
+            name="ioDevicesDesc"
+            {...register("ioDevicesDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.ioDevicesDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.ioDevicesDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.ioDevicesDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            name="ioDevicesResult"
             isDisabled={false}
             options={selectResult}
             isClearable
@@ -196,40 +176,34 @@ const MetricsThree = () => {
 
         <div className="col-span-2">
           <textarea
-            id="problemName"
-            name="problemName"
-            {...register("problemName", {
+            id="bandwidthUtilDesc"
+            name="bandwidthUtilDesc"
+            {...register("bandwidthUtilDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
               resize: "vertical",
             }}
             className={classNames(
-              errors.problemName
+              errors.bandwidthUtilDesc
                 ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                 : "focus:ring-blue-500 focus:border-blue-500",
               "shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"
             )}
             placeholder="Result Description"
           />
-          {errors.problemName && (
+          {errors.bandwidthUtilDesc && (
             <p className="mt-1 text-sm text-red-600">
-              {errors.problemName.message}
+              {errors.bandwidthUtilDesc.message}
             </p>
           )}
         </div>
 
         <div className="">
           <ReactSelect
+            id="bandwidthUtilResult"
+            name="bandwidthUtilResult"
             isDisabled={false}
             options={selectResult}
             isClearable

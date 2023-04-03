@@ -40,17 +40,10 @@ const MetricsOne = () => {
 
         <div className="col-span-2">
           <textarea
+            id="archDesc"
             name="archDesc"
             {...register("archDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
@@ -73,6 +66,7 @@ const MetricsOne = () => {
 
         <div className="">
           <ReactSelect
+            id="archResult"
             name="archResult"
             isDisabled={false}
             options={selectResult}
@@ -92,17 +86,10 @@ const MetricsOne = () => {
 
         <div className="col-span-2">
           <textarea
+            id="monitoringDesc"
             name="monitoringDesc"
             {...register("monitoringDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
@@ -125,6 +112,7 @@ const MetricsOne = () => {
 
         <div className="">
           <ReactSelect
+            id="monitoringResult"
             name="monitoringResult"
             isDisabled={false}
             options={selectResult}
@@ -144,17 +132,10 @@ const MetricsOne = () => {
 
         <div className="col-span-2">
           <textarea
+            id="versionDesc"
             name="versionDesc"
             {...register("versionDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
@@ -177,6 +158,7 @@ const MetricsOne = () => {
 
         <div className="">
           <ReactSelect
+            id="versionResult"
             name="versionResult"
             isDisabled={false}
             options={selectResult}
@@ -196,17 +178,10 @@ const MetricsOne = () => {
 
         <div className="col-span-2">
           <textarea
+            id="connectionDesc"
             name="connectionDesc"
             {...register("connectionDesc", {
               required: "This is required!",
-              minLength: {
-                value: 10,
-                message: "Please lengthen this text to 10 characters or more.",
-              },
-              maxLength: {
-                value: 60,
-                message: "Please shorten this text to 60 characters or less.",
-              },
             })}
             rows={1}
             style={{
@@ -229,6 +204,7 @@ const MetricsOne = () => {
 
         <div className="">
           <ReactSelect
+            id="connectionResult"
             name="connectionResult"
             isDisabled={false}
             options={selectResult}

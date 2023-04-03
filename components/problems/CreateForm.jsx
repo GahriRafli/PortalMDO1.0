@@ -515,7 +515,7 @@ const CreateForm = ({ user }) => {
           className="lg:col-start-3 lg:col-span-1"
         >
           <CreateInformation />
-          {recommend != null ? (
+          {recommend !== null && recommend.status == 200 ? (
             <HCInformation data={recommend.data} />
           ) : (
             <div className="py-4">
