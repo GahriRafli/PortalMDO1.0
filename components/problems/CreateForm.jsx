@@ -81,11 +81,11 @@ const CreateForm = ({ user }) => {
     try {
       if (action === "select-option") {
         setApps(event.value);
-        const fetchRecommend = await fetch(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/apps/${event.value}`
-        );
-        let getRecommend = await fetchRecommend.json();
-        setRecommend(getRecommend);
+        // const fetchRecommend = await fetch(
+        //   `${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/apps/${event.value}`
+        // );
+        // let getRecommend = await fetchRecommend.json();
+        // setRecommend(getRecommend);
       } else {
         setRecommend(null);
       }
@@ -515,7 +515,7 @@ const CreateForm = ({ user }) => {
           className="lg:col-start-3 lg:col-span-1"
         >
           <CreateInformation />
-          {recommend !== null && recommend.status == 200 ? (
+          {/* {recommend !== null && recommend.status == 200 ? (
             <HCInformation data={recommend.data} />
           ) : (
             <div className="py-4">
@@ -523,7 +523,12 @@ const CreateForm = ({ user }) => {
                 No Data Health Check Recommendation
               </div>
             </div>
-          )}
+          )} */}
+          <div className="py-4">
+            <div className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+              No Data Health Check Recommendation
+            </div>
+          </div>
         </section>
       </div>
     </>
