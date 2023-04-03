@@ -29,10 +29,17 @@ import {
   DateRangePicker,
   DonutChart,
   Legend,
+  Divider,
+  Metric,
 } from "@tremor/react";
 import { DotBlink } from "components/ui/svg/spinner";
 
-export default function Home({ user, statsIncidentData, statsProblemData }) {
+export default function Home({
+  user,
+  statsIncidentData,
+  totalIncident,
+  statsProblemData,
+}) {
   const cards = [
     {
       name: "Incidents Open",
@@ -55,7 +62,7 @@ export default function Home({ user, statsIncidentData, statsProblemData }) {
   ];
 
   const [datePickerValue, setDatePickerValue] = useState([
-    new Date(2022, 0, 1),
+    new Date(2023, 0, 1),
     new Date(),
   ]);
 
@@ -156,29 +163,17 @@ export default function Home({ user, statsIncidentData, statsProblemData }) {
               value: d.jumlahIncident,
             }));
 
-            const IncidentByTypeLegend =
-              totalIncidentByType.data.length > 0
-                ? Object.keys(totalIncidentByType.data[0])
-                : [];
-            IncidentByTypeLegend.shift();
-
-            const IncidentByCategoryLegend =
-              totalIncidentByCategory.data.length > 0
-                ? Object.keys(totalIncidentByCategory.data[0])
-                : [];
-            IncidentByCategoryLegend.shift();
-
             updateChart({
               totalIncident: { data: totalIncident.data, loading: false },
               totalIncidentByType: {
                 data: totalIncidentByType.data,
                 loading: false,
-                categories: IncidentByTypeLegend,
+                categories: totalIncidentByType.dataCategories,
               },
               totalIncidentByCategory: {
                 data: totalIncidentByCategory.data,
                 loading: false,
-                categories: IncidentByCategoryLegend,
+                categories: totalIncidentByCategory.dataCategories,
               },
               averageDetect: { data: averageDetect.data, loading: false },
               averageResolved: { data: averageResolved.data, loading: false },
@@ -297,7 +292,9 @@ export default function Home({ user, statsIncidentData, statsProblemData }) {
                     <Title>Top 5 Incident By Application</Title>
                     {chart.top5App.loading && <DotBlink />}
                   </Flex>
-                  <div className="mt-6"></div>
+                  <Text className="mt-8">Total incident</Text>
+                  <Metric>{totalIncident.jumlahIncident}</Metric>
+                  <Divider />
                   <Legend
                     categories={
                       Array.isArray(chart.top5App.data) === true
@@ -448,17 +445,34 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   });
   const statsIncidentData = await res.json();
 
-  const fetchProblemData = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
+  const getTotalIncident = await fetch(
+    `${myApi.urlv2}/dashboards/incident-total-single`,
+    {
+      headers: myApi.headers,
+    }
   );
-  const statsProblemData = await fetchProblemData.json();
+  const totalIncident = await getTotalIncident.json();
+
+  const env = process.env.NODE_ENV;
+  let statsProblemData;
+
+  if (env === "development") {
+    statsProblemData = 0;
+  } else {
+    const fetchProblemData = await fetch(
+      `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
+    );
+    const getStatsProblemData = await fetchProblemData.json();
+    statsProblemData = getStatsProblemData.data;
+  }
 
   if (res.status === 200) {
     return {
       props: {
         user: req.session.get("user"),
         statsIncidentData: statsIncidentData,
-        statsProblemData: statsProblemData.data,
+        totalIncident: totalIncident.data,
+        statsProblemData: statsProblemData,
       },
     };
   }
