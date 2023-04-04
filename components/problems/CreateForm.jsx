@@ -311,7 +311,7 @@ const CreateForm = ({ user }) => {
                           className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
                           placeholder="Search for application"
                           components={{ NoOptionsMessage }}
-                          onChange={handleAppChange}
+                          // onChange={handleAppChange}
                         />
                       )}
                     />
