@@ -32,8 +32,8 @@ const CreateForm = ({ user }) => {
     defaultValues: {},
   });
 
-  const { errors, isSubmitting } = formState;
-  const [enabled, setEnabled] = useState(false);
+  const { errors } = formState;
+  const [recommend, setRecommend] = useState(null);
   const [spinner, setSpinner] = useState(false);
   const [typeOptions, setTypeOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
@@ -75,17 +75,15 @@ const CreateForm = ({ user }) => {
     );
   };
 
-  const [recommend, setRecommend] = useState(null);
-
   const handleAppChange = async (event, { action }) => {
     try {
       if (action === "select-option") {
-        setApps(event.value);
-        // const fetchRecommend = await fetch(
-        //   `${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/apps/${event.value}`
-        // );
-        // let getRecommend = await fetchRecommend.json();
-        // setRecommend(getRecommend);
+        const fetchRecommend = await fetch(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/apps/${event.value}`
+        );
+        let getRecommend = await fetchRecommend.json();
+        setRecommend(getRecommend);
+        setValue("idApps", event);
       } else {
         setRecommend(null);
       }
@@ -220,8 +218,6 @@ const CreateForm = ({ user }) => {
       });
   };
 
-  const [apps, setApps] = useState("");
-
   return (
     <>
       <div className="max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-0 lg:max-w-full lg:px-0 lg:grid-flow-col-dense lg:grid-cols-3">
@@ -305,6 +301,8 @@ const CreateForm = ({ user }) => {
                       render={({ field }) => (
                         <AsyncSelect
                           {...field}
+                          instanceId={"idApps"}
+                          value={field.value}
                           isClearable
                           loadOptions={loadApplications}
                           styles={styledReactSelectAdd}
