@@ -439,21 +439,14 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   const env = process.env.NODE_ENV;
   let statsProblemData;
 
-  if (env === "development") {
-    if (process.env.NEXT_PUBLIC_API_PROBMAN) {
-      const fetchProblemData = await fetch(
-        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
-      );
-      const getStatsProblemData = await fetchProblemData.json();
-      statsProblemData = getStatsProblemData.data;
-    }
-    statsProblemData = 0;
-  } else {
+  if (process.env.NEXT_PUBLIC_API_PROBMAN) {
     const fetchProblemData = await fetch(
       `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
     );
     const getStatsProblemData = await fetchProblemData.json();
     statsProblemData = getStatsProblemData.data;
+  } else {
+    statsProblemData = 0;
   }
 
   if (res.status === 200) {
