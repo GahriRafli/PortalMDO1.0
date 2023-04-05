@@ -29,7 +29,6 @@ import {
   LayoutPageContent,
 } from "components/layout/index";
 import { getApplication } from "lib/api-helper";
-import { async } from "regenerator-runtime";
 import { CustomAlert } from "components/ui/alert";
 
 export default function addIncident({ user }) {
@@ -42,11 +41,10 @@ export default function addIncident({ user }) {
   const [problemTypeOptions, setProblemTypeOptions] = useState([]);
   const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
   const [isProblem, setIsProblem] = useState(false); // Untuk toggle permanent fix
-  const [impact, setImpact] = useState("");
   const [parameters, setParameters] = useState({
     urgency: "",
     isImpactDisabled: true,
-    impact: "",
+    impact: null,
     isLoading: false,
   });
   const [priority, setPriority] = useState("");
@@ -215,8 +213,25 @@ export default function addIncident({ user }) {
     setIsProblem(value);
   };
 
-  // Get value of impact
-  const handleUrgency = (e, { action }) => {
+  async function getPriorityMatrix(idCategoryImpact, idCategoryUrgency) {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/prioritymatrix?idCategoryImpact=${idCategoryImpact}&idCategoryUrgency=${idCategoryUrgency}`
+      );
+      return response.data.data;
+    } catch (error) {
+      if (error.response) {
+        toast.error(`${error.response.data} ${error.response.status}`);
+      } else if (error.request) {
+        toast.error(error.request);
+      } else {
+        toast.error("Error", error.message);
+      }
+      return error;
+    }
+  }
+
+  const handleUrgency = async (e, { action }) => {
     if (e) {
       setValue("idUrgency", e);
       setParameters((prevState) => {
@@ -226,6 +241,21 @@ export default function addIncident({ user }) {
           isImpactDisabled: false,
         };
       });
+
+      if (parameters.impact) {
+        setParameters((prevState) => {
+          return { ...prevState, isLoading: true };
+        });
+        const getValues = await getPriorityMatrix(
+          parameters.impact,
+          e.idParamCategory
+        );
+
+        setPriority(getValues[0].mapping);
+        setParameters((prevState) => {
+          return { ...prevState, isLoading: false };
+        });
+      }
     } else {
       setParameters((prevState) => {
         return { ...prevState, urgency: "", isImpactDisabled: true };
@@ -233,7 +263,6 @@ export default function addIncident({ user }) {
     }
   };
 
-  // Get value of impact
   const handleImpact = async (e) => {
     if (e) {
       setValue("idImpact", e);
@@ -241,25 +270,21 @@ export default function addIncident({ user }) {
         return { ...prevState, impact: e.idParamCategory, isLoading: true };
       });
 
-      axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/prioritymatrix?idCategoryImpact=${e.idParamCategory}&idCategoryUrgency=${parameters.urgency}`
-        )
-        .then((res) => {
-          setPriority(res.data.data[0].mapping);
-          setParameters((prevState) => {
-            return { ...prevState, isLoading: false };
-          });
-        })
-        .catch((err) => toast.error(`Priority Mapping ${err}`));
+      const getValues = await getPriorityMatrix(
+        e.idParamCategory,
+        parameters.urgency
+      );
+
+      setPriority(getValues[0].mapping);
+      setParameters((prevState) => {
+        return { ...prevState, isLoading: false };
+      });
     } else {
       setParameters((prevState) => {
         return { ...prevState, impact: "" };
       });
     }
   };
-
-  const handlePriority = () => {};
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
@@ -558,18 +583,14 @@ export default function addIncident({ user }) {
                       </div>
                       {priority !== "" && (
                         <div className="col-span-6 sm:col-span-6">
-                          <CustomAlert
-                            type={"info"}
-                            title={
-                              parameters.isLoading ? (
-                                <DotBlink />
-                              ) : (
-                                `Incident Priority is ${priority}`
-                              )
-                            }
-                          >
-                            {/* <p className="whitespace-pre-wrap">{priority}</p> */}
-                          </CustomAlert>
+                          {parameters.isLoading ? (
+                            <DotBlink />
+                          ) : (
+                            <CustomAlert
+                              type={"info"}
+                              title={`Incident Priority is ${priority}`}
+                            />
+                          )}
                         </div>
                       )}
                       <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">

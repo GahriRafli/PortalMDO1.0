@@ -11,6 +11,8 @@ import {
   ShieldCheckIcon,
   FireIcon,
   ChatAlt2Icon,
+  ChartPieIcon,
+  ViewListIcon,
 } from "@heroicons/react/outline";
 import { StatsWithIcon } from "components/ui/stats/stats-with-icon";
 import { getNickName } from "components/utils";
@@ -31,6 +33,8 @@ import {
   Legend,
   Divider,
   Metric,
+  Toggle,
+  ToggleItem,
 } from "@tremor/react";
 import { DotBlink } from "components/ui/svg/spinner";
 
@@ -61,6 +65,7 @@ export default function Home({
     },
   ];
 
+  const [selectedView, setSelectedView] = useState("chart");
   const [datePickerValue, setDatePickerValue] = useState([
     new Date(2023, 0, 1),
     new Date(),
@@ -291,24 +296,37 @@ export default function Home({
                   <Flex>
                     <Title>Top 5 Incident By Application</Title>
                     {chart.top5App.loading && <DotBlink />}
+                    <Toggle
+                      defaultValue="chart"
+                      color="gray"
+                      onValueChange={(value) => setSelectedView(value)}
+                    >
+                      <ToggleItem value="chart" icon={ChartPieIcon} />
+                      <ToggleItem value="list" icon={ViewListIcon} />
+                    </Toggle>
                   </Flex>
                   <Text className="mt-8">Total incident</Text>
                   <Metric>{totalIncident.jumlahIncident}</Metric>
                   <Divider />
-                  <Legend
-                    categories={
-                      Array.isArray(chart.top5App.data) === true
-                        ? chart.top5App.data.map((app) => app.name)
-                        : []
-                    }
-                    className="mt-6"
-                  />
-                  <div className="mt-6"></div>
-                  <DonutChart
-                    data={chart.top5App.data}
-                    category="value"
-                    index="name"
-                  />
+                  {selectedView === "chart" ? (
+                    <div>
+                      <Legend
+                        categories={
+                          Array.isArray(chart.top5App.data) === true
+                            ? chart.top5App.data.map((app) => app.name)
+                            : []
+                        }
+                      />
+                      <div className="mt-6"></div>
+                      <DonutChart
+                        data={chart.top5App.data}
+                        category="value"
+                        index="name"
+                      />
+                    </div>
+                  ) : (
+                    <BarList data={chart.top5App.data} marginTop="mt-2" />
+                  )}
                 </Card>
               </div>
               <div className="col-span-1 lg:col-span-3 xxl:col-span-3">
@@ -380,41 +398,6 @@ export default function Home({
                   />
                 </Card>
               </div>
-              {/* <div>
-                <Card>
-                  <Flex>
-                    <Title>Top 5 Incident</Title>
-                    {chart.top5App.loading && <DotBlink />}
-                  </Flex>
-                  <div className="mt-6"></div>
-                  <Legend
-                    categories={
-                      Array.isArray(chart.top5App.data) === true
-                        ? chart.top5App.data.map((app) => app.name)
-                        : []
-                    }
-                    className="mt-6"
-                  />
-                  <div className="mt-6"></div>
-                  <DonutChart
-                    data={chart.top5App.data}
-                    category="value"
-                    index="name"
-                  />
-                  <Flex
-                    justifyContent="justify-start"
-                    alignItems="items-baseline"
-                    spaceX="space-x-2"
-                    marginTop="mt-6"
-                  ></Flex>
-                  <Flex marginTop="mt-6">
-                    <Text>Application</Text>
-                    <Text textAlignment="text-right">Total</Text>
-                  </Flex>
-
-                  <BarList data={chart.top5App.data} marginTop="mt-2" />
-                </Card>
-              </div> */}
             </div>
           </div>
         </div>
@@ -457,6 +440,13 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   let statsProblemData;
 
   if (env === "development") {
+    if (process.env.NEXT_PUBLIC_API_PROBMAN) {
+      const fetchProblemData = await fetch(
+        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
+      );
+      const getStatsProblemData = await fetchProblemData.json();
+      statsProblemData = getStatsProblemData.data;
+    }
     statsProblemData = 0;
   } else {
     const fetchProblemData = await fetch(
