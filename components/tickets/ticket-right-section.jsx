@@ -4,6 +4,7 @@ import {
   LockClosedIcon,
   CalendarIcon,
   ChatAltIcon,
+  UserGroupIcon,
 } from "@heroicons/react/solid";
 import { getCriticalityIcon } from "components/utils";
 import { format } from "date-fns";
@@ -15,6 +16,7 @@ export const TicketRightSection = ({
   createdAt = new Date(),
   escalatedRole,
   ticketOwner,
+  ticketOwnerPhoto,
   priority,
   ticketType = null,
   apps = null,
@@ -69,7 +71,13 @@ export const TicketRightSection = ({
             <li className="flex justify-start">
               <a href="#" className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <UserCircleIconSolid className="h-5 w-5 text-gray-500" />
+                  {ticketOwnerPhoto && (
+                    <img
+                      className="h-5 w-5 rounded-full"
+                      src={ticketOwnerPhoto}
+                      alt=""
+                    />
+                  )}
                 </div>
                 <div className="text-sm font-medium text-gray-900">
                   {ticketOwner ? ticketOwner : "No Owner"}
@@ -87,7 +95,7 @@ export const TicketRightSection = ({
             <li className="flex justify-start">
               <a href="#" className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <UserCircleIconSolid className="h-5 w-5 text-gray-500" />
+                  <UserGroupIcon className="h-5 w-5 text-gray-500" />
                 </div>
                 <div className="text-sm font-medium text-gray-900">
                   {escalatedRole}

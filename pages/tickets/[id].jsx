@@ -58,6 +58,7 @@ import {
   RefreshIcon,
 } from "@heroicons/react/outline";
 import ReactPlayer from "react-player";
+import { TicketUserPhoto } from "components/tickets/ticket-user-photo";
 
 const URL = process.env.NEXT_PUBLIC_API_URL;
 const tabs = [
@@ -720,6 +721,7 @@ export default function ReplyTicket({
                       totalReply={ticketHistoryData.length}
                       createdAt={ticketData.createdAt}
                       ticketOwner={ticketData.paramTicketOwner?.fullname}
+                      ticketOwnerPhoto={ticketData.paramTicketOwner?.photo}
                       escalatedRole={getAssignees(ticketData.escalatedRole)}
                       priority={ticketData.paramTicketPriority?.priorityTicket}
                       ticketType={ticketData.paramTicketType?.ticketType}
@@ -770,22 +772,11 @@ export default function ReplyTicket({
                                 <div className="relative flex items-start space-x-3">
                                   <>
                                     {item.isFromUker === "N" ? (
-                                      <div className="relative">
-                                        {/* <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" /> */}
-                                        <img
-                                          loading="lazy"
-                                          className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                                          src={item.paramHistoryCreatedBy.photo}
-                                          alt=""
-                                        />
-
-                                        <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-                                          <ChatAltIcon
-                                            className="w-5 h-5 text-gray-400"
-                                            aria-hidden="true"
-                                          />
-                                        </span>
-                                      </div>
+                                      <TicketUserPhoto
+                                        imageUrl={
+                                          item.paramHistoryCreatedBy.photo
+                                        }
+                                      />
                                     ) : (
                                       <div className="relative px-1">
                                         <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full ring-8 ring-white">
@@ -916,219 +907,19 @@ export default function ReplyTicket({
                         </ul>
                       </div>
                       {/* Ticket reply textarea start */}
-                      <div className="mt-6">
-                        <div className="flex space-x-3">
-                          <div className="flex-shrink-0">
-                            <div className="relative">
-                              {/* <UserCircleIconSolid className="flex items-center justify-center w-10 h-10 text-gray-500 bg-white ring-8 ring-white" /> */}
+
+                      {ticketData.ticketStatus === "Closed" ? (
+                        <div className="mt-6">
+                          <div className="flex space-x-3">
+                            <div className="flex-shrink-0">
                               <img
-                                className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                                src={user.photo}
+                                loading="lazy"
+                                className="h-10 w-10 rounded-full"
+                                src={ticketData.paramTicketClosedBy.photo}
                                 alt=""
                               />
-
-                              <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-                                <ChatAltIcon
-                                  className="w-5 h-5 text-gray-400"
-                                  aria-hidden="true"
-                                />
-                              </span>
                             </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            {!ticketData.closedBy ? (
-                              <>
-                                {/* Tabs reply Start */}
-                                <div className="hidden pb-4 sm:block">
-                                  <div className="border-b border-gray-200">
-                                    <Tab.Group onChange={handleTicketDest}>
-                                      <Tab.List className="flex -mb-px space-x-8">
-                                        {tabs.map((tab, idx) => (
-                                          <Tab
-                                            key={idx}
-                                            className={({ selected }) =>
-                                              clsx(
-                                                "whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm",
-                                                selected
-                                                  ? "border-blue-500 text-blue-600"
-                                                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                              )
-                                            }
-                                          >
-                                            {tab.name}
-                                          </Tab>
-                                        ))}
-                                      </Tab.List>
-                                    </Tab.Group>
-                                  </div>
-                                </div>
-                                {/* Tabs reply End */}
-                                <form onSubmit={handleSubmit(onSubmit)}>
-                                  <div
-                                    className={clsx(
-                                      "mb-4",
-                                      visibility.otherDepartment
-                                    )}
-                                  >
-                                    <div className="relative w-1/2 mt-1 rounded-md shadow-sm">
-                                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <UsersIcon
-                                          className="w-5 h-5 text-gray-400"
-                                          aria-hidden="true"
-                                        />
-                                      </div>
-                                      <select
-                                        {...register("idEscalatedGroup", {
-                                          required: {
-                                            value: required.idEscalatedGroup,
-                                            message: "This is required",
-                                          },
-                                        })}
-                                        name="idEscalatedGroup"
-                                        className="block w-full pl-10 text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        defaultValue={null}
-                                      >
-                                        <option value="">Select...</option>
-                                        {optionList.listGroupReply.map(
-                                          (group) => (
-                                            <option
-                                              value={group.prefix}
-                                              key={group.value}
-                                            >
-                                              {group.label}
-                                            </option>
-                                          )
-                                        )}
-                                      </select>
-                                    </div>
-                                    {errors.idEscalatedGroup && (
-                                      <p className="mt-2 text-sm text-red-600">
-                                        {errors.idEscalatedGroup.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                  {/* Internal SDK Destination Start */}
-                                  <div
-                                    className={clsx(
-                                      "flex mb-4",
-                                      visibility.internalNote
-                                    )}
-                                  >
-                                    <div className="flex items-center mr-4">
-                                      <input
-                                        {...register("escalatedRole", {
-                                          required: required.escalatedRole,
-                                        })}
-                                        type="radio"
-                                        value={0}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                      />
-                                      <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                        Operator
-                                      </label>
-                                    </div>
-                                    <div className="flex items-center mr-4">
-                                      <input
-                                        {...register("escalatedRole", {
-                                          required: required.escalatedRole,
-                                        })}
-                                        type="radio"
-                                        value={1}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                      />
-                                      <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                        Engineer
-                                      </label>
-                                    </div>
-                                    {errors.escalatedRole && (
-                                      <p className="text-sm text-red-600">
-                                        {errors.escalatedRole.message}
-                                      </p>
-                                    )}
-                                  </div>
-                                  {/* Internal SDK Destination End */}
-                                  {/* Reply section (Textarea & Button) start */}
-                                  <div>
-                                    <div>
-                                      <label
-                                        htmlFor="historyContent"
-                                        className="sr-only"
-                                      >
-                                        historyContent
-                                      </label>
-
-                                      <TextareaInput
-                                        {...register("historyContent", {
-                                          required: required.replyTextArea,
-                                        })}
-                                        placeholder="Add a reply..."
-                                        className={visibility.replyTextArea}
-                                      />
-
-                                      {errors.historyContent && (
-                                        <p className="mt-2 text-sm text-red-600">
-                                          {errors.historyContent.message}
-                                        </p>
-                                      )}
-
-                                      {/* Upload section start */}
-                                      <div className="mt-2">
-                                        <Upload
-                                          beforeUpload={(file) => {
-                                            setShowList(true);
-                                            setFileList(file);
-                                          }}
-                                          onRemove={() => setFileList([])}
-                                          listType="picture"
-                                          maxCount={1}
-                                          showUploadList={showList}
-                                        >
-                                          <button
-                                            onClick={handleUpload}
-                                            type="button"
-                                            className="inline-flex items-center px-4 py-2 text-sm italic text-gray-400 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                                          >
-                                            <PaperClipIcon
-                                              className="flex-shrink-0 w-5 h-5 mr-2 text-gray-400"
-                                              aria-hidden="true"
-                                            />
-                                            Attach a file or drag here
-                                          </button>
-                                        </Upload>
-                                      </div>
-                                      {/* Upload section end */}
-                                    </div>
-
-                                    <div className="flex items-center justify-end mt-6 space-x-3">
-                                      <SecondaryButton
-                                        type="button"
-                                        onClick={handleResetButton}
-                                      >
-                                        Reset
-                                      </SecondaryButton>
-                                      <PrimaryButton
-                                        type="submit"
-                                        className={
-                                          replyIsLoading
-                                            ? "disabled:opacity-50 cursor-not-allowed"
-                                            : ""
-                                        }
-                                        disabled={replyIsLoading}
-                                      >
-                                        {replyIsLoading ? (
-                                          <>
-                                            <Spinner /> Sending...
-                                          </>
-                                        ) : (
-                                          "Reply"
-                                        )}
-                                      </PrimaryButton>
-                                    </div>
-                                  </div>
-                                  {/* Reply section (Textarea & Button) end */}
-                                </form>
-                              </>
-                            ) : (
+                            <div className="flex-1 min-w-0">
                               <div className="min-w-0 flex-1 py-1.5">
                                 <div>
                                   <div className="text-sm text-gray-500">
@@ -1166,10 +957,209 @@ export default function ReplyTicket({
                                   </CustomAlert>
                                 </div>
                               </div>
-                            )}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="mt-6">
+                          <div className="flex space-x-3">
+                            <div className="flex-shrink-0">
+                              <TicketUserPhoto imageUrl={user.photo} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              {/* Tabs reply Start */}
+                              <div className="hidden pb-4 sm:block">
+                                <div className="border-b border-gray-200">
+                                  <Tab.Group onChange={handleTicketDest}>
+                                    <Tab.List className="flex -mb-px space-x-8">
+                                      {tabs.map((tab, idx) => (
+                                        <Tab
+                                          key={idx}
+                                          className={({ selected }) =>
+                                            clsx(
+                                              "whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm",
+                                              selected
+                                                ? "border-blue-500 text-blue-600"
+                                                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                            )
+                                          }
+                                        >
+                                          {tab.name}
+                                        </Tab>
+                                      ))}
+                                    </Tab.List>
+                                  </Tab.Group>
+                                </div>
+                              </div>
+                              {/* Tabs reply End */}
+                              <form onSubmit={handleSubmit(onSubmit)}>
+                                <div
+                                  className={clsx(
+                                    "mb-4",
+                                    visibility.otherDepartment
+                                  )}
+                                >
+                                  <div className="relative w-1/2 mt-1 rounded-md shadow-sm">
+                                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                      <UsersIcon
+                                        className="w-5 h-5 text-gray-400"
+                                        aria-hidden="true"
+                                      />
+                                    </div>
+                                    <select
+                                      {...register("idEscalatedGroup", {
+                                        required: {
+                                          value: required.idEscalatedGroup,
+                                          message: "This is required",
+                                        },
+                                      })}
+                                      name="idEscalatedGroup"
+                                      className="block w-full pl-10 text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                      defaultValue={null}
+                                    >
+                                      <option value="">Select...</option>
+                                      {optionList.listGroupReply.map(
+                                        (group) => (
+                                          <option
+                                            value={group.prefix}
+                                            key={group.value}
+                                          >
+                                            {group.label}
+                                          </option>
+                                        )
+                                      )}
+                                    </select>
+                                  </div>
+                                  {errors.idEscalatedGroup && (
+                                    <p className="mt-2 text-sm text-red-600">
+                                      {errors.idEscalatedGroup.message}
+                                    </p>
+                                  )}
+                                </div>
+                                {/* Internal SDK Destination Start */}
+                                <div
+                                  className={clsx(
+                                    "flex mb-4",
+                                    visibility.internalNote
+                                  )}
+                                >
+                                  <div className="flex items-center mr-4">
+                                    <input
+                                      {...register("escalatedRole", {
+                                        required: required.escalatedRole,
+                                      })}
+                                      type="radio"
+                                      value={0}
+                                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    />
+                                    <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                      Operator
+                                    </label>
+                                  </div>
+                                  <div className="flex items-center mr-4">
+                                    <input
+                                      {...register("escalatedRole", {
+                                        required: required.escalatedRole,
+                                      })}
+                                      type="radio"
+                                      value={1}
+                                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    />
+                                    <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                      Engineer
+                                    </label>
+                                  </div>
+                                  {errors.escalatedRole && (
+                                    <p className="text-sm text-red-600">
+                                      {errors.escalatedRole.message}
+                                    </p>
+                                  )}
+                                </div>
+                                {/* Internal SDK Destination End */}
+                                {/* Reply section (Textarea & Button) start */}
+                                <div>
+                                  <div>
+                                    <label
+                                      htmlFor="historyContent"
+                                      className="sr-only"
+                                    >
+                                      historyContent
+                                    </label>
+
+                                    <TextareaInput
+                                      {...register("historyContent", {
+                                        required: required.replyTextArea,
+                                      })}
+                                      placeholder="Add a reply..."
+                                      className={visibility.replyTextArea}
+                                    />
+
+                                    {errors.historyContent && (
+                                      <p className="mt-2 text-sm text-red-600">
+                                        {errors.historyContent.message}
+                                      </p>
+                                    )}
+
+                                    {/* Upload section start */}
+                                    <div className="mt-2">
+                                      <Upload
+                                        beforeUpload={(file) => {
+                                          setShowList(true);
+                                          setFileList(file);
+                                        }}
+                                        onRemove={() => setFileList([])}
+                                        listType="picture"
+                                        maxCount={1}
+                                        showUploadList={showList}
+                                      >
+                                        <button
+                                          onClick={handleUpload}
+                                          type="button"
+                                          className="inline-flex items-center px-4 py-2 text-sm italic text-gray-400 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
+                                        >
+                                          <PaperClipIcon
+                                            className="flex-shrink-0 w-5 h-5 mr-2 text-gray-400"
+                                            aria-hidden="true"
+                                          />
+                                          Attach a file or drag here
+                                        </button>
+                                      </Upload>
+                                    </div>
+                                    {/* Upload section end */}
+                                  </div>
+
+                                  <div className="flex items-center justify-end mt-6 space-x-3">
+                                    <SecondaryButton
+                                      type="button"
+                                      onClick={handleResetButton}
+                                    >
+                                      Reset
+                                    </SecondaryButton>
+                                    <PrimaryButton
+                                      type="submit"
+                                      className={
+                                        replyIsLoading
+                                          ? "disabled:opacity-50 cursor-not-allowed"
+                                          : ""
+                                      }
+                                      disabled={replyIsLoading}
+                                    >
+                                      {replyIsLoading ? (
+                                        <>
+                                          <Spinner /> Sending...
+                                        </>
+                                      ) : (
+                                        "Reply"
+                                      )}
+                                    </PrimaryButton>
+                                  </div>
+                                </div>
+                                {/* Reply section (Textarea & Button) end */}
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {/* Ticket reply textarea end */}
                     </div>
                   </div>
@@ -1184,6 +1174,7 @@ export default function ReplyTicket({
                 totalReply={ticketHistoryData.length}
                 createdAt={ticketData.createdAt}
                 ticketOwner={ticketData.paramTicketOwner?.fullname}
+                ticketOwnerPhoto={ticketData.paramTicketOwner?.photo}
                 escalatedRole={getAssignees(ticketData.escalatedRole)}
                 priority={ticketData.paramTicketPriority?.priorityTicket}
                 ticketType={ticketData.paramTicketType?.ticketType}

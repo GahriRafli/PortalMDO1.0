@@ -1483,9 +1483,10 @@ export default function IncidentDetail({ user, incident, comments }) {
                           <li key={comment.id}>
                             <div className="flex space-x-3">
                               <div className="flex-shrink-0">
-                                <UserCircleIcon
-                                  className="w-10 h-10 text-gray-500"
-                                  aria-hidden="true"
+                                <img
+                                  className="h-10 w-10 rounded-full"
+                                  src={comment.incidentCommentCreatedBy.photo}
+                                  alt="User Photo"
                                 />
                               </div>
                               <div>
@@ -1581,9 +1582,10 @@ export default function IncidentDetail({ user, incident, comments }) {
                   <div className="bg-gray-50 px-4 py-6 sm:px-6">
                     <div className="flex space-x-3">
                       <div className="flex-shrink-0">
-                        <UserCircleIcon
-                          className="w-10 h-10 text-gray-500"
-                          aria-hidden="true"
+                        <img
+                          className="h-10 w-10 rounded-full"
+                          src={user.photo}
+                          alt="User Photo"
                         />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -1751,9 +1753,10 @@ export default function IncidentDetail({ user, incident, comments }) {
                     Reporter
                   </h2>
                   <div className="flex items-center space-x-2">
-                    <UserCircleIcon
-                      className="w-6 h-6 text-gray-500"
-                      aria-hidden="true"
+                    <img
+                      className="h-6 w-6 rounded-full"
+                      src={incident.data.paramCreatedBy.photo}
+                      alt=""
                     />
                     <span className="text-sm text-gray-600">
                       {incident.data.paramCreatedBy
