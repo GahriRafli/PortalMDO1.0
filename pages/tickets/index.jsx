@@ -8,6 +8,9 @@ import AvatarCell from "components/tickets/avatar-cell";
 import PageHeader from "components/tickets/page-header";
 import Table from "components/tickets/table";
 import CardStats from "components/tickets/card-stats";
+
+import { BadgesWithDot } from "components/ui/badges";
+
 import {
   ChevronUpIcon,
   DotsVerticalIcon,
@@ -33,6 +36,7 @@ import {
   StatusPill,
   StatusText,
   StatusTicket,
+  StatusEscalated,
 } from "components/tickets/status-pill";
 import {
   PlusSmIcon,
@@ -339,19 +343,19 @@ export default function TicketList(props) {
                     : `${props.value}`}
                 </a>
               </Link>
-
-              <div className="mt-6">
-                <div className="flex justify-between mt-2 text-sm text-gray-500">
-                  {props.row.original.picName
-                    ? `@${props.row.original.picName} - ` 
-                    : ""}
-                  {props.row.original.id
-                    ? `${props.row.original.branchCode}`
-                    : ""}
-                  <p>
+              <div className="flex justify-between mt-3 text-xs text-gray-500 rounded-full">
+                {props.row.original.paramTicketEscalatedGroup.prefix === "SDK" ? (
+                  <span className="inline-flex px-2 text-xs font-semibold leading-5 text-red-800 bg-red-100 rounded-full">
+                    Need Follow Up
+                  </span>
+                ) : (
+                  <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                    Follow Up By Uker
+                  </span>
+                )}
+                <p>
                     {props.row.original.id ? `${props.row.original.id}` : ""}
-                  </p>
-                </div>
+                </p>
               </div>
             </div>
           );
@@ -377,6 +381,7 @@ export default function TicketList(props) {
           );
         },
       },
+      
       {
         Header: "Priority",
         accessor: "paramTicketPriority.priorityTicket",
@@ -390,8 +395,9 @@ export default function TicketList(props) {
         disableSortBy: true,
       },
       {
-        Header: "Started At",
+        Header: "Opened At",
         accessor: "createdAt",
+        
         Cell: (props) => {
           return (
             <div>
@@ -401,22 +407,14 @@ export default function TicketList(props) {
                   "dd MMM yyyy HH:mm"
                 )}
               </div>
-              <div className="text-xs text-gray-500">
-                {props.row.original.closedAt ? (
-                  <span className="text-xs">
-                    {props.row.original.closedAt} minutes
-                  </span>
-                ) : (
-                  "-"
-                )}
-              </div>
             </div>
           );
+          
         },
       },
       {
         Header: "Complainer",
-        accessor: "paramCreatedBy.fullname",
+        accessor: "picName",
         Cell: AvatarCell,
         disableSortBy: true,
       },

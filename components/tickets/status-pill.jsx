@@ -4,7 +4,7 @@ const StatusPill = ({ value }) => {
   const priority = value ? value.toLowerCase() : "-";
 
   return priority.startsWith("low") ? (
-    <p className="mt-2 flex items-center text-sm text-gray-500">
+    <p className="flex items-center mt-2 text-sm text-gray-500">
       <img
         src="/icon-priority/low.svg"
         alt=""
@@ -13,7 +13,7 @@ const StatusPill = ({ value }) => {
       Low
     </p>
   ) : priority.startsWith("medium") ? (
-    <p className="mt-2 flex items-center text-sm text-gray-500">
+    <p className="flex items-center mt-2 text-sm text-gray-500">
       <img
         src="/icon-priority/medium.svg"
         alt=""
@@ -22,7 +22,7 @@ const StatusPill = ({ value }) => {
       Medium
     </p>
   ) : priority.startsWith("high") ? (
-    <p className="mt-2 flex items-center text-sm text-gray-500">
+    <p className="flex items-center mt-2 text-sm text-gray-500">
       <img
         src="/icon-priority/high.svg"
         alt=""
@@ -31,7 +31,7 @@ const StatusPill = ({ value }) => {
       High
     </p>
   ) : priority.startsWith("critical") ? (
-    <p className="mt-2 flex items-center text-sm text-gray-500">
+    <p className="flex items-center mt-2 text-sm text-gray-500">
       <img
         src="/icon-priority/highest.svg"
         alt=""
@@ -88,5 +88,6 @@ const StatusTicket = ({ value }) => {
     />
   );
 };
+
 
 export { StatusPill, StatusText, StatusTicket };
