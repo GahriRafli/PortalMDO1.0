@@ -1,19 +1,47 @@
-import React, { useImperativeHandle } from "react";
-import { useTable, useSortBy } from "react-table";
-import { SortIcon, SortUpIcon, SortDownIcon } from "../ui/short-icon";
-import clsx from "clsx";
+import { useTable, useSortBy, usePagination } from "react-table";
+import {
+  ChevronDoubleLeftIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDoubleRightIcon,
+} from "@heroicons/react/solid";
+import { classNames } from "components/utils";
+import { SortDownIcon, SortIcon, SortUpIcon } from "components/ui/short-icon";
+import { PageButton } from "components/ui/button/pagination-button";
 
-const Table = React.forwardRef(({ columns, data }, ref) => {
-  const instance = useTable({ columns, data }, useSortBy);
+function DownloadTable({ columns, data, initialPageSize }) {
+  // Use the state and functions returned from useTable to build your UI
+  const instance = useTable(
+    { columns, data, initialState: { pageSize: initialPageSize } },
+    useSortBy,
+    usePagination
+  );
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    instance;
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state,
+  } = instance;
 
-  useImperativeHandle(ref, () => instance);
+  const { pageIndex, pageSize } = state;
 
+  // Render the UI for your table
+  // min-w-full overflow-x-auto shadow overflow-hidden sm:rounded-lg
   return (
-    <>
-      <div className="flex flex-col mt-3">
+    <div>
+      <div className="flex flex-col mt-5">
         <div className="min-w-full overflow-hidden overflow-x-auto align-middle shadow sm:rounded-lg">
           <table
             {...getTableProps()}
@@ -26,8 +54,9 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
                     // <th {...column.getHeaderProps(column.getSortByToggleProps())} className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className={clsx(
-                        "px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className={classNames(
+                        "px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                        column.Header === "Incident Name" && "w-1/3"
                       )}
                     >
                       <div className="flex items-center justify-between group">
@@ -76,8 +105,9 @@ const Table = React.forwardRef(({ columns, data }, ref) => {
           </table>
         </div>
       </div>
-    </>
+      {/* Pagination End */}
+    </div>
   );
-});
+}
 
-export default Table;
+export default DownloadTable;

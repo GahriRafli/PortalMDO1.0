@@ -1,4 +1,4 @@
-import { BadgesWithDot } from "../ui/badges";
+import { Badges, BadgesWithDot } from "../ui/badges";
 
 const StatusPill = ({ value }) => {
   const priority = value ? value.toLowerCase() : "-";
@@ -64,30 +64,19 @@ const StatusText = ({ value, row }) => {
 const StatusTicket = ({ value }) => {
   const status = value ? value.toLowerCase() : "";
 
-  return (
-    <BadgesWithDot
-      text={status}
-      className={
-        status.startsWith("open")
-          ? "bg-red-100 text-red-800"
-          : status.startsWith("resolved")
-          ? "bg-green-100 text-green-800"
-          : status.startsWith("investigate")
-          ? "bg-blue-100 text-blue-800"
-          : "bg-gray-100 text-gray-800"
-      }
-      dotColor={
-        status.startsWith("open")
-          ? "text-red-400"
-          : status.startsWith("resolved")
-          ? "text-green-400"
-          : status.startsWith("investigate")
-          ? "text-blue-400"
-          : "text-gray-400"
-      }
-    />
-  );
+  if (status === "open") {
+    return (
+      <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+        Open
+      </span>
+    );
+  } else {
+    return (
+      <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+        Close
+      </span>
+    );
+  }
 };
-
 
 export { StatusPill, StatusText, StatusTicket };

@@ -23,6 +23,10 @@ export const navigation = [
         name: "Incident Matching",
         href: "/incidents/search",
       },
+      {
+        name: "Incident Download",
+        href: "/incidents/download",
+      },
     ],
   },
   {

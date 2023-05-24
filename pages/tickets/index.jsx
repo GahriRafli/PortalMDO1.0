@@ -17,6 +17,7 @@ import {
   CheckCircleIcon,
   UserAddIcon,
   PencilIcon,
+  EyeIcon,
 } from "@heroicons/react/solid";
 import clsx from "clsx";
 // import {
@@ -50,6 +51,9 @@ import {
   // DocumentSearchIcon,
   InformationCircleIcon,
   AdjustmentsIcon,
+  DuplicateIcon,
+  DocumentDuplicateIcon,
+  TicketIcon,
 } from "@heroicons/react/outline";
 import {
   PrimaryButton,
@@ -77,6 +81,7 @@ import { CustomAlert } from "components/ui/alert";
 import { Modal } from "components/ui/modal/modal";
 import { ModalBody } from "components/ui/modal/modal-body";
 import { ModalFooter } from "components/ui/modal/modal-footer";
+import { Flex } from "@tremor/react";
 // Modal component end
 
 export default function TicketList(props) {
@@ -331,31 +336,47 @@ export default function TicketList(props) {
   const columns = useMemo(
     () => [
       {
-        Header: "Ticket Name",
+        Header: "Problem",
         accessor: "content",
         Cell: (props) => {
           return (
-            <div className="mt-4">
-              <Link href={`/tickets/${props.row.original.id}`}>
-                <a className="text-blue-500 hover:text-blue-900">
-                  {props.value.length > 100
-                    ? `${props.value.substring(0, 150).concat("...")}`
-                    : `${props.value}`}
-                </a>
-              </Link>
-              <div className="flex justify-between mt-3 text-xs text-gray-500 rounded-full">
-                {props.row.original.paramTicketEscalatedGroup.prefix === "SDK" ? (
-                  <span className="inline-flex px-2 text-xs font-semibold leading-5 text-red-800 bg-red-100 rounded-full">
-                    Need Follow Up
-                  </span>
-                ) : (
-                  <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
-                    Follow Up By Uker
-                  </span>
+            <div className="flex items-center space-x-3 lg:pl-2">
+              {/* <div
+                className={clsx(
+                  props.row.original.paramTicketEscalatedGroup.prefix === "SDK"
+                    ? "bg-red-400"
+                    : "bg-green-400",
+                  "flex-shrink-0 w-2.5 h-2.5 rounded-full"
                 )}
-                <p>
-                    {props.row.original.id ? `${props.row.original.id}` : ""}
-                </p>
+                aria-hidden="true"
+              /> */}
+              {props.row.original.paramTicketEscalatedGroup.prefix === "SDK" ? (
+                <div class="relative">
+                  <div class="absolute top-0 right-0 -mr-1 -mt-1 w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></div>
+                  <div class="absolute top-0 right-0 -mr-1 -mt-1 w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                </div>
+              ) : (
+                <div class="relative">
+                  <div class="absolute top-0 right-0 -mr-1 -mt-1 w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                </div>
+              )}
+
+              <div>
+                <div>
+                  <Link href={`/tickets/${props.row.original.id}`}>
+                    <a className="text-blue-500 hover:text-blue-900">
+                      {props.value.length > 100
+                        ? `${props.value.substring(0, 150).concat("...")}`
+                        : `${props.value}`}
+                    </a>
+                  </Link>
+                </div>
+                <div className="mt-1">
+                  <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                    <TicketIcon className="-ml-0.5 mr-1.5 h-3 w-3 transform rotate-45" />
+                    Ticket ID : {props.row.original.id}
+                  </span>
+                </div>
               </div>
             </div>
           );
@@ -367,21 +388,35 @@ export default function TicketList(props) {
         Cell: (props) => {
           return (
             <div>
-              <p className="mb-2 text-black">
+              <p className="text-black">
                 {props.row.original.paramTicketApps
-                  ? ` ${props.row.original.paramTicketApps.subName }`
+                  ? ` ${props.row.original.paramTicketApps.subName}`
                   : "-"}
               </p>
-              <p className="mb-2 text-gray-500">
+              <span className="text-gray-500 text-xs">
                 {props.row.original.paramTicketType
                   ? ` ${props.row.original.paramTicketType.ticketType}`
                   : ""}
-              </p>
+              </span>
             </div>
           );
         },
       },
-      
+      {
+        Header: "PIC",
+        accessor: "picName",
+        disableSortBy: true,
+        Cell: (props) => {
+          return (
+            <div>
+              <p className="text-black">{props.value}</p>
+              <span className="text-xs text-gray-500">
+                {props.row.original.branchName}
+              </span>
+            </div>
+          );
+        },
+      },
       {
         Header: "Priority",
         accessor: "paramTicketPriority.priorityTicket",
@@ -395,26 +430,8 @@ export default function TicketList(props) {
         disableSortBy: true,
       },
       {
-        Header: "Opened At",
-        accessor: "createdAt",
-        
-        Cell: (props) => {
-          return (
-            <div>
-              <div className="text-xs text-gray-900">
-                {format(
-                  new Date(props.row.original.createdAt),
-                  "dd MMM yyyy HH:mm"
-                )}
-              </div>
-            </div>
-          );
-          
-        },
-      },
-      {
-        Header: "Complainer",
-        accessor: "picName",
+        Header: "Owner",
+        accessor: "paramTicketOwner.fullname",
         Cell: AvatarCell,
         disableSortBy: true,
       },
@@ -424,13 +441,14 @@ export default function TicketList(props) {
         Cell: (props) => {
           return (
             <div>
-              <Menu as="div" className="relative inline-block text-left">
+              <Menu as="div" className="relative flex justify-end items-center">
                 {({ open }) => (
                   <>
                     <div>
-                      <Menu.Button className="inline-flex justify-center w-full text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none">
+                      <Menu.Button className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span className="sr-only">Open options</span>
                         <DotsVerticalIcon
-                          className="w-5 h-5 ml-5 text-black"
+                          className="w-5 h-5"
                           aria-hidden="true"
                         />
                       </Menu.Button>
@@ -448,7 +466,7 @@ export default function TicketList(props) {
                     >
                       <Menu.Items
                         static
-                        className="absolute right-0 w-56 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                        className="mx-3 origin-top-right absolute right-7 top-0 w-48 mt-1 rounded-md shadow-lg z-10 bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
                       >
                         <div className="py-1">
                           <Menu.Item>
@@ -459,9 +477,13 @@ export default function TicketList(props) {
                                     active
                                       ? "bg-gray-100 text-gray-900"
                                       : "text-gray-700",
-                                    "block px-4 py-2 text-sm"
+                                    "group flex items-center px-4 py-2 text-sm"
                                   )}
                                 >
+                                  <EyeIcon
+                                    className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                    aria-hidden="true"
+                                  />
                                   View
                                 </a>
                               </Link>
@@ -479,56 +501,17 @@ export default function TicketList(props) {
                                   active
                                     ? "bg-gray-100 text-gray-900"
                                     : "text-gray-700",
-                                  "block px-4 py-2 text-sm"
+                                  "group flex items-center px-4 py-2 text-sm"
                                 )}
                               >
+                                <UserAddIcon
+                                  className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  aria-hidden="true"
+                                />
                                 Assign to me
                               </a>
                             )}
                           </Menu.Item>
-                          {/* Dimatikan dulu karena masih belum sempirna */}
-                          {/* <Menu.Item>
-                              {({ active }) => (
-                                <a
-                                  href="#"
-                                  onClick={() => {
-                                    const row = props.row.original;
-                                    // reset3(newEditDefaultValues);
-                                    setEditModalIsOpen(true);
-                                    setEditID(row.id)
-                                    setNewEditDefaultValues((newEditDefaultValues) => ({
-                                      ...newEditDefaultValues,
-                                      idApps : {
-                                        value: row.paramTicketApps?.id,
-                                        label: row.paramTicketApps?.subName,
-                                        criticality: row.paramTicketApps?.criticality
-                                      },
-                                      idTicketType: {
-                                        value: row.paramTicketType?.id,
-                                        label: row.paramTicketType?.ticketType
-                                      },
-                                      idPriorityTicket: {
-                                        value: row.paramTicketPriority?.id,
-                                        label: row.paramTicketPriority?.priorityTicket
-                                      },
-                                      idEscalatedGroup: {
-                                        value: row.paramTicketEscalatedGroup?.id,
-                                        label: row.paramTicketEscalatedGroup?.groupName
-                                      },
-                                      escalatedRole: row.escalatedRole || null
-                                    }));
-                                  }}
-                                  className={clsx(
-                                    active
-                                      ? 'bg-gray-100 text-gray-900'
-                                      : 'text-gray-700',
-                                    'block px-4 py-2 text-sm'
-                                  )}
-                                >
-                                  Edit
-                                </a>
-                              )}
-                            </Menu.Item> */}
                           <Menu.Item>
                             {({ active }) => (
                               <a
@@ -541,9 +524,13 @@ export default function TicketList(props) {
                                   active
                                     ? "bg-gray-100 text-gray-900"
                                     : "text-gray-700",
-                                  "block px-4 py-2 text-sm"
+                                  "group flex items-center px-4 py-2 text-sm"
                                 )}
                               >
+                                <CheckCircleIcon
+                                  className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  aria-hidden="true"
+                                />
                                 Close issue
                               </a>
                             )}
@@ -927,9 +914,8 @@ export default function TicketList(props) {
                 bgColor="bg-red-400"
                 initials={<MailOpenIcon className="w-6 h-6" />}
                 title="Ticket Open"
-                total= {props.paramReport}
+                total={props.paramReport}
                 desc="View All"
-                
                 href="/tickets?escalatedRole=0&ticketStatus=Open"
               />
               <CardStats
@@ -958,7 +944,6 @@ export default function TicketList(props) {
                 total={props.paramreportEng}
                 desc="View All"
                 href="/tickets?escalatedRole=1&ticketStatus=Open"
-                
               />
             </ul>
           </div>
@@ -1501,7 +1486,7 @@ export default function TicketList(props) {
                 "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               }
               activeLinkClassName={
-                "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                "z-10 bg-blue-50 border-blue-500 text-blue-600"
               }
             />
           </div>
@@ -1561,26 +1546,37 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   });
   const data = await res.json();
 
-  const getReport = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/10/report`, {
-    headers: { Authorization: `Bearer ${user.accessToken}` },
-  });
+  const getReport = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboards/10/report`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
   const report = await getReport.json();
 
-  const getReport2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/11/report`, {
-    headers: { Authorization: `Bearer ${user.accessToken}` },
-  });
+  const getReport2 = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboards/11/report`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
   const report2 = await getReport2.json();
 
-  const getReport3 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/12/report`, {
-    headers: { Authorization: `Bearer ${user.accessToken}` },
-  });
+  const getReport3 = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboards/12/report`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
   const report3 = await getReport3.json();
 
-  const getReportEng = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/13/report`, {
-    headers: { Authorization: `Bearer ${user.accessToken}` },
-  });
+  const getReportEng = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboards/13/report`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
   const reportEng = await getReportEng.json();
-  
 
   if (!user) {
     return {
