@@ -147,7 +147,7 @@ export default function DownloadIncident({ user, downloadList }) {
 
     if (idApps) params.append("idApps", idApps.value);
     if (idIncidentType) params.append("idIncidentType", idIncidentType.value);
-    if (incidentStatus) params.append("idIncidentType", incidentStatus);
+    if (incidentStatus) params.append("incidentStatus", incidentStatus);
 
     await sleep(5000);
     axios
