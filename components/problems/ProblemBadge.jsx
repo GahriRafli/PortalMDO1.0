@@ -7,6 +7,7 @@ import {
 import { Tooltip } from "antd";
 import "antd/dist/antd.css";
 import { BadgesWithDot } from "../ui/badges";
+import { classNames } from "components/utils";
 
 const PriorityArrow = ({ value }) => {
   const priority = value ? value.toLowerCase() : "-";
@@ -145,4 +146,26 @@ const StatusIncident = ({ value }) => {
   );
 };
 
-export { PriorityArrow, SourcePill, StatusPill, StatusText, StatusIncident };
+const CountSummary = ({ value }) => {
+  return (
+    <div
+      className={classNames(
+        !value.includes("Not")
+          ? "bg-green-100 text-green-800"
+          : "bg-red-100 text-red-800",
+        "inline-flex items-baseline mx-1 px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
+      )}
+    >
+      {value}
+    </div>
+  );
+};
+
+export {
+  PriorityArrow,
+  SourcePill,
+  StatusPill,
+  StatusText,
+  StatusIncident,
+  CountSummary,
+};

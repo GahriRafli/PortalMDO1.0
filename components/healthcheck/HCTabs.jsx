@@ -1,30 +1,17 @@
 import React from "react";
-import {
-  CreditCardIcon,
-  OfficeBuildingIcon,
-  UserIcon,
-  UsersIcon,
-} from "@heroicons/react/solid";
+import { CellHead, CellResult } from "./Cell";
 
-const tabs = [
-  { name: "My Account", href: "#", icon: UserIcon, current: false },
-  { name: "Company", href: "#", icon: OfficeBuildingIcon, current: false },
-  { name: "Team Members", href: "#", icon: UsersIcon, current: true },
-  { name: "Billing", href: "#", icon: CreditCardIcon, current: false },
-];
+const styleHead =
+  "px-6 py-3 border-b border-gray-200 bg-gray-50 text-center font-medium text-gray-500 uppercase tracking-wider";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
-const TabsUhuy = ({ color }) => {
+const TabsUhuy = ({ data, color }) => {
   const [openTab, setOpenTab] = React.useState(1);
   return (
     <>
       <div className="flex flex-wrap">
         <div className="w-full">
           <ul
-            className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row"
+            className="flex mb-0 list-none flex-wrap py-2 flex-row"
             role="tablist"
           >
             <li className="-mb-px mr-2 last:mr-0 flex-auto text-center">
@@ -32,7 +19,7 @@ const TabsUhuy = ({ color }) => {
                 className={
                   "text-xs font-bold uppercase px-5 py-3 shadow-sm rounded block leading-normal " +
                   (openTab === 1
-                    ? "text-white bg-" + color + "-50"
+                    ? "text-gray-500 bg-" + color + "-50"
                     : "text-" + color + "-50 bg-white")
                 }
                 onClick={(e) => {
@@ -40,10 +27,10 @@ const TabsUhuy = ({ color }) => {
                   setOpenTab(1);
                 }}
                 data-toggle="tab"
-                href="#link1"
+                href="#metric1"
                 role="tablist"
               >
-                Metric 1
+                Configuration & Monitoring Tools
               </a>
             </li>
             <li className="-mb-px mr-2 last:mr-0 flex-auto text-center">
@@ -51,7 +38,7 @@ const TabsUhuy = ({ color }) => {
                 className={
                   "text-xs font-bold uppercase px-5 py-3 shadow-sm rounded block leading-normal " +
                   (openTab === 2
-                    ? "text-white bg-" + color + "-50"
+                    ? "text-gray-500 bg-" + color + "-50"
                     : "text-" + color + "-50 bg-white")
                 }
                 onClick={(e) => {
@@ -59,10 +46,10 @@ const TabsUhuy = ({ color }) => {
                   setOpenTab(2);
                 }}
                 data-toggle="tab"
-                href="#link2"
+                href="#metric2"
                 role="tablist"
               >
-                Metric 2
+                Performance Efficiency
               </a>
             </li>
             <li className="-mb-px mr-2 last:mr-0 flex-auto text-center">
@@ -70,7 +57,7 @@ const TabsUhuy = ({ color }) => {
                 className={
                   "text-xs font-bold uppercase px-5 py-3 shadow-sm rounded block leading-normal " +
                   (openTab === 3
-                    ? "text-white bg-" + color + "-50"
+                    ? "text-gray-500 bg-" + color + "-50"
                     : "text-" + color + "-50 bg-white")
                 }
                 onClick={(e) => {
@@ -78,46 +65,122 @@ const TabsUhuy = ({ color }) => {
                   setOpenTab(3);
                 }}
                 data-toggle="tab"
-                href="#link3"
+                href="#metric3"
                 role="tablist"
               >
-                Metric 3
+                Resource Utilization
+              </a>
+            </li>
+            <li className="-mb-px mr-2 last:mr-0 flex-auto text-center">
+              <a
+                className={
+                  "text-xs font-bold uppercase px-5 py-3 shadow-sm rounded block leading-normal " +
+                  (openTab === 4
+                    ? "text-gray-500 bg-" + color + "-50"
+                    : "text-" + color + "-50 bg-white")
+                }
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpenTab(4);
+                }}
+                data-toggle="tab"
+                href="#metric4"
+                role="tablist"
+              >
+                Realibility Measures
               </a>
             </li>
           </ul>
           <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-sm rounded">
-            <div className="px-4 py-5 flex-auto">
+            <div className="flex-auto">
               <div className="tab-content tab-space">
-                <div className={openTab === 1 ? "block" : "hidden"} id="link1">
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                  </p>
+                <div
+                  className={openTab === 1 ? "block" : "hidden"}
+                  id="metric1"
+                >
+                  {/* Metrics Pertama */}
+                  <table className="table-fixed">
+                    <thead>
+                      <CellHead styleHead={styleHead} />
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {data
+                        .filter((row) => row.hcMetric.id == 1)
+                        .map((row, i) => {
+                          return <CellResult row={row} i={i} />;
+                        })}
+                    </tbody>
+                  </table>
                 </div>
-                <div className={openTab === 2 ? "block" : "hidden"} id="link2">
-                  <p>
-                    Sed ut perspiciatis unde omnis iste natus error sit
-                    voluptatem accusantium doloremque laudantium, totam rem
-                    aperiam, eaque ipsa quae ab illo inventore veritatis et
-                    quasi architecto beatae vitae dicta sunt explicabo. Nemo
-                    enim ipsam voluptatem quia voluptas sit aspernatur aut odit
-                    aut fugit, sed quia consequuntur magni dolores eos qui
-                    ratione voluptatem sequi nesciunt.
-                  </p>
+                <div
+                  className={openTab === 2 ? "block" : "hidden"}
+                  id="metric2"
+                >
+                  {/* Metrics Kedua */}
+                  <table className="table-fixed">
+                    <thead>
+                      <CellHead styleHead={styleHead} />
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {data
+                        .filter((row) => row.hcMetric.id == 2)
+                        .map((row, i) => {
+                          return <CellResult row={row} i={i} />;
+                        })}
+                    </tbody>
+                  </table>
                 </div>
-                <div className={openTab === 3 ? "block" : "hidden"} id="link3">
-                  <p>
-                    Neque porro quisquam est, qui dolorem ipsum quia dolor sit
-                    amet, consectetur, adipisci velit, sed quia non numquam eius
-                    modi tempora incidunt ut labore et dolore magnam aliquam
-                    quaerat voluptatem.
-                  </p>
+                <div
+                  className={openTab === 3 ? "block" : "hidden"}
+                  id="metric3"
+                >
+                  {/* Metrics Ketiga */}
+                  <table className="table-fixed">
+                    <thead>
+                      <CellHead styleHead={styleHead} />
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {data
+                        .filter((row) => row.hcMetric.id == 3)
+                        .map((row, i) => {
+                          return <CellResult row={row} i={i} />;
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+                <div
+                  className={openTab === 4 ? "block" : "hidden"}
+                  id="metric4"
+                >
+                  {/* Metrics Keempat */}
+                  <table className="table-fixed">
+                    <thead>
+                      <tr className="border-t border-gray-200">
+                        <th className={styleHead} style={{ width: "10rem" }}>
+                          Metrics
+                        </th>
+                        <th className={styleHead} style={{ width: "7rem" }}>
+                          Unit
+                        </th>
+                        <th className={styleHead} style={{ width: "9rem" }}>
+                          Target
+                        </th>
+                        <th className={styleHead} style={{ width: "35rem" }}>
+                          Description
+                        </th>
+                        <th className={styleHead} style={{ width: "7rem" }}>
+                          Result
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {data
+                        .filter((row) => row.hcMetric.id == 4)
+                        .map((row, i) => {
+                          return <CellResult row={row} i={i} />;
+                        })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -128,55 +191,10 @@ const TabsUhuy = ({ color }) => {
   );
 };
 
-const HCTabs = () => {
+const HCTabs = ({ data }) => {
   return (
     <div>
-      {/* <div className="sm:hidden">
-        <label htmlFor="tabs" className="sr-only">
-          Select a tab
-        </label>
-        <select
-          id="tabs"
-          name="tabs"
-          className="block w-full focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-          defaultValue={tabs.find((tab) => tab.current).name}
-        >
-          {tabs.map((tab) => (
-            <option key={tab.name}>{tab.name}</option>
-          ))}
-        </select>
-      </div> */}
-      {/* <div className="hidden sm:block">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-            {tabs.map((tab) => (
-              <a
-                key={tab.name}
-                href={tab.href}
-                className={classNames(
-                  tab.current
-                    ? "border-indigo-500 text-indigo-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
-                  "group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm"
-                )}
-                aria-current={tab.current ? "page" : undefined}
-              >
-                <tab.icon
-                  className={classNames(
-                    tab.current
-                      ? "text-indigo-500"
-                      : "text-gray-400 group-hover:text-gray-500",
-                    "-ml-0.5 mr-2 h-5 w-5"
-                  )}
-                  aria-hidden="true"
-                />
-                <span>{tab.name}</span>
-              </a>
-            ))}
-          </nav>
-        </div>
-      </div> */}
-      <TabsUhuy color="blue" />
+      <TabsUhuy data={data} color="blue" />
     </div>
   );
 };

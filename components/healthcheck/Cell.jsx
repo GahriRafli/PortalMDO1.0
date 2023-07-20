@@ -1,3 +1,25 @@
+const CellHead = ({ styleHead }) => {
+  return (
+    <tr className="border-t border-gray-200">
+      <th className={styleHead} style={{ width: "10rem" }}>
+        Metrics
+      </th>
+      <th className={styleHead} style={{ width: "7rem" }}>
+        Unit
+      </th>
+      <th className={styleHead} style={{ width: "9rem" }}>
+        Target
+      </th>
+      <th className={styleHead} style={{ width: "35rem" }}>
+        Description
+      </th>
+      <th className={styleHead} style={{ width: "7rem" }}>
+        Result
+      </th>
+    </tr>
+  );
+};
+
 const CellMetric = ({ row, i }) => {
   return (
     <>
@@ -25,7 +47,7 @@ const CellResult = ({ row, i }) => {
         <td className={styleData}>{row.hcSubmetric.description}</td>
         <td className={styleData}>{row.hcSubmetric.unit}</td>
         <td className={styleData}>{row.hcSubmetric.target}</td>
-        <td className={styleData}>
+        <td className="px-6 py-3 text-sm text-gray-500 font-normal whitespace-pre-wrap">
           {explodeDesc.map((desc) => {
             return (
               <>
@@ -40,4 +62,4 @@ const CellResult = ({ row, i }) => {
   );
 };
 
-export { CellMetric, CellResult };
+export { CellHead, CellMetric, CellResult };
