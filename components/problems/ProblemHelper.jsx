@@ -6,6 +6,14 @@ function checkTLAES(user) {
   }
 }
 
+function checkerAES(user) {
+  if (user.fullname.includes("Kartika Mutiara")) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function checkMemberAES(user) {
   if (user.userMatrix.desc.includes("Member AES")) {
     return true;
@@ -29,4 +37,4 @@ function noData() {
   );
 }
 
-export { checkTLAES, checkMemberAES, noData };
+export { checkTLAES, checkerAES, checkMemberAES, noData };
