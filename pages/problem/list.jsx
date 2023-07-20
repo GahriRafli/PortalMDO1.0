@@ -111,33 +111,69 @@ export default function ProblemList({ user, problems, countAssign }) {
   };
 
   // Get Source Problem
+  // useEffect(() => {
+  //   axios
+  //     .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`)
+  //     .then((response) => {
+  //       const data = response.data.data.map((d) => ({
+  //         value: d.id,
+  //         label: d.label,
+  //       }));
+  //       setSourceProblemOptions(data);
+  //     })
+  //     .catch((err) => toast.error(`Source ${err}`));
+  // }, []);
+
+  // Get Status Problem
+  // useEffect(() => {
+  //   axios
+  //     .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/status/all`)
+  //     .then((response) => {
+  //       const data = response.data.data
+  //         .filter((data) => data.id !== 1)
+  //         .map((d) => ({
+  //           value: d.id,
+  //           label: d.label,
+  //         }));
+  //       setStatusProblemOptions(data);
+  //     })
+  //     .catch((err) => toast.error(`Status ${err}`));
+  // }, []);
+
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`)
-      .then((response) => {
-        const data = response.data.data.map((d) => ({
+    const fetchData = async () => {
+      try {
+        const sourceResponse = axios.get(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`
+        );
+        const statusResponse = axios.get(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/status/all`
+        );
+
+        const [sourceData, statusData] = await Promise.all([
+          sourceResponse,
+          statusResponse,
+        ]);
+
+        const sourceOptions = sourceData.data.data.map((d) => ({
           value: d.id,
           label: d.label,
         }));
-        setSourceProblemOptions(data);
-      })
-      .catch((err) => toast.error(`Source ${err}`));
-  }, []);
+        setSourceProblemOptions(sourceOptions);
 
-  // Get Status Problem
-  useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/status/all`)
-      .then((response) => {
-        const data = response.data.data
+        const statusOptions = statusData.data.data
           .filter((data) => data.id !== 1)
           .map((d) => ({
             value: d.id,
             label: d.label,
           }));
-        setStatusProblemOptions(data);
-      })
-      .catch((err) => toast.error(`Status ${err}`));
+        setStatusProblemOptions(statusOptions);
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Hit to Filter Problem
@@ -235,13 +271,11 @@ export default function ProblemList({ user, problems, countAssign }) {
           return (
             <>
               <div className="text-sm text-gray-500">
-                {props.row.original.incidents.length == 0
-                  ? "Problem Non Incident"
-                  : props.row.original.multipleIncident == "N"
-                  ? props.row.original.incidents.map((incident) => {
-                      return incident.incidentNumber;
-                    })
-                  : "Multiple Incident"}{" "}
+                {props.row.original.incidents.length > 1
+                  ? "Multiple Incident"
+                  : props.row.original.incidents.length == 1
+                  ? props.row.original.incidents[0].incidentNumber
+                  : "IR Not Linked"}{" "}
                 |
                 <span className="text-gray-600 hover:text-gray-900">
                   {props.row.original.problemNumber != null
@@ -252,7 +286,7 @@ export default function ProblemList({ user, problems, countAssign }) {
               <div className="text-base text-gray-900 font-medium">
                 <a
                   href={`/problem/${props.row.original.id}`}
-                  className="bg-gray-100 text-gray-900"
+                  className="text-gray-900"
                   target="_self"
                   rel="noreferrer"
                 >
