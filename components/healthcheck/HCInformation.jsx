@@ -1,7 +1,6 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { HeartIcon } from "@heroicons/react/outline";
-import { CellMetric, CellResult } from "./Cell";
 import HCTabs from "./HCTabs";
 
 const styleHead =
@@ -10,6 +9,7 @@ const styleHead =
 const HCInformation = ({ data }) => {
   const [open, setOpen] = useState(false);
   let listIP = data.ipAddress.split(";");
+  let listAppendix = data.appendix.split(";");
   return (
     <>
       <Transition.Root show={open} as={Fragment}>
@@ -73,71 +73,60 @@ const HCInformation = ({ data }) => {
                       </p>
                     </Dialog.Title>
                     <div>
-                      {/* Section IP Address */}
-                      <table className="table-fixed my-2">
-                        <thead>
-                          <tr className="border-t border-gray-200">
-                            <th className={styleHead}>List of IP Address</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
-                          {listIP.map((ip, i) => {
-                            return (
-                              <tr key={`list-ip-${i}`}>
-                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                  {ip}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-
-                      <HCTabs />
-
-                      <table className="table-fixed">
-                        <thead>
-                          <tr className="border-t border-gray-200">
-                            <th className={styleHead}>Metrics</th>
-                            <th className={styleHead}>Unit</th>
-                            <th className={styleHead}>Target</th>
-                            <th className={styleHead}>Description</th>
-                            <th className={styleHead}>Result</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
-                          {data.hcResults.map((row, i) => {
-                            if (i == 0 || i == 4 || i == 7 || i == 11) {
+                      <div className="flex py-2 place-content-center">
+                        <img
+                          className="mx-2 my-2 py-2"
+                          style={{ height: "25rem" }}
+                          src={`${process.env.NEXT_PUBLIC_HOST_ADDRESS}/${listAppendix[0]}`}
+                          alt={data.healthcheckNumber}
+                        />
+                        <table className="table-fixed my-2 self-start">
+                          <thead>
+                            <tr className="border-t border-gray-200">
+                              <th className={styleHead}>List of IP Address</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-100">
+                            {listIP.map((ip, i) => {
                               return (
-                                <>
-                                  <CellMetric row={row} i={i} />
-                                  <CellResult row={row} i={i} />
-                                </>
+                                <tr key={`list-ip-${i}`}>
+                                  <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                    {ip}
+                                  </td>
+                                </tr>
                               );
-                            } else {
-                              return <CellResult row={row} i={i} />;
-                            }
-                          })}
-                        </tbody>
-                      </table>
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      <HCTabs data={data.hcResults} />
                     </div>
                   </div>
                 </div>
-                <div className="mt-5 sm:mt-6">
+
+                <div className="flex justify-end">
                   <button
                     type="button"
-                    className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-500 text-base font-medium text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 sm:text-sm"
+                    className="mr-1 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     onClick={() => setOpen(false)}
                   >
-                    go back to create problem
+                    back to create problem
                   </button>
+                  <a
+                    href={`/healthcheck/${data.id}`}
+                    className="ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    go to health check page
+                  </a>
                 </div>
               </div>
             </Transition.Child>
           </div>
         </Dialog>
       </Transition.Root>
-
+      {/* Button Recommendation */}
       <div className="py-4">
         <button
           type="button"

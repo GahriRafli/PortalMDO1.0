@@ -32,6 +32,7 @@ import {
   LayoutPageContent,
   LayoutPageHeader,
 } from "components/layout/index";
+import { CheckCircleIcon } from "@heroicons/react/outline";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -188,7 +189,7 @@ function ProblemDetail({ user, problem, idProblem }) {
     if (data.jiraProblem === "") {
       toast.error(`Failed to update: Link JIRA harus diisi`);
     } else {
-      if (data.jiraProblem.includes("jira.bri.co.id")) {
+      if (data.jiraProblem.includes("https://jira.bri.co.id/")) {
         setSpinner(true);
         axios
           .put(
@@ -210,7 +211,7 @@ function ProblemDetail({ user, problem, idProblem }) {
             toast.error(`Failed to update: ${error.response.data.message}`);
           });
       } else {
-        toast.error(`Failed to update: Must attach JIRA BRI`);
+        toast.error(`Failed to update: Must attach https://jira.bri.co.id/`);
       }
     }
   };
@@ -552,7 +553,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                                           isClearable
                                           options={typeOptions}
                                           styles={styledReactSelect}
-                                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                          className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
                                         />
                                       )}
                                     />
@@ -779,6 +780,47 @@ function ProblemDetail({ user, problem, idProblem }) {
                       ) : null}
                     </div>
                   </div>
+
+                  {/* Health Check if Related */}
+                  {problem.relatedHC.length > 0 ? (
+                    <>
+                      <div className="bg-white shadow sm:rounded-lg mt-3">
+                        <div className="space-y-4 px-4 py-5 sm:px-6">
+                          <div className="flex items-center">
+                            <CheckCircleIcon
+                              className="mr-3 h-5 w-5 text-green-600"
+                              aria-hidden="true"
+                            />
+                            <h2 className="my-0 text-sm font-medium text-gray-900">
+                              Related Health Check
+                            </h2>
+                          </div>
+                          <ul className="inline-grid">
+                            {problem.relatedHC.map((res, index) => {
+                              return (
+                                <>
+                                  <li className="inline-flex my-2" key={index}>
+                                    <div className="inline-grid text-justify whitespace-pre-wrap">
+                                      <span className="font-medium">
+                                        {index + 1}.{" "}
+                                        {res.hcSubmetric.description}
+                                      </span>
+                                      <span className="pl-4">
+                                        {res.description}
+                                      </span>
+                                      <span className="pl-4 text-red-600 font-medium">
+                                        {res.result}
+                                      </span>
+                                    </div>
+                                  </li>
+                                </>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
                 </section>
               </div>
             </div>

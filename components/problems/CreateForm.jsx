@@ -3,14 +3,14 @@ import axios from "axios";
 import { styledReactSelect, styledReactSelectAdd } from "../utils";
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
-//import { toast } from "react-toastify";
 import { toast } from "react-hot-toast";
+import { Switch } from "@headlessui/react";
 import { Spinner } from "components/ui/svg/spinner";
 import { useRouter } from "next/router";
 import format from "date-fns/format";
 import AsyncSelect from "react-select/async";
 
-import CreateInformation from "./CreateInformation";
+import { Problem } from "./CreateInformation";
 import HCInformation from "components/healthcheck/HCInformation";
 
 function classNames(...classes) {
@@ -41,6 +41,18 @@ const CreateForm = ({ user }) => {
   const [impactOptions, setImpactOptions] = useState([]);
   const [followupOptions, setFollowupOptions] = useState([]);
   const router = useRouter();
+
+  // Recommend
+  const [enabled, setEnabled] = useState(false);
+  const [enableSwitch, setEnableSwitch] = useState(false);
+  const [checkedState, setCheckedState] = useState(new Array(14).fill(false)); //hardcode submetric
+  const [finalArray, setFinalArray] = useState([]);
+
+  // Handle switch button when incident is over
+  const handleSwitch = (value) => {
+    setEnableSwitch(value);
+    value === false ? (setFinalArray([]), setEnabled(false)) : true;
+  };
 
   // Get Data Aplikasi Async
   const loadApplications = (value, callback) => {
@@ -166,6 +178,24 @@ const CreateForm = ({ user }) => {
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
 
+  //Coba Bikin Handle
+  const handleCheck = async (position) => {
+    const updatedCheckedState = checkedState.map((item, index) =>
+      index === position ? !item : item
+    );
+
+    setCheckedState(updatedCheckedState);
+
+    const arrCheck = updatedCheckedState.reduce((acc, currentState, index) => {
+      if (currentState === true) {
+        acc.push(recommend.data.hcResults[index].id);
+      }
+      return acc;
+    }, []);
+
+    setFinalArray(arrCheck);
+  };
+
   // Ini dilakukan saat onSubmit
   const createProblem = async (data, event) => {
     event.preventDefault();
@@ -186,6 +216,7 @@ const CreateForm = ({ user }) => {
       idFollowup: checkFollowup,
       assignedTo: user.id,
       createdBy: user.id,
+      healthCheck: finalArray,
     });
 
     setSpinner(true);
@@ -220,13 +251,13 @@ const CreateForm = ({ user }) => {
 
   return (
     <>
-      <div className="max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-0 lg:max-w-full lg:px-0 lg:grid-flow-col-dense lg:grid-cols-3">
-        <div className="space-y-6 lg:col-start-1 lg:col-span-2">
-          <section
-            aria-labelledby="create-problem"
-            className="space-y-6 lg:col-start-1 lg:col-span-2"
-          >
-            <form onSubmit={handleSubmit(createProblem)}>
+      <form onSubmit={handleSubmit(createProblem)}>
+        <div className="max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-0 lg:max-w-full lg:px-0 lg:grid-flow-col-dense lg:grid-cols-3">
+          <div className="space-y-6 lg:col-start-1 lg:col-span-2">
+            <section
+              aria-labelledby="create-problem"
+              className="space-y-6 lg:col-start-1 lg:col-span-2"
+            >
               <div className="bg-white shadow overflow-visible sm:rounded-lg static">
                 <div className="pt-6 px-6">
                   <label className="block text-sm font-medium text-gray-700">
@@ -309,7 +340,7 @@ const CreateForm = ({ user }) => {
                           className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
                           placeholder="Search for application"
                           components={{ NoOptionsMessage }}
-                          // onChange={handleAppChange}
+                          onChange={handleAppChange}
                         />
                       )}
                     />
@@ -504,31 +535,102 @@ const CreateForm = ({ user }) => {
                   </div>
                 </div>
               </div>
-            </form>
-          </section>
-        </div>
+            </section>
+          </div>
 
-        <section
-          aria-labelledby="problem-create-info"
-          className="lg:col-start-3 lg:col-span-1"
-        >
-          <CreateInformation />
-          {/* {recommend !== null && recommend.status == 200 ? (
-            <HCInformation data={recommend.data} />
-          ) : (
-            <div className="py-4">
-              <div className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                No Data Health Check Recommendation
-              </div>
+          <section
+            aria-labelledby="problem-create-info"
+            className="lg:col-start-3 lg:col-span-1"
+          >
+            <Problem />
+            <div className="bg-white my-6 px-2 py-3 shadow sm:rounded-lg sm:px-6">
+              {recommend !== null && recommend.status == 200 ? (
+                <>
+                  <HCInformation data={recommend.data} />
+                  {/* Switch Recommendation */}
+                  <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">
+                    <Switch.Group as="div" className="flex items-center">
+                      <Switch
+                        checked={enableSwitch}
+                        onChange={handleSwitch}
+                        className={classNames(
+                          enableSwitch ? "bg-indigo-600" : "bg-gray-200",
+                          "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        )}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={classNames(
+                            enableSwitch ? "translate-x-5" : "translate-x-0",
+                            "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
+                          )}
+                        />
+                      </Switch>
+                      <Switch.Label
+                        as="span"
+                        className="ml-3 inline-grid"
+                        passive
+                      >
+                        <span className="text-sm font-medium text-gray-900">
+                          Recommendation{" "}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          (Switch the toggle if Health Check includes in Ticket)
+                        </span>
+                      </Switch.Label>
+                    </Switch.Group>
+                  </div>
+                  <ul className="inline-grid">
+                    {enableSwitch &&
+                      recommend.data.hcResults
+                        .filter((res) => res.result == "Not Passed")
+                        .map((res, index) => {
+                          return (
+                            <>
+                              <li className="inline-flex my-2" key={index}>
+                                <input
+                                  type="checkbox"
+                                  id={`checkbox-${index}`}
+                                  name={`checkbox-${index}`}
+                                  value={res.id}
+                                  className={classNames(
+                                    enabled
+                                      ? "focus:ring-indigo-500"
+                                      : "focus:ring-indigo-500 border-gray-300",
+                                    "text-indigo-600 mt-0.5 mr-2 h-5 w-5 rounded cursor-pointer"
+                                  )}
+                                  onChange={() => handleCheck(index)}
+                                />
+                                <div className="inline-grid text-justify">
+                                  <span className="font-medium">
+                                    {res.hcSubmetric.description}
+                                  </span>
+                                  <span className="text-gray-500 whitespace-pre-wrap">
+                                    {res.description}
+                                  </span>
+                                </div>
+                              </li>
+                            </>
+                          );
+                        })}
+                  </ul>
+                </>
+              ) : (
+                <div className="py-4">
+                  <div className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    No Data Health Check Recommendation
+                  </div>
+                </div>
+              )}
             </div>
-          )} */}
-          <div className="py-4">
+            {/* <div className="py-4">
             <div className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
               No Data Health Check Recommendation
             </div>
-          </div>
-        </section>
-      </div>
+          </div> */}
+          </section>
+        </div>
+      </form>
     </>
   );
 };

@@ -124,7 +124,7 @@ export default function TaskList({ user, data }) {
               <div className="text-base text-gray-900 font-medium">
                 <a
                   href={`/problem/${props.row.original.id}`}
-                  className="bg-gray-100 text-gray-900"
+                  className="text-gray-900"
                   target="_self"
                   rel="noreferrer"
                 >
