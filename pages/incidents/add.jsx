@@ -782,7 +782,7 @@ export default function addIncident({ user }) {
                               </Switch>
                               <Switch.Label as="span" className="ml-3" passive>
                                 <span className="text-sm font-medium text-gray-900">
-                                  Need Improvemnt or Permanent Fix
+                                  Need Improvement or Permanent Fix
                                 </span>
                               </Switch.Label>
                             </Switch.Group>
