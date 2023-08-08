@@ -1,23 +1,23 @@
 [
     {
         "id": 1,
-        "title": "Declaring an Tickets",
-        "bodyHeader": "Declare an tickets if:",
+        "title": "Declaring Tickets",
+        "bodyHeader": "Declare a ticket if:",
         "bodyContent": [
             {
                 "id": 1,
-                "text": "An issue or complaint originating from whatsapp or telegram."
+                "text": "An issue or complaint originated from whatsapp or telegram."
             }
         ]
     },
     {
         "id": 2,
-        "title": "How to choose an Source Manual?",
+        "title": "How to choose a Source Manual?",
         "bodyHeader": "",
         "bodyContent": [
             {
                 "id": 1,
-                "text": "Choose an Source ticket based on where the ticket comes from, Telegram or WhatsApp."
+                "text": "Choose a Source ticket based on where the ticket comes from, Telegram or WhatsApp."
             }
         ]
     }
