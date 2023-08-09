@@ -100,7 +100,7 @@ export default function IncidentDetail({ user, incident, comments }) {
       );
   }, []);
 
-  // get data system catgory type
+  // get data system category type
   useEffect(() => {
     axios
       .get(

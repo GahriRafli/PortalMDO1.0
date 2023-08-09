@@ -46,6 +46,7 @@ export default function ThirdParty({ user }) {
   const [portalTarget, setPortalTarget] = useState("");
   const [partner, setPartner] = useState("");
   const [partnerOptions, setPartnerOptions] = useState([]);
+  const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -249,6 +250,26 @@ export default function ThirdParty({ user }) {
         setIncidentTypeOptions(data);
       })
       .catch((err) => toast.error(`Fu Plan ${err}`));
+  }, []);
+
+  // mau get filter per responsible team tapi coba dulu kalo nambahin filter kritikalitas aplikasi ?
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response) => {
+        const data = response.data.data.map((item) => ({
+          value: item.id,
+          label: item.urgency,
+        }));
+        setUrgencyOptions(data);
+      })
+      .catch((error) =>
+        toast.error(
+          `Unable to get urgency list: ${error.response.data.message}`
+        )
+      );
   }, []);
 
   const handlePartnerChange = (event) => {
