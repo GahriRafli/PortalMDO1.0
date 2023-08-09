@@ -46,7 +46,6 @@ export default function ThirdParty({ user }) {
   const [portalTarget, setPortalTarget] = useState("");
   const [partner, setPartner] = useState("");
   const [partnerOptions, setPartnerOptions] = useState([]);
-  const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -252,7 +251,8 @@ export default function ThirdParty({ user }) {
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
 
-  // mau get filter per responsible team tapi coba dulu kalo nambahin filter kritikalitas aplikasi ?
+  // mau coba dulu kalo nambahin filter kritikalitas aplikasi ?
+  const [urgencyOptions, setUrgencyOptions] = useState([]);
   useEffect(() => {
     axios
       .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`, {
@@ -431,6 +431,23 @@ export default function ThirdParty({ user }) {
             <div className="shadow overflow-hidden sm:rounded-md">
               <div className="px-4 py-5 bg-white sm:p-6">
                 <div className="grid grid-cols-6 gap-6">
+                  <div className="col-span-6 sm:col-span-6 lg:col-span-2">
+                    <label
+                      htmlFor="incidentType"
+                      className="block mb-1 text-sm font-medium text-gray-700"
+                    >
+                      Type
+                    </label>
+                    <ReactSelect
+                      isClearable
+                      className="text-sm block w-full"
+                      menuPortalTarget={portalTarget}
+                      id="incidentType"
+                      instanceId={"incidentType"}
+                      options={incidentTypeOptions}
+                      onChange={handlePartnerChange}
+                    />
+                  </div>
                   <div className="col-span-6 sm:col-span-6 lg:col-span-2">
                     <label
                       htmlFor="incidentType"
