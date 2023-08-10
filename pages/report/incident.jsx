@@ -251,23 +251,23 @@ export default function ThirdParty({ user }) {
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
 
-  // mau coba dulu kalo nambahin filter kritikalitas aplikasi ?
-  const [urgencyOptions, setUrgencyOptions] = useState([]);
+  // nyoba nambah kolom filter lain
+  const [teamOptions, setTeamOptions] = useState([]);
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`, {
+    axios //alamat nembak ini diganti supaya bisa nampilin dropdown yg pilihannya responsible teams ?
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/group?isActive=Y`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then((response) => {
         const data = response.data.data.map((item) => ({
           value: item.id,
-          label: item.urgency,
+          label: item.prefix,
         }));
-        setUrgencyOptions(data);
+        setTeamOptions(data);
       })
       .catch((error) =>
         toast.error(
-          `Unable to get urgency list: ${error.response.data.message}`
+          `Unable to get teams list: ${error.response.data.message}`
         )
       );
   }, []);
@@ -436,7 +436,7 @@ export default function ThirdParty({ user }) {
                       htmlFor="incidentType"
                       className="block mb-1 text-sm font-medium text-gray-700"
                     >
-                      Type
+                      Incident Type
                     </label>
                     <ReactSelect
                       isClearable
@@ -450,18 +450,18 @@ export default function ThirdParty({ user }) {
                   </div>
                   <div className="col-span-6 sm:col-span-6 lg:col-span-2">
                     <label
-                      htmlFor="incidentType"
+                      htmlFor="teamOption"
                       className="block mb-1 text-sm font-medium text-gray-700"
                     >
-                      Type
+                      Responsible Team
                     </label>
                     <ReactSelect
                       isClearable
                       className="text-sm block w-full"
                       menuPortalTarget={portalTarget}
-                      id="incidentType"
-                      instanceId={"incidentType"}
-                      options={incidentTypeOptions}
+                      id="teamOption"
+                      instanceId={"teamOption"}
+                      options={teamOptions}
                       onChange={handlePartnerChange}
                     />
                   </div>
