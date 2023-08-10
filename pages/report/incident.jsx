@@ -251,10 +251,10 @@ export default function ThirdParty({ user }) {
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
 
-  // nyoba nambah kolom filter lain
+  // get responsible team
   const [teamOptions, setTeamOptions] = useState([]);
   useEffect(() => {
-    axios //alamat nembak ini diganti supaya bisa nampilin dropdown yg pilihannya responsible teams ?
+    axios
       .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/group?isActive=Y`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
