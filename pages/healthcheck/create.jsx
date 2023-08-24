@@ -134,35 +134,48 @@ export default function InputHealthCheck({ user }) {
     setImage(img);
   };
 
+  function mecahBaris(input) {
+    let oneLiner,
+      tempElement = null;
+    let mecahBaris = input.split("\n");
+    mecahBaris.map((element) => {
+      if (tempElement == null) {
+        tempElement = element;
+      } else {
+        tempElement = `${oneLiner};${element}`;
+      }
+      oneLiner = tempElement;
+    });
+    return oneLiner;
+  }
+
   const createHealthCheck = async (data, event) => {
     event.preventDefault();
-    function mecahBaris(input) {
-      let oneLiner,
-        tempElement = null;
-      let mecahBaris = input.split("\n");
-      mecahBaris.map((element) => {
-        if (tempElement == null) {
-          tempElement = element;
-        } else {
-          tempElement = `${oneLiner};${element}`;
-        }
-        oneLiner = tempElement;
-      });
-      return oneLiner;
-    }
+    let fName = null;
+    // Validasi Image Kosong
+    if (!image.data == "" || !image.data == null) {
+      // if (!image.data.type == "image/jpeg" || !image.data.type == "image/png") {
+      //   toast.error("Harus Menggunakan Format JPG/PNG");
+      // }
 
-    let formData = new FormData();
-    let fName = image.data.name.toLowerCase();
-    fName.replace(" ", "-");
-    fName = `${moment().format("YYYYMMDD")}_${fName}`;
-    formData.append("topologyArch", image.data);
-    const resUpload = await fetch(
-      `${process.env.NEXT_PUBLIC_API_PROBMAN}/image/arch`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+      // Proses Renaming File
+      let formData = new FormData();
+      fName = image.data.name.toLowerCase();
+      fName.replace(" ", "-");
+      fName = `${moment().format("YYYYMMDD")}_${fName}`;
+      formData.append("topologyArch", image.data);
+
+      // Proses Upload File
+      // const resUpload = await fetch(
+      //   `${process.env.NEXT_PUBLIC_API_PROBMAN}/image/arch`,
+      //   {
+      //     method: "POST",
+      //     body: formData,
+      //   }
+      // );
+    } else {
+      toast.error("Image Topology tidak boleh kosong");
+    }
 
     const sentData = {
       record: {
@@ -176,135 +189,146 @@ export default function InputHealthCheck({ user }) {
         appendix: `${fName};${event.target.appendix.value}`,
         createdBy: user.id,
       },
-      results: [
-        {
-          idMetric: 1,
-          idSubmetric: 1,
-          description: event.target.archDesc.value,
-          result: event.target.archResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 1,
-          idSubmetric: 2,
-          description: event.target.monitoringDesc.value,
-          result: event.target.monitoringResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 1,
-          idSubmetric: 3,
-          description: event.target.versionDesc.value,
-          result: event.target.versionResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 1,
-          idSubmetric: 4,
-          description: event.target.connectionDesc.value,
-          result: event.target.connectionResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 2,
-          idSubmetric: 5,
-          description: event.target.percentileResponseDesc.value,
-          result: event.target.percentileResponseResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 2,
-          idSubmetric: 6,
-          description: event.target.adequacyResponseDesc.value,
-          result: event.target.adequacyResponseResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 2,
-          idSubmetric: 7,
-          description: event.target.throughputDesc.value,
-          result: event.target.throughputResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 3,
-          idSubmetric: 8,
-          description: event.target.processorUtilDesc.value,
-          result: event.target.processorUtilResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 3,
-          idSubmetric: 9,
-          description: event.target.memoryUtilDesc.value,
-          result: event.target.memoryUtilResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 3,
-          idSubmetric: 10,
-          description: event.target.ioDevicesDesc.value,
-          result: event.target.ioDevicesResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 3,
-          idSubmetric: 11,
-          description: event.target.bandwidthUtilDesc.value,
-          result: event.target.bandwidthUtilResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 4,
-          idSubmetric: 12,
-          description: event.target.successRateDesc.value,
-          result: event.target.successRateResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 4,
-          idSubmetric: 13,
-          description: event.target.mtbfDesc.value,
-          result: event.target.mtbfResult.value,
-          createdBy: user.id,
-        },
-        {
-          idMetric: 4,
-          idSubmetric: 14,
-          description: event.target.availabilityDesc.value,
-          result: event.target.availabilityResult.value,
-          createdBy: user.id,
-        },
-      ],
+      // results: [
+      //   {
+      //     idMetric: 1,
+      //     idSubmetric: 1,
+      //     description: event.target.archDesc.value,
+      //     result: event.target.archResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 1,
+      //     idSubmetric: 2,
+      //     description: event.target.monitoringDesc.value,
+      //     result: event.target.monitoringResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 1,
+      //     idSubmetric: 3,
+      //     description: event.target.versionDesc.value,
+      //     result: event.target.versionResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 1,
+      //     idSubmetric: 4,
+      //     description: event.target.connectionDesc.value,
+      //     result: event.target.connectionResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 2,
+      //     idSubmetric: 5,
+      //     description: event.target.percentileResponseDesc.value,
+      //     result: event.target.percentileResponseResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 2,
+      //     idSubmetric: 6,
+      //     description: event.target.adequacyResponseDesc.value,
+      //     result: event.target.adequacyResponseResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 2,
+      //     idSubmetric: 7,
+      //     description: event.target.throughputDesc.value,
+      //     result: event.target.throughputResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 3,
+      //     idSubmetric: 8,
+      //     description: event.target.processorUtilDesc.value,
+      //     result: event.target.processorUtilResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 3,
+      //     idSubmetric: 9,
+      //     description: event.target.memoryUtilDesc.value,
+      //     result: event.target.memoryUtilResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 3,
+      //     idSubmetric: 10,
+      //     description: event.target.ioDevicesDesc.value,
+      //     result: event.target.ioDevicesResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 3,
+      //     idSubmetric: 11,
+      //     description: event.target.bandwidthUtilDesc.value,
+      //     result: event.target.bandwidthUtilResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 4,
+      //     idSubmetric: 12,
+      //     description: event.target.successRateDesc.value,
+      //     result: event.target.successRateResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 4,
+      //     idSubmetric: 13,
+      //     description: event.target.mtbfDesc.value,
+      //     result: event.target.mtbfResult.value,
+      //     createdBy: user.id,
+      //   },
+      //   {
+      //     idMetric: 4,
+      //     idSubmetric: 14,
+      //     description: event.target.availabilityDesc.value,
+      //     result: event.target.availabilityResult.value,
+      //     createdBy: user.id,
+      //   },
+      // ],
     };
 
-    setSpinner(true);
+    // setSpinner(true);
 
-    if (resUpload) {
-      axios
-        .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/create`, sentData, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        })
-        .then(function (response) {
-          if (response.status === 201) {
-            toast.success("Health Check Report Sucessfully Created");
-            setTimeout(() => router.push(`/healthcheck`), 1000);
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            toast.error(
-              `${error.response.data.message} (Code: ${error.response.status})`
-            );
-          } else if (error.request) {
-            setSpinner(false);
-            toast.error(`Request: ${error.request}`);
-          } else {
-            setSpinner(false);
-            toast.error(`Message: ${error.message}`);
-          }
-        });
+    // if (resUpload) {
+    if (!sentData.record.dayDate == "" || !sentData.record.dayDate == null) {
+      toast.success("Lanjutkan Proses");
+    } else {
+      toast.error("Report Date Harus Diisi");
     }
+    axios
+      .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/hc/create`, sentData, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then(function (response) {
+        // if (response.status === 201) {
+        //   toast.success("Health Check Report Sucessfully Created");
+        //   setTimeout(() => router.push(`/healthcheck`), 1000);
+        // }
+        if (response.status == 204) {
+          // toast.success("Kosong");
+        } else if (response.status == 200) {
+          toast.success("Ingfo Ingfo");
+        }
+        // console.log(response);
+      })
+      .catch((error) => {
+        if (error.response) {
+          toast.error(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
+        } else if (error.request) {
+          setSpinner(false);
+          toast.error(`Request: ${error.request}`);
+        } else {
+          setSpinner(false);
+          toast.error(`Message: ${error.message}`);
+        }
+      });
+    // }
   };
 
   return (
@@ -348,7 +372,7 @@ export default function InputHealthCheck({ user }) {
                               <Controller
                                 name="idApps"
                                 control={control}
-                                // rules={{ required: "This is required" }}
+                                rules={{ required: "This is required" }}
                                 render={({ field }) => (
                                   <AsyncSelect
                                     {...field}
@@ -375,7 +399,7 @@ export default function InputHealthCheck({ user }) {
                               <Controller
                                 name="idFunction"
                                 control={control}
-                                // rules={{ required: "This is required" }}
+                                rules={{ required: "This is required" }}
                                 render={({ field }) => (
                                   <AsyncSelect
                                     {...field}
@@ -404,9 +428,9 @@ export default function InputHealthCheck({ user }) {
                               </label>
                               <textarea
                                 name="hcNumber"
-                                // {...register("hcNumber", {
-                                //   required: "This is required!",
-                                // })}
+                                {...register("hcNumber", {
+                                  required: "This is required!",
+                                })}
                                 rows={1}
                                 style={{
                                   resize: "none",
@@ -436,7 +460,6 @@ export default function InputHealthCheck({ user }) {
                               <div className="pt-1">
                                 <Controller
                                   control={control}
-                                  // rules={{ required: "This is required" }}
                                   render={({ field }) => (
                                     <DatePicker
                                       allowClear
@@ -473,9 +496,9 @@ export default function InputHealthCheck({ user }) {
                               <div className="pt-1">
                                 <textarea
                                   name="ipAddress"
-                                  // {...register("ipAddress", {
-                                  //   required: "This is required!",
-                                  // })}
+                                  {...register("ipAddress", {
+                                    required: "This is required!",
+                                  })}
                                   rows={3}
                                   style={{
                                     resize: "vertical",
@@ -505,9 +528,9 @@ export default function InputHealthCheck({ user }) {
                               <div className="pt-1">
                                 <textarea
                                   name="dataSet"
-                                  // {...register("dataSet", {
-                                  //   required: "This is required!",
-                                  // })}
+                                  {...register("dataSet", {
+                                    required: "This is required!",
+                                  })}
                                   rows={3}
                                   style={{
                                     resize: "vertical",
@@ -589,9 +612,9 @@ export default function InputHealthCheck({ user }) {
                               </label>
                               <textarea
                                 name="appendix"
-                                // {...register("appendix", {
-                                //   required: "This is required!",
-                                // })}
+                                {...register("appendix", {
+                                  required: "This is required!",
+                                })}
                                 rows={3}
                                 style={{
                                   resize: "vertical",
@@ -621,7 +644,7 @@ export default function InputHealthCheck({ user }) {
                               Configuration and Monitoring Tools
                             </label>
                           </div>
-                          <MetricsOne />
+                          {/* <MetricsOne /> */}
 
                           {/* Sixth Row */}
                           <div className="mt-4 py-2 px-6 bg-blue-200">
@@ -629,7 +652,7 @@ export default function InputHealthCheck({ user }) {
                               Performance Efficiency
                             </label>
                           </div>
-                          <MetricsTwo />
+                          {/* <MetricsTwo /> */}
 
                           {/* Seventh Row */}
                           <div className="mt-4 py-2 px-6 bg-blue-200">
@@ -637,7 +660,7 @@ export default function InputHealthCheck({ user }) {
                               Resource Utilization
                             </label>
                           </div>
-                          <MetricsThree />
+                          {/* <MetricsThree /> */}
 
                           {/* Eighth Row */}
                           <div className="mt-4 py-2 px-6 bg-blue-200">
@@ -645,7 +668,7 @@ export default function InputHealthCheck({ user }) {
                               Reliability Measures
                             </label>
                           </div>
-                          <MetricsFour />
+                          {/* <MetricsFour /> */}
 
                           {/* Footer Section */}
                           <div className="py-6 pr-6">
