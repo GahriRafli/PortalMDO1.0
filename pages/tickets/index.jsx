@@ -393,7 +393,7 @@ export default function TicketList(props) {
                   ? ` ${props.row.original.paramTicketApps.subName}`
                   : "-"}
               </p>
-              <span className="text-gray-500 text-xs">
+              <span className="text-xs text-gray-500">
                 {props.row.original.paramTicketType
                   ? ` ${props.row.original.paramTicketType.ticketType}`
                   : ""}
@@ -441,11 +441,11 @@ export default function TicketList(props) {
         Cell: (props) => {
           return (
             <div>
-              <Menu as="div" className="relative flex justify-end items-center">
+              <Menu as="div" className="relative flex items-center justify-end">
                 {({ open }) => (
                   <>
                     <div>
-                      <Menu.Button className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                      <Menu.Button className="inline-flex items-center justify-center w-8 h-8 text-gray-400 bg-white rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <span className="sr-only">Open options</span>
                         <DotsVerticalIcon
                           className="w-5 h-5"
@@ -466,7 +466,7 @@ export default function TicketList(props) {
                     >
                       <Menu.Items
                         static
-                        className="mx-3 origin-top-right absolute right-7 top-0 w-48 mt-1 rounded-md shadow-lg z-10 bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
+                        className="absolute top-0 z-10 w-48 mx-3 mt-1 origin-top-right bg-white divide-y divide-gray-200 rounded-md shadow-lg right-7 ring-1 ring-black ring-opacity-5 focus:outline-none"
                       >
                         <div className="py-1">
                           <Menu.Item>
@@ -481,7 +481,7 @@ export default function TicketList(props) {
                                   )}
                                 >
                                   <EyeIcon
-                                    className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                    className="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-500"
                                     aria-hidden="true"
                                   />
                                   View
@@ -505,7 +505,7 @@ export default function TicketList(props) {
                                 )}
                               >
                                 <UserAddIcon
-                                  className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  className="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-500"
                                   aria-hidden="true"
                                 />
                                 Assign to me
@@ -528,7 +528,7 @@ export default function TicketList(props) {
                                 )}
                               >
                                 <CheckCircleIcon
-                                  className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                                  className="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-500"
                                   aria-hidden="true"
                                 />
                                 Close issue
@@ -916,7 +916,7 @@ export default function TicketList(props) {
                 title="Ticket Open"
                 total={props.paramReport}
                 desc="View All"
-                href="/tickets?escalatedRole=0&ticketStatus=Open"
+                href="/tickets?ticketStatus=Open"
               />
               <CardStats
                 id="2"
@@ -925,7 +925,7 @@ export default function TicketList(props) {
                 title="Ticket Closed "
                 total={props.paramreport2}
                 desc="View All"
-                href="/tickets?escalatedRole=0&ticketStatus=Closed"
+                href="/tickets?ticketStatus=Closed"
               />
               <CardStats
                 id="3"
