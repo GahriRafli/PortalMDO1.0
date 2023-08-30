@@ -36,7 +36,7 @@ const StepProgress = ({ problem }) => {
               <span className="sr-only">{step.name}</span>
             </div>
           ) : (
-            <div className="block w-2.5 h-2.5 bg-gray-200 rounded-full hover:bg-gray-400">
+            <div className="block w-2.5 h-2.5 bg-gray-200 rounded-full">
               <span className="sr-only">{step.name}</span>
             </div>
           )}
