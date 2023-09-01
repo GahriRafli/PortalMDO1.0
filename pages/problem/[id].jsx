@@ -782,7 +782,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                   </div>
 
                   {/* Health Check if Related */}
-                  {problem.relatedHC.length > 0 ? (
+                  {problem.relatedHC.length != 0 ? (
                     <>
                       <div className="bg-white shadow sm:rounded-lg mt-3">
                         <div className="space-y-4 px-4 py-5 sm:px-6">
@@ -796,26 +796,25 @@ function ProblemDetail({ user, problem, idProblem }) {
                             </h2>
                           </div>
                           <ul className="inline-grid">
-                            {problem.relatedHC.map((res, index) => {
+                            {/* {problem.relatedHC.map((res, index) => {
                               return (
-                                <>
-                                  <li className="inline-flex my-2" key={index}>
-                                    <div className="inline-grid text-justify whitespace-pre-wrap">
-                                      <span className="font-medium">
-                                        {index + 1}.{" "}
-                                        {res.hcSubmetric.description}
-                                      </span>
-                                      <span className="pl-4">
-                                        {res.description}
-                                      </span>
-                                      <span className="pl-4 text-red-600 font-medium">
-                                        {res.result}
-                                      </span>
-                                    </div>
-                                  </li>
-                                </>
+                                <> */}
+                            <li className="inline-flex my-2" key={1}>
+                              <div className="inline-grid text-justify whitespace-pre-wrap">
+                                <span className="font-medium">
+                                  {problem.relatedHC.hcSubmetric.description}
+                                </span>
+                                <span className="pl-4">
+                                  {problem.relatedHC.description}
+                                </span>
+                                <span className="pl-4 text-red-600 font-medium">
+                                  {problem.relatedHC.result}
+                                </span>
+                              </div>
+                            </li>
+                            {/* </>
                               );
-                            })}
+                            })} */}
                           </ul>
                         </div>
                       </div>
