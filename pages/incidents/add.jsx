@@ -30,6 +30,7 @@ import {
 } from "components/layout/index";
 import { getApplication } from "lib/api-helper";
 import { CustomAlert } from "components/ui/alert";
+import clsx from "clsx";
 
 export default function addIncident({ user }) {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -49,23 +50,6 @@ export default function addIncident({ user }) {
   });
   const [priority, setPriority] = useState("");
 
-  // Digunakan utuk fungsi reset form
-  const defaultValues = {
-    incidentName: "",
-    idApps: null,
-    startTime: null,
-    logStartTime: null,
-    endTime: null,
-    idUrgency: null,
-    idImpact: null,
-    impactedSystem: "",
-    rootCause: "",
-    actionItem: "",
-    responsibleEngineer: "",
-    idProblemType: null,
-    proposedEnhancement: "",
-    lessonLearned: "",
-  };
   const {
     register,
     unregister,
@@ -75,11 +59,7 @@ export default function addIncident({ user }) {
     reset,
     getValues,
     setValue,
-  } = useForm({
-    mode: "onSubmit",
-    reValidateMode: "onChange",
-    defaultValues: {},
-  });
+  } = useForm({ reValidateMode: "onChange" });
   const { errors, isSubmitting } = formState;
 
   /** ==================== Data Fetching Start ==================== */
@@ -885,13 +865,40 @@ export default function addIncident({ user }) {
                       {isSubmitting && <Spinner />}
                       Save
                     </PrimaryButton>
-                    <SecondaryButton
+                    {/* <SecondaryButton
                       onClick={() => {
-                        reset(defaultValues);
+                        reset();
                       }}
                     >
                       Reset
-                    </SecondaryButton>
+                    </SecondaryButton> */}
+                    <input
+                      type="button"
+                      className={clsx(
+                        "inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                        "text-blue-700 bg-blue-100 hover:bg-blue-200 border-transparent"
+                      )}
+                      onClick={() =>
+                        reset({
+                          incidentName: "",
+                          idApps: null,
+                          idCategorySystem: null,
+                          startTime: null,
+                          logStartTime: null,
+                          endTime: null,
+                          idUrgency: null,
+                          idImpact: null,
+                          impactedSystem: "",
+                          rootCause: "",
+                          actionItem: "",
+                          responsibleEngineer: "",
+                          idProblemType: null,
+                          proposedEnhancement: "",
+                          lessonLearned: "",
+                        })
+                      }
+                      value={"Reset"}
+                    />
                   </div>
                 </div>
               </form>

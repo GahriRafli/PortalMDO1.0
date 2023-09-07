@@ -297,13 +297,15 @@ export default function addTicket({ user }) {
                       {isSubmitting && <Spinner />}
                       Save
                     </PrimaryButton>
-                    <SecondaryButton
-                      onClick={() => {
-                        reset(defaultValues);
-                      }}
-                    >
-                      Reset
-                    </SecondaryButton>
+                    <input
+                      type="button"
+                      className={clsx(
+                        "inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                        "text-blue-700 bg-blue-100 hover:bg-blue-200 border-transparent"
+                      )}
+                      value={"Reset"}
+                      onClick={() => reset(defaultValues)}
+                    />
                   </div>
                 </div>
               </form>
