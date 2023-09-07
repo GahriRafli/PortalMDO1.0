@@ -79,10 +79,10 @@ const IncidentTables = ({ incidents }) => {
                             <td className="px-6 py-3 text-sm text-gray-500 font-normal">
                                 {incident.paramPriorityMatrix ? incident.paramPriorityMatrix.mapping : "-"}
                             </td>
-                            <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                            <td className="inline-block align-text-top px-6 py-3 text-sm text-gray-500 font-normal">
                                 {incident.resolvedIntervals ? `${incident.resolvedIntervals}m` : "-"}
                             </td>
-                            <td className="hidden md:table-cell px-6 py-3 whitespace-nowrap text-sm text-gray-500 text-right">
+                            <td className="inline-block align-text-top hidden md:table-cell px-6 py-3 whitespace-nowrap text-sm text-gray-500 text-right">
                                 {formatDate(incident.startTime)}
                             </td>
                             <td className="px-6 py-3 text-sm text-gray-500 font-normal">

@@ -105,8 +105,12 @@ export const navigation = [
         href: "/report/third-party",
       },
       {
-        name: "Incidents",
-        href: "/report/incident",
+        name: "Incident by Type",
+        href: "/report/incident_by_type",
+      },
+      {
+        name: "Incident by Team",
+        href: "/report/incident_by_team",
       },
     ],
   },

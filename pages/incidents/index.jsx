@@ -22,7 +22,9 @@ import {
   StatusPill,
   StatusText,
   StatusIncident,
+  getTargetTime,
 } from "components/incidents/status-pill";
+import clsx from "clsx";
 import {
   PlusSmIcon,
   SearchIcon,
@@ -114,7 +116,7 @@ export default function Incident(props) {
     });
   };
 
-  // to hanlde if clearable button clicked
+  // to handle if clearable button clicked
   const handleIRNumChange = (value) => {
     const currentPath = router.pathname;
     const currentQuery = { ...router.query };
@@ -296,7 +298,7 @@ export default function Incident(props) {
         accessor: "paramApps.subName",
         Filter: SelectColumnFilter,
         filter: "includes",
-        Cell: StatusText,
+        Cell: StatusText, getTargetTime, // what is this
       },
       {
         Header: "Started At",
@@ -313,7 +315,26 @@ export default function Incident(props) {
               </div>
               <div className="text-xs text-gray-500">
                 {props.row.original.resolvedIntervals ? (
-                  <span className="text-xs">
+                  <span className={clsx(
+                    (
+                      ((props.row.original.paramApps.criticalityApp == 'Critical') && (props.row.original.resolvedIntervals < (1 * 60))) ||
+                      ((props.row.original.paramApps.criticalityApp == 'Very High') && (props.row.original.resolvedIntervals < (2 * 60))) ||
+                      ((props.row.original.paramApps.criticalityApp == 'High') && (props.row.original.resolvedIntervals < (3 * 60))) ||
+                      ((props.row.original.paramApps.criticalityApp == 'Medium') && (props.row.original.resolvedIntervals < (18 * 60))) ||
+                      ((props.row.original.paramApps.criticalityApp == 'Low') && (props.row.original.resolvedIntervals < (32 * 60)))
+                    )
+                      ? "text-green-500"
+                      : (
+                        ((props.row.original.paramApps.criticalityApp == 'Critical') && (props.row.original.resolvedIntervals > (1 * 60))) ||
+                        ((props.row.original.paramApps.criticalityApp == 'Very High') && (props.row.original.resolvedIntervals > (2 * 60))) ||
+                        ((props.row.original.paramApps.criticalityApp == 'High') && (props.row.original.resolvedIntervals > (3 * 60))) ||
+                        ((props.row.original.paramApps.criticalityApp == 'Medium') && (props.row.original.resolvedIntervals > (18 * 60))) ||
+                        ((props.row.original.paramApps.criticalityApp == 'Low') && (props.row.original.resolvedIntervals > (32 * 60)))
+                      )
+                        ? "text-red-500"
+                        : "",
+                    "text-xs")}
+                  >
                     {props.row.original.resolvedIntervals} minutes
                   </span>
                 ) : (

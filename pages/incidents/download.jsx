@@ -1,3 +1,5 @@
+// modified
+
 import React, { useState, useEffect, useMemo } from "react";
 import withSession from "lib/session";
 import { format } from "date-fns";
@@ -86,6 +88,7 @@ export default function DownloadIncident({ user, downloadList }) {
     date: "",
     idApps: "",
     idIncidentType: "",
+    teamOptions: "",
     incidentStatus: "",
   };
 
@@ -125,6 +128,27 @@ export default function DownloadIncident({ user, downloadList }) {
       .catch((error) => toast.error(`Unable to get incident type list`));
   }, []);
 
+  //get responsible team
+  const [teamOptions, setTeamOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/group?isActive=Y&division=APP`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response) => {
+        const data = response.data.data.map((item) => ({
+          value: item.prefix,
+          label: item.prefix,
+        }));
+        setTeamOptions(data);
+      })
+      .catch((error) =>
+        toast.error(
+          `Unable to get teams list: ${error.response.data.message}`
+        )
+      );
+  }, []);
+
   // Handle react-select dropdown position
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -136,7 +160,7 @@ export default function DownloadIncident({ user, downloadList }) {
   const onSubmit = async (data) => {
     setLoading(true);
 
-    const { idApps, idIncidentType, date, incidentStatus } = data;
+    const { idApps, idIncidentType, responsibleEngineer, date, incidentStatus } = data;
     const startTime = format(new Date(date[0]), "yyyy-MM-dd");
     const endTime = format(new Date(date[1]), "yyyy-MM-dd");
 
@@ -147,6 +171,7 @@ export default function DownloadIncident({ user, downloadList }) {
 
     if (idApps) params.append("idApps", idApps.value);
     if (idIncidentType) params.append("idIncidentType", idIncidentType.value);
+    if (responsibleEngineer) params.append("responsibleEngineer", responsibleEngineer.value);
     if (incidentStatus) params.append("incidentStatus", incidentStatus);
 
     await sleep(5000);
@@ -172,7 +197,7 @@ export default function DownloadIncident({ user, downloadList }) {
       <LayoutPageHeader
         variant="alternate"
         pageTitle={"Incident Download"}
-        pageSubTitle="This page is specifically download incident report"
+        pageSubTitle="This page is specifically purposed to downloading incident reports"
         backButton={true}
         href="/incidents"
       ></LayoutPageHeader>
@@ -189,8 +214,8 @@ export default function DownloadIncident({ user, downloadList }) {
                     Filter
                   </h3>
                   <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    This information will be displayed incident report so be
-                    careful what you share.
+                    The information displayed will be a detailed incident report so be
+                    careful with what you share.
                   </p>
                 </div>
                 <div className="mt-6 sm:mt-5 space-y-6 sm:space-y-5">
@@ -297,6 +322,43 @@ export default function DownloadIncident({ user, downloadList }) {
                       />
                     </div>
                   </div>
+
+                  {/* Pengecekan field ini dikhususkan untuk tim SDK */}
+                  {
+                    user.userMatrix.id === 2 && (
+                      <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label
+                          htmlFor="responsibleEngineer"
+                          className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
+                        >
+                          Responsible Team
+                        </label>
+                        <div className="mt-1 sm:mt-0 sm:col-span-2">
+                          <Controller
+                            name="responsibleEngineer"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                instanceId={"responsibleEngineer"}
+                                className={clsx(
+                                  errors.responsibleEngineer
+                                    ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                    : "focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md",
+                                  "block max-w-lg w-full text-base shadow-sm"
+                                )}
+                                options={teamOptions}
+                                styles={styledReactSelect}
+                                placeholder="Select responsible team..."
+                                value={field.value || ""}
+                                menuPortalTarget={portalTarget}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )
+                  }
 
                   <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                     <label

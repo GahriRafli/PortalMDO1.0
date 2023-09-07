@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Select from "react-select";
@@ -6,7 +6,7 @@ import AsyncSelect from "react-select/async";
 import DatePicker from "components/ui/datepicker";
 import withSession from "lib/session";
 import incidentStatus from "public/incident-status.json";
-import { format, parseISO, formatDistanceToNowStrict } from "date-fns";
+import { format, parseISO, formatDistanceToNowStrict, addMinutes, subMinutes, differenceInMinutes } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { CardTitle } from "components/ui/card-title";
@@ -46,6 +46,7 @@ import {
 } from "components/layout/index";
 import clsx from "clsx";
 import { getApplication } from "lib/api-helper";
+import Countdown from "react-countdown";
 
 export default function IncidentDetail({ user, incident, comments }) {
   const pageTitle = `${incident.data.incidentNumber}
@@ -205,34 +206,34 @@ export default function IncidentDetail({ user, incident, comments }) {
     defaultValues: {
       idApps: incident.data.paramApps
         ? {
-            value: incident.data.paramApps.id,
-            label: incident.data.paramApps.subName,
-            criticality: incident.data.paramApps.criticalityApp,
-          }
+          value: incident.data.paramApps.id,
+          label: incident.data.paramApps.subName,
+          criticality: incident.data.paramApps.criticalityApp,
+        }
         : false,
       idIncidentType: incident.data.paramIncidentType
         ? {
-            label: incident.data.paramIncidentType.incidentType,
-            value: incident.data.paramIncidentType.id,
-          }
+          label: incident.data.paramIncidentType.incidentType,
+          value: incident.data.paramIncidentType.id,
+        }
         : false,
       idCategorySystem: incident.data.paramCategorySystem
         ? {
-            label: incident.data.paramCategorySystem.categorySystem,
-            value: incident.data.paramCategorySystem.id,
-          }
+          label: incident.data.paramCategorySystem.categorySystem,
+          value: incident.data.paramCategorySystem.id,
+        }
         : false,
       idUrgency: incident.data.paramUrgency
         ? {
-            label: incident.data.paramUrgency.urgency,
-            value: incident.data.paramUrgency.id,
-          }
+          label: incident.data.paramUrgency.urgency,
+          value: incident.data.paramUrgency.id,
+        }
         : false,
       idImpact: incident.data.paramImpact
         ? {
-            label: incident.data.paramImpact.impact,
-            value: incident.data.paramImpact.id,
-          }
+          label: incident.data.paramImpact.impact,
+          value: incident.data.paramImpact.id,
+        }
         : false,
       logStartTime: incident.data.logStartTime
         ? parseISO(incident.data.logStartTime, new Date())
@@ -245,9 +246,9 @@ export default function IncidentDetail({ user, incident, comments }) {
         : false,
       idProblemType: incident.data.idProblemType
         ? {
-            label: incident.data.paramProblemType.problemType,
-            value: incident.data.paramProblemType.id,
-          }
+          label: incident.data.paramProblemType.problemType,
+          value: incident.data.paramProblemType.id,
+        }
         : false,
     },
   });
@@ -266,7 +267,7 @@ export default function IncidentDetail({ user, incident, comments }) {
   const onStatusChange = (value) => {
     const body =
       (selectedStatus === "Open" && value === "Investigate") ||
-      (selectedStatus === "Open" && value === "Resolved") ? (
+        (selectedStatus === "Open" && value === "Resolved") ? (
         <>
           All of this data will be send to Whatsapp and Telegram. This action
           cannot be undone.
@@ -393,8 +394,70 @@ export default function IncidentDetail({ user, incident, comments }) {
           .catch((err) => toast.error(err));
       },
 
-      onCancel() {},
+      onCancel() { },
     });
+  };
+
+  // timer SLA added by Alifa on 16/08/2023
+  function getTargetTime() {
+    let targetTime; // RTO
+    if (incident.data.paramApps.criticalityApp == 'Critical') {
+      targetTime = 1 * 60;
+    }
+    else if (incident.data.paramApps.criticalityApp == 'Very High') {
+      targetTime = 2 * 60;
+    }
+    else if (incident.data.paramApps.criticalityApp == 'High') {
+      targetTime = 3 * 60;
+    }
+    else if (incident.data.paramApps.criticalityApp == 'Medium') {
+      targetTime = 18 * 60;
+    }
+    else if (incident.data.paramApps.criticalityApp == 'Low') {
+      targetTime = 32 * 60;
+    }
+    return targetTime;
+  }
+
+  function getDeadlineTime() {
+    return addMinutes(new Date(incident.data.logStartTime), getTargetTime())
+  }
+
+  function getTimeRemaining() {
+    return differenceInMinutes(getDeadlineTime(), new Date())
+  }
+
+  function getMitigateTime() {
+    if (incident.data.endTime != null) {
+      return differenceInMinutes(getDeadlineTime(), new Date(incident.data.endTime))
+    }
+  }
+
+  function getDeadlineStatus() {
+    if (((getMitigateTime() > 0) && (getTimeRemaining() > 0)) || (getMitigateTime() > 0)) {
+      return 'Incident was mitigated ' + getMitigateTime() + ' minutes before RTO'
+    }
+    else if (getTimeRemaining() > 0) {
+      return getTimeRemaining() + ' minutes left until RTO'
+    }
+    else if (getMitigateTime() <= 0) {
+      return 'Incident was mitigated past RTO by ' + Math.abs(getMitigateTime()) + ' minutes'
+    }
+    else if (getTimeRemaining() <= 0) {
+      return 'Incident has gone unmitigated by ' + Math.abs(getTimeRemaining()) + ' minutes'
+    }
+  }
+
+  //timer live
+  const Completionist = () => <span>Timer Expired</span>;
+  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed || (((getMitigateTime() > 0) && (getTimeRemaining() > 0)) || (getMitigateTime() > 0))) {
+      // Render a completed state
+      return <Completionist />;
+    } else {
+      // Render a countdown
+      return <span>Timer: {days}d {hours}h {minutes}m {seconds}s</span>;
+    }
   };
 
   // handle form submit
@@ -526,8 +589,8 @@ export default function IncidentDetail({ user, incident, comments }) {
                         selectedStatus == "Open"
                           ? "bg-red-500"
                           : selectedStatus == "Investigate"
-                          ? "bg-blue-500"
-                          : "bg-green-500",
+                            ? "bg-blue-500"
+                            : "bg-green-500",
                         "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
                       )}
                     >
@@ -551,8 +614,8 @@ export default function IncidentDetail({ user, incident, comments }) {
                         selectedStatus == "Open"
                           ? "bg-red-500 hover:bg-red-600"
                           : selectedStatus == "Investigate"
-                          ? "bg-blue-500 hover:bg-blue-600"
-                          : "bg-green-500 hover:bg-green-600",
+                            ? "bg-blue-500 hover:bg-blue-600"
+                            : "bg-green-500 hover:bg-green-600",
                         "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
                       )}
                     >
@@ -639,19 +702,17 @@ export default function IncidentDetail({ user, incident, comments }) {
                   <div className="bg-white shadow sm:rounded-lg">
                     <CardTitle
                       title={incident.data.incidentName}
-                      subtitle={`Priority ${
-                        incident.data.paramPriorityMatrix
-                          ? incident.data.paramPriorityMatrix.mapping
-                          : "not defined yet"
-                      }, ${
-                        incident.data.resolvedIntervals
+                      subtitle={`Priority ${incident.data.paramPriorityMatrix
+                        ? incident.data.paramPriorityMatrix.mapping
+                        : "not defined yet"
+                        }, ${incident.data.resolvedIntervals
                           ? `duration ${incident.data.resolvedIntervals} minutes`
                           : `started ${format(
-                              new Date(incident.data.startTime),
-                              "dd MMMM yyyy HH:mm",
-                              "id-ID"
-                            )}`
-                      }`}
+                            new Date(incident.data.startTime),
+                            "dd MMMM yyyy HH:mm",
+                            "id-ID"
+                          )}`
+                        }`}
                     >
                       <div className="flex px-4">
                         <ButtonCircle
@@ -1287,10 +1348,10 @@ export default function IncidentDetail({ user, incident, comments }) {
                       incident.data.resolvedIntervals
                         ? `Duration ${incident.data.resolvedIntervals} minutes`
                         : `Started ${format(
-                            new Date(incident.data.startTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )}`
+                          new Date(incident.data.startTime),
+                          "dd MMMM yyyy HH:mm",
+                          "id-ID"
+                        )}`
                     }
                   >
                     <div className="flex px-4">
@@ -1553,21 +1614,21 @@ export default function IncidentDetail({ user, incident, comments }) {
                                   {user.username ===
                                     comment.incidentCommentCreatedBy
                                       .username && (
-                                    <>
-                                      <span className="text-gray-500 font-medium">
-                                        &middot;
-                                      </span>{" "}
-                                      <button
-                                        type="button"
-                                        className="text-red-500 font-medium"
-                                        onClick={() =>
-                                          showDeleteConfirm(comment.id)
-                                        }
-                                      >
-                                        Delete
-                                      </button>
-                                    </>
-                                  )}
+                                      <>
+                                        <span className="text-gray-500 font-medium">
+                                          &middot;
+                                        </span>{" "}
+                                        <button
+                                          type="button"
+                                          className="text-red-500 font-medium"
+                                          onClick={() =>
+                                            showDeleteConfirm(comment.id)
+                                          }
+                                        >
+                                          Delete
+                                        </button>
+                                      </>
+                                    )}
                                 </div>
                               </div>
                             </div>
@@ -1727,10 +1788,10 @@ export default function IncidentDetail({ user, incident, comments }) {
                     From{" "}
                     {incident.data.logStartTime
                       ? format(
-                          new Date(incident.data.logStartTime),
-                          "dd MMMM yyyy HH:mm",
-                          "id-ID"
-                        )
+                        new Date(incident.data.logStartTime),
+                        "dd MMMM yyyy HH:mm",
+                        "id-ID"
+                      )
                       : "-"}{" "}
                   </span>
                 </div>
@@ -1739,13 +1800,53 @@ export default function IncidentDetail({ user, incident, comments }) {
                     Until{" "}
                     {incident.data.endTime
                       ? format(
-                          new Date(incident.data.endTime),
-                          "dd MMMM yyyy HH:mm",
-                          "id-ID"
-                        )
+                        new Date(incident.data.endTime),
+                        "dd MMMM yyyy HH:mm",
+                        "id-ID"
+                      )
                       : "(not recovered yet)"}{" "}
                   </span>
                 </div>
+                <hr />
+                {/* SLA added by alifah on 16/8/2023 */}
+                <div>
+                  <h2 className="text-sm font-medium text-gray-900 mb-3">
+                    SLA Information
+                  </h2>
+                  <div className="flex items-top space-x-2">
+                    <ClockIcon
+                      className={clsx(
+                        getMitigateTime() > 0
+                          ? "text-green-500"
+                          : (getMitigateTime() <= 0) || (getTimeRemaining() <= 0)
+                            ? "text-red-500"
+                            : "text-gray-300",
+                        "w-5 h-5")}
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm text-gray-600">
+                      {`RTO : ${format(
+                        getDeadlineTime(),
+                        "dd MMMM yyyy HH:mm",
+                        "id-ID"
+                      )}`}{" "}<br />{'(' + getTargetTime() + ' minutes)'}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-3">
+                    <span className="text-sm text-gray-600 break-normal">
+                      {getDeadlineStatus()}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-3">
+                    <span className="text-sm text-gray-600 break-normal">
+                      <Countdown date={Date.now() + getTimeRemaining() * 60 * 1000} renderer={renderer}>
+                        <Completionist />
+                      </Countdown>
+                    </span>
+                  </div>
+                </div>
+
+                {/* End of -- SLA added by alifah on 16/8/2023 */}
                 <hr />
                 {/* Reporter */}
                 <div className="px-4 py-2 space-y-4 sm:px-2">
@@ -1769,15 +1870,15 @@ export default function IncidentDetail({ user, incident, comments }) {
                       Last updated on{" "}
                       {incident.data.updatedAt
                         ? format(
-                            new Date(incident.data.updatedAt),
-                            "dd MMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                          new Date(incident.data.updatedAt),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )
                         : format(
-                            new Date(incident.data.createdAt),
-                            "dd MMM yyyy HH:mm",
-                            "id-ID"
-                          )}{" "}
+                          new Date(incident.data.createdAt),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )}{" "}
                       <br />
                       by{" "}
                       {incident.data.paramUpdatedBy
@@ -1858,7 +1959,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                               .followUpPlan === "Not yet"
                               ? "None"
                               : incident.data.problemDetail.paramFollowUpPlan
-                                  .followUpPlan}
+                                .followUpPlan}
                             {/* ? incident.data.problemDetail.paramFollowUpPlan.followUpPlan
                                   : "None"} */}
                           </div>
@@ -1876,7 +1977,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                           <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-2 py-0.5 ml-2">
                             <div className="ml-1.5 mr-1.5 text-sm font-medium">
                               {incident.data.problemDetail.jiraProblem ===
-                              null ? (
+                                null ? (
                                 <span className="text-white">Jira</span>
                               ) : (
                                 <div>
@@ -1906,7 +2007,7 @@ export default function IncidentDetail({ user, incident, comments }) {
                           <div className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-2 py-0.5 ml-2">
                             <div className="ml-1.5 mr-1.5 text-sm font-medium">
                               {incident.data.problemDetail.followUpCM ===
-                              null ? (
+                                null ? (
                                 <span className="text-white">
                                   Change Management
                                 </span>
