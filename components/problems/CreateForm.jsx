@@ -11,6 +11,7 @@ import format from "date-fns/format";
 import AsyncSelect from "react-select/async";
 
 import { Problem } from "./CreateInformation";
+import { RadioGroup } from "@headlessui/react";
 import HCInformation from "components/healthcheck/HCInformation";
 
 function classNames(...classes) {
@@ -47,6 +48,7 @@ const CreateForm = ({ user }) => {
   const [enableSwitch, setEnableSwitch] = useState(false);
   const [checkedState, setCheckedState] = useState(new Array(14).fill(false)); //hardcode submetric
   const [finalArray, setFinalArray] = useState([]);
+  const [selected, setSelected] = useState();
 
   // Handle switch button when incident is over
   const handleSwitch = (value) => {
@@ -554,8 +556,8 @@ const CreateForm = ({ user }) => {
                         checked={enableSwitch}
                         onChange={handleSwitch}
                         className={classNames(
-                          enableSwitch ? "bg-indigo-600" : "bg-gray-200",
-                          "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          enableSwitch ? "bg-green-500" : "bg-gray-200",
+                          "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600"
                         )}
                       >
                         <span
@@ -580,7 +582,9 @@ const CreateForm = ({ user }) => {
                       </Switch.Label>
                     </Switch.Group>
                   </div>
-                  <ul className="inline-grid">
+
+                  {/* INI MULTIPLE CHECKBOX */}
+                  {/* <ul className="inline-grid">
                     {enableSwitch &&
                       recommend.data.hcResults
                         .filter((res) => res.result == "Not Passed")
@@ -613,7 +617,86 @@ const CreateForm = ({ user }) => {
                             </>
                           );
                         })}
-                  </ul>
+                  </ul> */}
+
+                  <div className="bg-white rounded-md -space-y-px">
+                    <RadioGroup
+                      value={selected}
+                      onChange={setSelected}
+                      className="my-4"
+                    >
+                      {enableSwitch &&
+                        recommend.data.hcResults
+                          .filter((res) => res.result == "Not Passed")
+                          .map((res, index) => {
+                            return (
+                              <>
+                                <RadioGroup.Option
+                                  key={index}
+                                  value={res.id}
+                                  className={({ checked }) =>
+                                    classNames(
+                                      index == 0
+                                        ? "rounded-tl-md rounded-tr-md"
+                                        : "",
+                                      index === res.length - 1
+                                        ? "rounded-bl-md rounded-br-md"
+                                        : "",
+                                      checked
+                                        ? "bg-green-50 border-green-200 z-10"
+                                        : "border-gray-200",
+                                      "relative border p-4 flex cursor-pointer focus:outline-none"
+                                    )
+                                  }
+                                >
+                                  {({ active, checked }) => (
+                                    <>
+                                      {/* <span
+                                        className={classNames(
+                                          checked
+                                            ? "bg-indigo-600 border-transparent"
+                                            : "bg-white border-gray-300",
+                                          active
+                                            ? "ring-2 ring-offset-2 ring-indigo-500"
+                                            : "",
+                                          "h-4 w-4 mt-0.5 cursor-pointer rounded-full border flex items-center justify-center"
+                                        )}
+                                        aria-hidden="true"
+                                      >
+                                        <span className="rounded-full bg-white w-1.5 h-1.5" />
+                                      </span> */}
+                                      <div className="ml-3 flex flex-col">
+                                        <RadioGroup.Label
+                                          as="span"
+                                          className={classNames(
+                                            checked
+                                              ? "text-emerald-900"
+                                              : "text-gray-900",
+                                            "font-medium"
+                                          )}
+                                        >
+                                          {res.hcSubmetric.description}
+                                        </RadioGroup.Label>
+                                        <RadioGroup.Description
+                                          as="span"
+                                          className={classNames(
+                                            checked
+                                              ? "text-emerald-700"
+                                              : "text-gray-500",
+                                            "whitespace-pre-wrap"
+                                          )}
+                                        >
+                                          {res.description}
+                                        </RadioGroup.Description>
+                                      </div>
+                                    </>
+                                  )}
+                                </RadioGroup.Option>
+                              </>
+                            );
+                          })}
+                    </RadioGroup>
+                  </div>
                 </>
               ) : (
                 <div className="py-4">
@@ -623,11 +706,6 @@ const CreateForm = ({ user }) => {
                 </div>
               )}
             </div>
-            {/* <div className="py-4">
-            <div className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-              No Data Health Check Recommendation
-            </div>
-          </div> */}
           </section>
         </div>
       </form>
