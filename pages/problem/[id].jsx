@@ -15,6 +15,7 @@ import { Spinner } from "components/ui/svg/spinner";
 import ModalRootCause from "components/problems/ModalRootCause";
 import DetailHeader from "components/problems/DetailHeader";
 import StepProgress from "components/problems/StepProgress";
+import ProblemLinkIncident from "components/problems/ProblemLinkIncident";
 import ProblemDetailPanel from "components/problems/ProblemDetailPanel";
 import ProblemInfoPanel from "components/problems/ProblemInfoPanel";
 import RelatedIncidentTables from "components/problems/RelatedIncidentTables";
@@ -735,6 +736,17 @@ function ProblemDetail({ user, problem, idProblem }) {
                       )}
                     </div>
                   </section>
+
+                  {/* Condition Incident to Linked */}
+                  {problem.assigned_to ? (
+                    user.username === problem.assigned_to.userName ? (
+                      <ProblemLinkIncident
+                        user={user}
+                        problemID={idProblem}
+                        problemType={problem.paramType.id}
+                      />
+                    ) : null
+                  ) : null}
 
                   {/* Condition Incident Table */}
                   <RelatedIncidentTables problem={problem} />
