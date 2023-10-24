@@ -268,6 +268,8 @@ export default function Report({ user, data }) {
                   name="dateRangeUhuy"
                   id="dateRangeUhuy"
                   onChange={onChangeHandlerPeriode}
+                  showTime={true}
+                  showSecond={false}
                 />
                 <button
                   style={{ width: "10%" }}
