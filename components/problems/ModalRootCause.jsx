@@ -1,12 +1,14 @@
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { BadgeCheckIcon } from "@heroicons/react/outline";
-import { useForm } from "react-hook-form";
 import { Spinner } from "components/ui/svg/spinner";
-// import { toast } from "react-toastify";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { styledReactSelectAdd } from "components/utils";
+import AsyncSelect from "react-select/async";
+import { components } from "react-select";
+import { Controller, useForm } from "react-hook-form";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -18,9 +20,42 @@ export default function ModalRootCause({ user, problem }) {
   const cancelButtonRef = useRef(null);
   const router = useRouter();
 
+  const loadApplications = (value, callback) => {
+    clearTimeout(timeoutId);
+
+    if (value.length < 3) {
+      return callback([]);
+    }
+
+    const timeoutId = setTimeout(() => {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
+        )
+        .then((res) => {
+          const cachedOptions = res.data.data.map((d) => ({
+            value: d.id,
+            label: d.subName,
+          }));
+
+          callback(cachedOptions);
+        })
+        .catch((err) => toast.error(`Application ${err}`));
+    }, 500);
+  };
+
+  const NoOptionsMessage = (props) => {
+    return (
+      <components.NoOptionsMessage {...props}>
+        <span>Type at least 3 letters of application name</span>
+      </components.NoOptionsMessage>
+    );
+  };
+
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm();
 
@@ -204,6 +239,53 @@ export default function ModalRootCause({ user, problem }) {
                               />
                             </div>
                           ) : null}
+
+                          {/* COBA ENHANCE DARI SINI */}
+                          <div className="sm:col-span-1 py-2">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Estimasi Total Kerugian
+                            </dt>
+                            <div className="pointer-events-none inset-y-0 left-0 flex items-center pl-3">
+                              <span className="text-gray-500 sm:text-sm">
+                                Rp.
+                              </span>
+                            </div>
+                            <input
+                              type="number"
+                              name="price"
+                              id="price"
+                              className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                              placeholder="0.00"
+                            />
+                          </div>
+
+                          <div className="sm:col-span-1 py-2">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Aplikasi Surrounding Yang Terdampak
+                            </dt>
+                            <Controller
+                              name="idApps"
+                              control={control}
+                              // rules={{ required: "This is required" }}
+                              render={({ field }) => (
+                                <AsyncSelect
+                                  {...field}
+                                  isClearable
+                                  loadOptions={loadApplications}
+                                  styles={styledReactSelectAdd}
+                                  className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Search for application"
+                                  components={{ NoOptionsMessage }}
+                                />
+                              )}
+                            />
+                            {errors.idApps && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {errors.idApps.message}
+                              </p>
+                            )}
+                          </div>
+                          {/* SAMPE SINI */}
 
                           <div className="sm:col-span-1 py-2">
                             <dt className="text-sm font-medium text-gray-500">

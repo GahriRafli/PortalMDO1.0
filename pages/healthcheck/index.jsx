@@ -83,6 +83,7 @@ export default function HCReport({ user, hc }) {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
                     {hc.map((data) => {
+                      let listAppendix = data.appendix.split(";");
                       return (
                         <tr key={`hc-data-${data.id}`}>
                           <td className={styleData}>{data.id}</td>
@@ -140,7 +141,7 @@ export default function HCReport({ user, hc }) {
                               </a>
                               {data.appendix != null ? (
                                 <a
-                                  href={data.appendix}
+                                  href={listAppendix[1]}
                                   className="text-gray-900"
                                   target="_blank"
                                   rel="noreferrer"

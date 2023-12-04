@@ -69,19 +69,19 @@ export const navigation = [
   {
     name: "Health Check",
     icon: ClipboardCheckIcon,
-    href: "",
-    // children: [
-    //   {
-    //     name: "Create",
-    //     href: "/healthcheck/create",
-    //     permission: "all",
-    //   },
-    //   {
-    //     name: "Report",
-    //     href: "/healthcheck",
-    //     permission: "all",
-    //   },
-    // ],
+    href: "/healthcheck",
+    children: [
+      {
+        name: "Create",
+        href: "/healthcheck/create",
+        permission: "all",
+      },
+      {
+        name: "Report",
+        href: "/healthcheck",
+        permission: "all",
+      },
+    ],
   },
   {
     name: "Tickets",

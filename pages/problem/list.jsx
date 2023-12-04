@@ -271,11 +271,11 @@ export default function ProblemList({ user, problems, countAssign }) {
           return (
             <>
               <div className="text-sm text-gray-500">
-                {props.row.original.incidents.length > 1
-                  ? "Multiple Incident"
+                {props.row.original.incidents.length == 0
+                  ? "IR Not Linked"
                   : props.row.original.incidents.length == 1
                   ? props.row.original.incidents[0].incidentNumber
-                  : "IR Not Linked"}{" "}
+                  : "Multiple Incident"}{" "}
                 |
                 <span className="text-gray-600 hover:text-gray-900">
                   {props.row.original.problemNumber != null

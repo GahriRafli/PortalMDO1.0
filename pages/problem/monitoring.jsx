@@ -106,6 +106,7 @@ export default function Report({ user, data }) {
   });
 
   const initialChartDataProblems = data.problemsByPeriod;
+  const initialChartDataTotalAllProblems = data.totalProblem;
   const initialChartDataImpacted = {
     labels: lblChartImpacted,
     datasets: [
@@ -132,6 +133,9 @@ export default function Report({ user, data }) {
 
   const [chartDataProblems, setChartDataProblems] = useState(
     initialChartDataProblems
+  );
+  const [chartDataTotalAllProblems, setChartDataTotalAllProblems] = useState(
+    initialChartDataTotalAllProblems
   );
   const [chartDataImpacted, setChartDataImpacted] = useState(
     initialChartDataImpacted
@@ -210,6 +214,7 @@ export default function Report({ user, data }) {
           });
 
           setChartDataProblems(dataHit.problemsByPeriod);
+          setChartDataTotalAllProblems(dataHit.totalProblem);
           setChartDataImpacted({
             labels: lblChartImpacted,
             datasets: [
@@ -263,6 +268,8 @@ export default function Report({ user, data }) {
                   name="dateRangeUhuy"
                   id="dateRangeUhuy"
                   onChange={onChangeHandlerPeriode}
+                  showTime={true}
+                  showSecond={false}
                 />
                 <button
                   style={{ width: "10%" }}
@@ -299,7 +306,7 @@ export default function Report({ user, data }) {
                     <Title className="w-full">Impacted Systems</Title>
                   </Flex>
                   <Text className="mt-8">Total Problems</Text>
-                  {/* <Metric>Null Error Count</Metric> */}
+                  <Metric>{chartDataTotalAllProblems}</Metric>
                   <Divider />
                   <div className="py-2">
                     <Legend
