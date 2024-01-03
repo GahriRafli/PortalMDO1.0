@@ -72,6 +72,11 @@ export const navigation = [
     href: "/healthcheck",
     children: [
       {
+        name: "Dashboard",
+        href: "/healthcheck/dashboard",
+        permission: "all",
+      },
+      {
         name: "Create",
         href: "/healthcheck/create",
         permission: "all",
