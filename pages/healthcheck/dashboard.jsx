@@ -70,7 +70,7 @@ export default function Dashboard({ user, data }) {
   const RangePicker = DatePicker.RangePicker;
   const lblChartHc = [];
   const lblChartPivotHc = [];
-  const lblChartJsPivotHc = [];
+  //const lblChartJsPivotHc = [];
 
   //data jumlah health check
   data.totalHealthCheck.map((getLabel) => {
@@ -80,34 +80,34 @@ export default function Dashboard({ user, data }) {
   });
 
   //data jumlah pivot metric health check
-  data.totalHealthCheckPivot.map((getLabel) => {
-    if (getLabel.hasOwnProperty("Passed", "Not Passed", "N/A")) {
-      lblChartPivotHc.push(getLabel.hcSubmetric.labelFilterSource);
-    }
-  });
+  // data.totalHealthCheckPivot.map((getLabel) => {
+  //   if (getLabel.hasOwnProperty("Passed", "Not Passed", "N/A")) {
+  //     lblChartPivotHc.push(getLabel.hcSubmetric.labelFilterSource);
+  //   }
+  // });
 
-  const initialChartDataProblems = data.problemsByPeriod;
+  //const initialChartDataProblems = data.problemsByPeriod;
   const initialChartDataHealthCheck = data.totalHealthCheck;
-  const initialChartDataPivotHealthCheck = data.totalHealthCheckPivot;
+  //const initialChartDataPivotHealthCheck = data.totalHealthCheckPivot;
   // const initialChartDataPivotHealthCheckbackup = data.totalHealthCheckPivot;
 
-  const [chartDataProblems, setChartDataProblems] = useState(
-    initialChartDataProblems
-  );
+  // const [chartDataProblems, setChartDataProblems] = useState(
+  //   initialChartDataProblems
+  // );
   const [chartDataHealthCheck, setChartDataHealthCheck] = useState(
     initialChartDataHealthCheck
   );
-  const [chartDataPivotHealthCheck, setChartDataPivotHealthCheck] = useState(
-    initialChartDataPivotHealthCheck
-  );
-  const initialChartDataPivotHealthCheckbackup = {
-    labels: lblChartJsPivotHc,
-    datasets: [
-      {
-        label: "",
-      },
-    ],
-  };
+  // const [chartDataPivotHealthCheck, setChartDataPivotHealthCheck] = useState(
+  //   initialChartDataPivotHealthCheck
+  // );
+  // const initialChartDataPivotHealthCheckbackup = {
+  //   labels: lblChartJsPivotHc,
+  //   datasets: [
+  //     {
+  //       label: "",
+  //     },
+  //   ],
+  // };
 
   const [hit, setHit] = useState(false);
   const [handlerStartPeriodOptions, sethandlerStartPeriodOptions] = useState(
@@ -152,63 +152,63 @@ export default function Dashboard({ user, data }) {
               lblChartHc.push(getLabel.DateStringRange);
             }
           });
-          dataHit.totalHealthCheckPivot.map((getLabel) => {
-            if (getLabel.hasOwnProperty("Passed", "Not Passed", "N/A")) {
-              lblChartHc.push(getLabel.hcSubmetric.labelFilterSource);
-            }
-          });
+          // dataHit.totalHealthCheckPivot.map((getLabel) => {
+          //   if (getLabel.hasOwnProperty("Passed", "Not Passed", "N/A")) {
+          //     lblChartHc.push(getLabel.hcSubmetric.labelFilterSource);
+          //   }
+          // });
 
-          setChartDataProblems(dataHit.problemsByPeriod);
+          // setChartDataProblems(dataHit.problemsByPeriod);
           setChartDataHealthCheck(dataHit.totalHealthCheck);
-          setChartDataPivotHealthCheck(dataHit.totalHealthCheckPivot);
-          setTableData(dataHit.totalHealthCheckMetric);
+          // setChartDataPivotHealthCheck(dataHit.totalHealthCheckPivot);
+          // setTableData(dataHit.totalHealthCheckMetric);
         } else {
           toast.error("Data not updated for that period");
         }
       });
   };
 
-  const columns = useMemo(
-    () => [
-      {
-        Header: "Report Number",
-        accessor: "healthCheckNumber",
-      },
-      {
-        Header: "Application",
-        accessor: "apps",
-      },
-      {
-        Header: "Function",
-        accessor: "function",
-      },
-      {
-        Header: "Metric",
-        accessor: "metric",
-      },
-      {
-        Header: "Submetric",
-        accessor: "submetric",
-      },
-      {
-        Header: "Target",
-        accessor: "target",
-      },
-      {
-        Header: "Description Result",
-        accessor: "description",
-      },
-      {
-        Header: "Result",
-        accessor: "result",
-      },
-      {
-        Header: "Created at",
-        accessor: "createdAt",
-      },
-    ],
-    []
-  );
+  // const columns = useMemo(
+  //   () => [
+  //     {
+  //       Header: "Report Number",
+  //       accessor: "healthCheckNumber",
+  //     },
+  //     {
+  //       Header: "Application",
+  //       accessor: "apps",
+  //     },
+  //     {
+  //       Header: "Function",
+  //       accessor: "function",
+  //     },
+  //     {
+  //       Header: "Metric",
+  //       accessor: "metric",
+  //     },
+  //     {
+  //       Header: "Submetric",
+  //       accessor: "submetric",
+  //     },
+  //     {
+  //       Header: "Target",
+  //       accessor: "target",
+  //     },
+  //     {
+  //       Header: "Description Result",
+  //       accessor: "description",
+  //     },
+  //     {
+  //       Header: "Result",
+  //       accessor: "result",
+  //     },
+  //     {
+  //       Header: "Created at",
+  //       accessor: "createdAt",
+  //     },
+  //   ],
+  //   []
+  // );
 
   return (
     <>
@@ -261,7 +261,7 @@ export default function Dashboard({ user, data }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1  mt-10">
+            {/* <div className="grid grid-cols-1  mt-10">
               <Card>
                 <Flex>
                   <Title className="w-full">Metric Health Check</Title>
@@ -282,7 +282,7 @@ export default function Dashboard({ user, data }) {
                   showGridLines={true}
                 />
               </Card>
-            </div>
+            </div> */}
 
             {/* <div className="grid grid-cols-1 mt-5">
               <div className="mt-3 print:mt-96">
