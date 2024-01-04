@@ -232,7 +232,7 @@ const KnownError = ({ user }) => {
                 </div>
               </div>
             </div>
-            {console.log("kedbState.data.rows : ", kedbState?.data?.rows)}
+            {/* {console.log("kedbState.data.rows : ", kedbState?.data?.rows)} */}
             {kedbState.data?.count > 0 ? (
               <div ref={componentRef} className="print:a4-screen-sized">
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -246,7 +246,7 @@ const KnownError = ({ user }) => {
                           <div className="mb-5">
                             {result.problem.priorityMatrix?.mapping ===
                             "Critical" ? (
-                              <span className="bg-red-800 text-red-50 text-xs font-medium mr-2 px-5 py-2 rounded">
+                              <span className="bg-red-300 text-gray-800 text-xs font-medium mr-2 px-5 py-2 rounded">
                                 {result.problem.priorityMatrix?.mapping.toUpperCase()}
                               </span>
                             ) : (
@@ -262,7 +262,7 @@ const KnownError = ({ user }) => {
                             )}
                             {result.problem.priorityMatrix?.mapping ===
                             "Medium" ? (
-                              <span className="bg-blue-800 text-blue-50 text-xs font-medium mr-2 px-5 py-2 rounded">
+                              <span className="bg-blue-300 text-blue-800 text-xs font-medium mr-2 px-5 py-2 rounded">
                                 {result.problem.priorityMatrix?.mapping.toUpperCase()}
                               </span>
                             ) : (
