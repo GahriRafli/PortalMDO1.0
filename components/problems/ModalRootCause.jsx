@@ -241,7 +241,7 @@ export default function ModalRootCause({ user, problem }) {
                           ) : null}
 
                           {/* COBA ENHANCE DARI SINI */}
-                          <div className="sm:col-span-1 py-2">
+                          {/* <div className="sm:col-span-1 py-2">
                             <dt className="text-sm font-medium text-gray-500">
                               Estimasi Total Kerugian
                             </dt>
@@ -284,7 +284,7 @@ export default function ModalRootCause({ user, problem }) {
                                 {errors.idApps.message}
                               </p>
                             )}
-                          </div>
+                          </div> */}
                           {/* SAMPE SINI */}
 
                           <div className="sm:col-span-1 py-2">

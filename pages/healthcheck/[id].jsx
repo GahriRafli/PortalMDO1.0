@@ -118,12 +118,12 @@ const HealthCheckDetail = ({ user, record }) => {
                       </div>
                     </section>
                   </div>
-                  {/* <section
+                  <section
                     aria-labelledby="report-approval"
                     className="lg:col-start-3 lg:col-span-1"
                   >
                     <Approval record={record} user={user} />
-                  </section> */}
+                  </section>
                 </div>
               </div>
             </div>

@@ -1,57 +1,14 @@
-import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import axios from "axios";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import { CheckCircleIcon } from "@heroicons/react/outline";
+import { classNames } from "components/utils";
 
 export default function Approval({ record, user }) {
   const router = useRouter();
-  const { handleSubmit } = useForm({ mode: "onSubmit" });
   let tempRecord = record;
   let sentMCS = null;
   let objSent = {};
-
-  const [status, setStatus] = useState({
-    isChecker: null,
-    isSigner: null,
-    isChecked: null,
-    isSigned: null,
-  });
-
-  useEffect(() => {
-    switch (record.status) {
-      case "Maker":
-        setStatus({
-          isChecker: true,
-          isChecked: false,
-          isSigned: false,
-          isSigner: false,
-        });
-        break;
-      case "Checker":
-        setStatus({
-          isChecker: false,
-          isChecked: true,
-          isSigned: false,
-          isSigner: true,
-        });
-        break;
-      case "Signed":
-        setStatus({
-          isChecker: false,
-          isChecked: true,
-          isSigned: true,
-          isSigner: false,
-        });
-        break;
-      default:
-        break;
-    }
-  }, [record.status]);
 
   const submitMCS = async () => {
     if (tempRecord.status == "Maker") {
@@ -94,7 +51,7 @@ export default function Approval({ record, user }) {
   return (
     <>
       <div className="relative bg-white px-4 py-5 sm:rounded-lg sm:px-6 sm:my-8">
-        <div className="sm:flex sm:items-start">
+        <div className="sm:flex sm:items-center">
           <div className="pt-3 text-center sm:pt-0 sm:pl-4 sm:text-left">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
               Approval
@@ -102,9 +59,9 @@ export default function Approval({ record, user }) {
             <div className="pt-2">
               <fieldset className="space-y-5">
                 <legend className="sr-only">Document Control</legend>
-                <div className="flex items-start">
+                <div className="flex items-center">
                   <div className="flex items-center h-5">
-                    <input
+                    {/* <input
                       id="maker"
                       aria-describedby="maker-checkbox"
                       name="maker"
@@ -112,7 +69,13 @@ export default function Approval({ record, user }) {
                       className="mt-2 focus:ring-indigo-500 h-5 w-5 text-indigo-600 border-indigo-300 rounded cursor-not-allowed"
                       checked={true}
                       disabled={true}
+                    /> */}
+                    {/* <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100"> */}
+                    <CheckCircleIcon
+                      className="h-6 w-6 text-indigo-600"
+                      aria-hidden="true"
                     />
+                    {/* </div> */}
                   </div>
                   <div className="ml-3 text-lg">
                     <label
@@ -127,25 +90,19 @@ export default function Approval({ record, user }) {
                   </div>
                 </div>
                 <div>
-                  <div className="relative flex items-start">
+                  <div className="relative flex items-center">
                     <div className="flex items-center h-5">
-                      <input
-                        id="checker"
-                        aria-describedby="checker-checkbox"
-                        name="checker"
-                        type="checkbox"
+                      <CheckCircleIcon
                         className={classNames(
-                          status.isChecker
-                            ? "focus:ring-indigo-500 border-gray-300 cursor-pointer"
-                            : "focus:ring-gray-500 cursor-not-allowed",
-                          "text-indigo-600 mt-2 h-5 w-5 rounded"
+                          record.status == "Maker"
+                            ? "opacity-0"
+                            : "opacity-100",
+                          "h-6 w-6 text-indigo-600"
                         )}
-                        checked={status.isChecked}
-                        disabled={status.isChecked}
-                        onClick={submitMCS}
+                        aria-hidden="true"
                       />
                     </div>
-                    <div className="ml-3 text-lg">
+                    <div className="mx-3 text-lg">
                       <label
                         htmlFor="checker"
                         className="font-medium text-gray-700"
@@ -156,47 +113,67 @@ export default function Approval({ record, user }) {
                         Kartika Mutiara Dini
                       </p>
                     </div>
+                    {user.userMatrix.desc.includes("TL AES") ||
+                    user.fullname.includes("Kartika Mutiara") ? (
+                      <div className="mx-3">
+                        <button
+                          type="button"
+                          className={classNames(
+                            record.status == "Checker" ||
+                              record.status == "Signed"
+                              ? "hidden"
+                              : "inline-flex",
+                            "w-100 justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          )}
+                          onClick={submitMCS}
+                        >
+                          Approve
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div>
-                  <div className="relative flex items-start">
+                  <div className="relative flex items-center">
                     <div className="flex items-center h-5">
-                      <input
-                        id="signer"
-                        aria-describedby="signer-checkbox"
-                        name="signer"
-                        type="checkbox"
+                      <CheckCircleIcon
                         className={classNames(
-                          status.isSigner
-                            ? "focus:ring-indigo-500 border-gray-300 cursor-pointer"
-                            : "focus:ring-gray-500 border-gray-300 cursor-not-allowed",
-                          "text-indigo-600 mt-2 h-5 w-5 rounded"
+                          record.status == "Signed"
+                            ? "opacity-100"
+                            : "opacity-0",
+                          "h-6 w-6 text-indigo-600"
                         )}
-                        checked={status.isSigned}
-                        disabled={status.isSigned}
-                        onClick={submitMCS}
+                        aria-hidden="true"
                       />
                     </div>
-                    <div className="ml-3 text-lg">
+                    <div className="mx-3 text-lg">
                       <label
                         htmlFor="signer"
-                        className={classNames(
-                          status.isChecked ? "text-gray-700" : "text-gray-400",
-                          "font-medium"
-                        )}
+                        className="text-gray-700 font-medium"
                       >
                         Signer
                       </label>
-                      <p
-                        id="signer-checkbox"
-                        className={classNames(
-                          status.isChecked ? "text-gray-500" : "text-gray-200",
-                          null
-                        )}
-                      >
+                      <p id="signer-checkbox" className="text-gray-500">
                         Deni Sukma Adrianto
                       </p>
                     </div>
+                    {user.userMatrix.desc.includes("TL AES") ||
+                    user.fullname.includes("Kartika Mutiara") ? (
+                      <div className="mx-3">
+                        <button
+                          type="button"
+                          className={classNames(
+                            record.status == "Checker"
+                              ? "inline-flex"
+                              : "hidden",
+                            "w-100 justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          )}
+                          onClick={submitMCS}
+                        >
+                          Approve
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </fieldset>
