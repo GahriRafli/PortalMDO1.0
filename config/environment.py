@@ -1,7 +1,7 @@
 import configparser
 
 config = configparser.ConfigParser()
-config.read("../config.ini")
+config.read("/home/mdo/portal_mdo_reborn/portal_mdo_api/config.ini")
 
 DEFAULT_DB_HOST = config["DEFAULT_DATABASE"]["HOST"]
 DEFAULT_DB_PORT = int(config["DEFAULT_DATABASE"]["PORT"])

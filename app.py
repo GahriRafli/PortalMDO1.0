@@ -8,7 +8,9 @@ from flask_jwt_extended import JWTManager, decode_token
 
 
 import config.environment as env
-import libraries.errors as err
+import libraries.generate_response as generateResp
+
+from blueprints.users.routes import bp_users
 
 
 app = Flask(__name__)
@@ -35,7 +37,8 @@ log_handler.setFormatter(formatter)
 app.logger.addHandler(log_handler)
 """END LOGGING"""
 
-
+"""START REGISTER BLUEPRINT"""
+app.register_blueprint(bp_users)
 
 # Checking that token is in blacklist or not
 # @jwt.token_in_blocklist_loader
@@ -47,24 +50,24 @@ app.logger.addHandler(log_handler)
 # The following callbacks are used for customizing jwt response/error messages.
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_payload):
-    return err.unauthorized(code=999, message="The token has expired!")
+    return generateResp.unauthorized(code="999", message="The token has expired!")
 
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    return err.unauthorized(code=999, message="Signature verification failed!")
+    return generateResp.unauthorized(code="999", message="Signature verification failed!")
 
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
-    return err.unauthorized(code=999, message="Request does not contain an access token!")
+    return generateResp.unauthorized(code="999", message="Request does not contain an access token!")
 
 
 @jwt.needs_fresh_token_loader
 def token_not_fresh_callback():
-    return err.unauthorized(code=999, message="The token is not fresh!")
+    return generateResp.unauthorized(code="999", message="The token is not fresh!")
 
 
 @jwt.revoked_token_loader
 def revoked_token_callback(jwt_header, jwt_payload):
-    return err.unauthorized(code=999, message="The token has been revoked!")
+    return generateResp.unauthorized(code="999", message="The token has been revoked!")
