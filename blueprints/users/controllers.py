@@ -13,7 +13,7 @@ from flask_jwt_extended import (
 
 # IMPORT Local Setting
 import libraries.generate_response as generateResp
-from .models import get_all_user_group
+import models as userModels
 
 
 class UserGroupList(Resource):
@@ -21,9 +21,13 @@ class UserGroupList(Resource):
     def get(cls):
         try:
             qry_param = request.args.to_dict()
-            user_group_list_data = get_all_user_group(input_param=qry_param)
-            return generateResp.success(respBody=user_group_list_data) if user_group_list_data else generateResp.success(respBody=[])
-                
+            user_group_list_data = userModels.get_all_user_group(input_param=qry_param)
+            return (
+                generateResp.success(respBody=user_group_list_data)
+                if user_group_list_data
+                else generateResp.noContent()
+            )
+
         except Exception as why:
             current_app.logger.warning(repr(why))
             return generateResp.generalError(exceptionMessage=repr(why))
