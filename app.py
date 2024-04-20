@@ -19,8 +19,12 @@ jwt = JWTManager(app)
 CORS(app, resources={r"/*": {"origins": "*"}})  # allow cross origin
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["JWT_SECRET_KEY"] = env.APP_JWT_SECRET_KEY
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = dt.timedelta(minutes=int(env.APP_ACCESS_TOKEN_EXPIRES))
-app.config["JWT_REFRESH_TOKEN_EXPIRES"] = dt.timedelta(minutes=int(env.APP_REFRESH_TOKEN_EXPIRES))
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = dt.timedelta(
+    minutes=int(env.APP_ACCESS_TOKEN_EXPIRES)
+)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = dt.timedelta(
+    minutes=int(env.APP_REFRESH_TOKEN_EXPIRES)
+)
 app.config["UPLOADED_FILES"] = "static"
 
 
@@ -55,12 +59,16 @@ def expired_token_callback(jwt_header, jwt_payload):
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    return generateResp.unauthorized(code="999", message="Signature verification failed!")
+    return generateResp.unauthorized(
+        code="999", message="Signature verification failed!"
+    )
 
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
-    return generateResp.unauthorized(code="999", message="Request does not contain an access token!")
+    return generateResp.unauthorized(
+        code="999", message="Request does not contain an access token!"
+    )
 
 
 @jwt.needs_fresh_token_loader
