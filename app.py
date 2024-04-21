@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager, decode_token
 
 import config.environment as env
 import libraries.generate_response as generateResp
+from blueprints.users.models import is_jti_blacklisted
 
 from blueprints.users.routes import bp_users
 
@@ -45,10 +46,10 @@ app.logger.addHandler(log_handler)
 app.register_blueprint(bp_users)
 
 # Checking that token is in blacklist or not
-# @jwt.token_in_blocklist_loader
-# def check_if_token_in_blacklist(jwt_header, jwt_payload):
-#     jti = jwt_payload["jti"]
-#     return UserRevokedTokenModel.is_jti_blacklisted(jti)
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    return is_jti_blacklisted(jti=jti)
 
 
 # The following callbacks are used for customizing jwt response/error messages.
