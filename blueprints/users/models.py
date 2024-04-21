@@ -71,8 +71,7 @@ def get_all_user_group(input_param):
         return db_conn.fetch_all(sql=final_query)
     except Exception as why:
         raise Exception(repr(why))
-<<<<<<< HEAD
-    
+
 
 def get_all_user_matrix(input_param):
     try:
@@ -122,7 +121,7 @@ def get_all_user_matrix(input_param):
         return db_conn.fetch_all(sql=final_query)
     except Exception as why:
         raise Exception(repr(why))
-    
+
 
 def get_all_user_status(input_param):
     try:
@@ -132,7 +131,7 @@ def get_all_user_status(input_param):
                 "table_column": "A.is_active",
                 "operand": "=",
                 "data_type": "string",
-            },
+            }
         }
         conditions = []
         base_query = f"""SELECT A.* FROM user_status A"""
@@ -165,10 +164,10 @@ def get_all_user_status(input_param):
         return db_conn.fetch_all(sql=final_query)
     except Exception as why:
         raise Exception(repr(why))
-    
 
-def find_user_login_by_username(username :str):
-    try :
+
+def find_user_login_by_username(username: str):
+    try:
         db_conn = PortalMDODB()
         final_query = f"""SELECT A.id, A.username, A.auth_type,\
             A.user_status_id, B.status_desc AS user_status_desc, B.message_error AS user_status_message_error,\
@@ -184,42 +183,74 @@ def find_user_login_by_username(username :str):
         return db_conn.fetch_one(sql=final_query)
     except Exception as why:
         raise Exception(repr(why))
-    
-def insert_new_user_ldap_bristars(username :str, email :str, last_source_ip_addr :str, last_user_agent :str, **respBRIStars):
-    try :
+
+
+def insert_new_user_ldap_bristars(
+    username: str,
+    email: str,
+    last_source_ip_addr: str,
+    last_user_agent: str,
+    **respBRIStars,
+):
+    try:
         db_conn = PortalMDODB()
-        final_query = """INSERT INTO `user_login` (`username`, `email`, `fullname`, `orgeh`, `werksTX`, `btrtlTX`, `kstlTX`, `orgehTX`, `stellTX`, `branch`, `tipeUker`, `htext`, `corpTitle`, `last_source_ip_addr`, `last_user_agent`, `last_login`) VALUES ('{username}', '{email}', '{sname}', '{orgeh}', '{werksTX}', '{btrtlTX}', '{kstlTX}', '{orgehTX}', '{stellTX}', '{branch}', '{tipeUker}', '{htext}', '{corpTitle}', '{last_source_ip_addr}', '{last_user_agent}', NOW());""".format(username=username, email=email, last_source_ip_addr=last_source_ip_addr, last_user_agent=last_user_agent, **respBRIStars)
+        final_query = """INSERT INTO `user_login` (`username`, `email`, `fullname`, `orgeh`, `werksTX`, `btrtlTX`, `kstlTX`, `orgehTX`, `stellTX`, `branch`, `tipeUker`, `htext`, `corpTitle`, `last_source_ip_addr`, `last_user_agent`, `last_login`) VALUES ('{username}', '{email}', '{sname}', '{orgeh}', '{werksTX}', '{btrtlTX}', '{kstlTX}', '{orgehTX}', '{stellTX}', '{branch}', '{tipeUker}', '{htext}', '{corpTitle}', '{last_source_ip_addr}', '{last_user_agent}', NOW());""".format(
+            username=username,
+            email=email,
+            last_source_ip_addr=last_source_ip_addr,
+            last_user_agent=last_user_agent,
+            **respBRIStars,
+        )
         return db_conn.execute(sql=final_query)
-    except Exception as why :
+    except Exception as why:
         raise Exception(repr(why))
 
-def update_user_ldap_bristars(id :int, username :str, email :str, last_source_ip_addr :str, last_user_agent :str, **respBRIStars):
-    try :
+
+def update_user_ldap_bristars(
+    id: int,
+    username: str,
+    email: str,
+    last_source_ip_addr: str,
+    last_user_agent: str,
+    **respBRIStars,
+):
+    try:
         db_conn = PortalMDODB()
         final_query = """UPDATE `user_login` SET `email`='{email}', `fullname`='{sname}', `orgeh`='{orgeh}',\
             `werksTX`='{werksTX}', `btrtlTX`='{btrtlTX}', `kstlTX`='{kstlTX}', `orgehTX`='{orgehTX}',\
             `stellTX`='{stellTX}', `branch`='{branch}', `tipeUker`='{tipeUker}', `htext`='{htext}', `corpTitle`='{corpTitle}',\
             `last_source_ip_addr`='{last_source_ip_addr}', `last_user_agent`='{last_user_agent}', `last_login`=NOW()\
-            WHERE `id`={id} AND `username`='{username}';""".format(id=id, username=username, email=email, last_source_ip_addr=last_source_ip_addr, last_user_agent=last_user_agent, **respBRIStars)
+            WHERE `id`={id} AND `username`='{username}';""".format(
+            id=id,
+            username=username,
+            email=email,
+            last_source_ip_addr=last_source_ip_addr,
+            last_user_agent=last_user_agent,
+            **respBRIStars,
+        )
         return db_conn.execute(sql=final_query)
-    except Exception as why :
+    except Exception as why:
         raise Exception(repr(why))
+
 
 def insert_new_user_ldap_non_bristars():
     pass
 
+
 def update_user_ldap_non_bristars():
     pass
+
 
 def find_list_user():
     pass
 
-def user_logout_access(jti :str):
-    try :
+
+def user_logout_access(jti: str):
+    try:
         db_conn = PortalMDODB()
-        final_query = """INSERT INTO `user_blacklist_token` (`jti`) VALUES ('{jti}');""".format(jti=jti)
+        final_query = """INSERT INTO `user_blacklist_token` (`jti`) VALUES ('{jti}');""".format(
+            jti=jti
+        )
         return db_conn.execute(sql=final_query)
-    except Exception as why :
+    except Exception as why:
         raise Exception(repr(why))
-=======
->>>>>>> f4331107bf84d9cc614ffcd71f2329623bc28188
