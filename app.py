@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager, decode_token
 
 import config.environment as env
 import libraries.generate_response as generateResp
+from blueprints.users.models import is_jti_blacklisted
 
 from blueprints.users.routes import bp_users
 
@@ -19,8 +20,12 @@ jwt = JWTManager(app)
 CORS(app, resources={r"/*": {"origins": "*"}})  # allow cross origin
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["JWT_SECRET_KEY"] = env.APP_JWT_SECRET_KEY
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = dt.timedelta(minutes=int(env.APP_ACCESS_TOKEN_EXPIRES))
-app.config["JWT_REFRESH_TOKEN_EXPIRES"] = dt.timedelta(minutes=int(env.APP_REFRESH_TOKEN_EXPIRES))
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = dt.timedelta(
+    minutes=int(env.APP_ACCESS_TOKEN_EXPIRES)
+)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = dt.timedelta(
+    minutes=int(env.APP_REFRESH_TOKEN_EXPIRES)
+)
 app.config["UPLOADED_FILES"] = "static"
 
 
@@ -41,10 +46,10 @@ app.logger.addHandler(log_handler)
 app.register_blueprint(bp_users)
 
 # Checking that token is in blacklist or not
-# @jwt.token_in_blocklist_loader
-# def check_if_token_in_blacklist(jwt_header, jwt_payload):
-#     jti = jwt_payload["jti"]
-#     return UserRevokedTokenModel.is_jti_blacklisted(jti)
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    return is_jti_blacklisted(jti=jti)
 
 
 # The following callbacks are used for customizing jwt response/error messages.
@@ -55,12 +60,16 @@ def expired_token_callback(jwt_header, jwt_payload):
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    return generateResp.unauthorized(code="999", message="Signature verification failed!")
+    return generateResp.unauthorized(
+        code="999", message="Signature verification failed!"
+    )
 
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
-    return generateResp.unauthorized(code="999", message="Request does not contain an access token!")
+    return generateResp.unauthorized(
+        code="999", message="Request does not contain an access token!"
+    )
 
 
 @jwt.needs_fresh_token_loader
