@@ -13,9 +13,13 @@ from flask_jwt_extended import (
 
 # IMPORT Local Setting
 import libraries.generate_response as generateResp
+<<<<<<< HEAD
 import libraries.ldap_helpers as ldapHelp
 import blueprints.users.models as userModels
 import blueprints.global_parameters.models as globalParamModels
+=======
+import models as userModels
+>>>>>>> f4331107bf84d9cc614ffcd71f2329623bc28188
 
 additional_information_token = lambda username, user_status_id, user_matrix_id :  {"username": username, "userStatusId": user_status_id, "userMatrixId": user_matrix_id}
 
@@ -31,6 +35,7 @@ class UserGroupList(Resource):
                 else generateResp.noContent()
             )
 
+<<<<<<< HEAD
         except Exception as why:
             current_app.logger.warning(repr(why))
             return generateResp.generalError(exceptionMessage=repr(why))
@@ -142,3 +147,8 @@ class UserLogoutAccess(Resource):
         except Exception as why:
             current_app.logger.warning(repr(why))
             return generateResp.generalError()
+=======
+        except Exception as why:
+            current_app.logger.warning(repr(why))
+            return generateResp.generalError(exceptionMessage=repr(why))
+>>>>>>> f4331107bf84d9cc614ffcd71f2329623bc28188

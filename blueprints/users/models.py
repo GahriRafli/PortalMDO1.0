@@ -71,6 +71,7 @@ def get_all_user_group(input_param):
         return db_conn.fetch_all(sql=final_query)
     except Exception as why:
         raise Exception(repr(why))
+<<<<<<< HEAD
     
 
 def get_all_user_matrix(input_param):
@@ -220,3 +221,5 @@ def user_logout_access(jti :str):
         return db_conn.execute(sql=final_query)
     except Exception as why :
         raise Exception(repr(why))
+=======
+>>>>>>> f4331107bf84d9cc614ffcd71f2329623bc28188
