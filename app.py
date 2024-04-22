@@ -9,7 +9,9 @@ from flask_jwt_extended import JWTManager, decode_token
 
 import config.environment as env
 import libraries.generate_response as generateResp
+import libraries.general_helpers as generalHelp
 from blueprints.users.models import is_jti_blacklisted
+from blueprints.audit_trail.models import insert_api_audit_trail
 
 from blueprints.users.routes import bp_users
 
@@ -44,6 +46,90 @@ app.logger.addHandler(log_handler)
 
 """START REGISTER BLUEPRINT"""
 app.register_blueprint(bp_users)
+"""END REGISTER BLUEPRINT"""
+
+# Logging Before dan After Request
+@app.before_request
+def before_request_callback():
+    """
+    Sebelum request diproses dilakukan :
+    - Decode Token untuk mendapatkan user_id dari JWT jika request tersebut menggunakan Authorization Bearer Token
+    - Pencatatan epoch timestamp request time dalam satuan milisecond
+    """
+
+    if request.method != "GET":
+        g.username = (
+            decode_token(request.headers["Authorization"].replace("Bearer ", ""))["username"]
+            if "Authorization" in request.headers
+            else None
+        )
+        g.requestTime = dt.datetime.now().timestamp()
+    else:
+        pass
+
+
+@app.after_request
+def after_request_callback(response):
+    """
+    Setelah request diproses sebelum response ke depan dilakukan :
+    - JIKA METHOD == GET dan STATUS CODE > 201 (alias GET yang gagal), maka :
+        - Dilakukan logging request response pada file text
+
+    - JIKA METHOD != GET untuk semua STATUS CODE, maka :
+        - Pencatatan epoch timestamp response time dalam satuan milisecond
+        - Insert log request, response dan elapsed time pada database
+    """
+
+    if request.method == "GET" and response.status_code > 201:
+        app.logger.warning(
+            "REQUEST LOG\t%s %s",
+            request.method,
+            json.dumps(
+                {
+                    "request": request.args.to_dict(),
+                    "response": json.loads(response.data.decode("utf-8")),
+                }
+            ),
+        )
+    # elif request.method != "GET" and response.status_code > 201:
+    elif request.method != "GET":
+        g.responseTime = dt.datetime.now().timestamp()
+
+        audit_log_json = {
+            "username":g.username,
+            "request_method":request.method,
+            "request_path":request.path,
+            "request_endpoint":request.endpoint,
+            "request_data": json.dumps(generalHelp.doMaskPassword(request.get_json())) if request.content_type is not None else None,
+            "request_user_agent":request.user_agent,
+            "request_remote_addr":request.headers.getlist("X-Forwarded-For")[0] if request.headers.getlist("X-Forwarded-For") else request.remote_addr,
+            "request_timestamp":g.requestTime,
+            "response_status":response.status,
+            "response_status_code":response.status_code,
+            "response_data":json.dumps(json.loads(response.data.decode("utf-8"))) if response.data is not None else None,
+            "response_timestamp":g.responseTime,
+            "elapsed_time":float(g.responseTime - g.requestTime),
+        }
+
+        insert_api_audit_trail(**audit_log_json)
+
+        """
+        LOGGING KE FILE DIMATIKAN SEMENTARA
+        Karena sudah masuk ke database api_audit_log
+        """
+        # app.logger.warning(
+        #     "REQUEST LOG\t%s %s",
+        #     request.method,
+        #     json.dumps(
+        #         {
+        #             "request": request.get_json(),
+        #             "response": json.loads(response.data.decode("utf-8")),
+        #         }
+        #     ),
+        # )
+    else:
+        pass
+    return response
 
 # Checking that token is in blacklist or not
 @jwt.token_in_blocklist_loader

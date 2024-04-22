@@ -19,7 +19,7 @@ def success(respBody, code="000", message="Successfully"):
 
 
 def successCreated(respBody, code="000", message="Created"):
-    return {"responseCode": code, "message": message}, 201
+    return {"responseCode": code, "message": message, "responseData": json.loads(json.dumps(humps.camelize(respBody), cls=JSONEncode.JSONEncoderHelpers))}, 201
 
 
 def successLogin(respBody, respToken, code="000", message="Successfully"):

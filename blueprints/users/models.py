@@ -1,6 +1,22 @@
 from config.database import PortalMDODB
 
+from passlib.hash import bcrypt_sha256 as bcrypt_sha256
 
+"""
+generate hash from password by encryption using bcrypt_sha256
+"""
+def generate_hash(password):
+    return bcrypt_sha256.hash(password)
+
+"""
+Verify hash and password
+"""
+def verify_hash(password, hash_):
+    return bcrypt_sha256.verify(password, hash_)
+
+"""
+Check is jti blacklisted
+"""
 def is_jti_blacklisted(jti: str):
     try:
         db_conn = PortalMDODB()
@@ -194,14 +210,12 @@ def insert_new_user_ldap_bristars(
 ):
     try:
         db_conn = PortalMDODB()
-        final_query = """INSERT INTO `user_login` (`username`, `email`, `fullname`, `orgeh`, `werksTX`, `btrtlTX`, `kstlTX`, `orgehTX`, `stellTX`, `branch`, `tipeUker`, `htext`, `corpTitle`, `last_source_ip_addr`, `last_user_agent`, `last_login`) VALUES ('{username}', '{email}', '{sname}', '{orgeh}', '{werksTX}', '{btrtlTX}', '{kstlTX}', '{orgehTX}', '{stellTX}', '{branch}', '{tipeUker}', '{htext}', '{corpTitle}', '{last_source_ip_addr}', '{last_user_agent}', NOW());""".format(
-            username=username,
+        final_query = """INSERT INTO `user_login` (`username`, `email`, `fullname`, `orgeh`, `werksTX`, `btrtlTX`, `kstlTX`, `orgehTX`, `stellTX`, `branch`, `tipeUker`, `htext`, `corpTitle`, `last_source_ip_addr`, `last_user_agent`, `last_login`) VALUES (%(username)s, %(email)s, %(sname)s, %(orgeh)s, %(werksTX)s, %(btrtlTX)s, %(kstlTX)s, %(orgehTX)s, %(stellTX)s, %(branch)s, %(tipeUker)s, %(htext)s, %(corpTitle)s, %(last_source_ip_addr)s, %(last_user_agent)s, NOW());"""
+        return db_conn.execute(sql=final_query, username=username,
             email=email,
             last_source_ip_addr=last_source_ip_addr,
             last_user_agent=last_user_agent,
-            **respBRIStars,
-        )
-        return db_conn.execute(sql=final_query)
+            **respBRIStars,)
     except Exception as why:
         raise Exception(repr(why))
 
@@ -216,19 +230,17 @@ def update_user_ldap_bristars(
 ):
     try:
         db_conn = PortalMDODB()
-        final_query = """UPDATE `user_login` SET `email`='{email}', `fullname`='{sname}', `orgeh`='{orgeh}',\
-            `werksTX`='{werksTX}', `btrtlTX`='{btrtlTX}', `kstlTX`='{kstlTX}', `orgehTX`='{orgehTX}',\
-            `stellTX`='{stellTX}', `branch`='{branch}', `tipeUker`='{tipeUker}', `htext`='{htext}', `corpTitle`='{corpTitle}',\
-            `last_source_ip_addr`='{last_source_ip_addr}', `last_user_agent`='{last_user_agent}', `last_login`=NOW()\
-            WHERE `id`={id} AND `username`='{username}';""".format(
-            id=id,
+        final_query = """UPDATE `user_login` SET `email`=%(email)s, `fullname`=%(sname)s, `orgeh`=%(orgeh)s,\
+            `werksTX`=%(werksTX)s, `btrtlTX`=%(btrtlTX)s, `kstlTX`=%(kstlTX)s, `orgehTX`=%(orgehTX)s,\
+            `stellTX`=%(stellTX)s, `branch`=%(branch)s, `tipeUker`=%(tipeUker)s, `htext`=%(htext)s, `corpTitle`=%(corpTitle)s,\
+            `last_source_ip_addr`=%(last_source_ip_addr)s, `last_user_agent`=%(last_user_agent)s, `last_login`=NOW()\
+            WHERE `id`=%(id)s AND `username`=%(username)s;"""
+        return db_conn.execute(sql=final_query, id=id,
             username=username,
             email=email,
             last_source_ip_addr=last_source_ip_addr,
             last_user_agent=last_user_agent,
-            **respBRIStars,
-        )
-        return db_conn.execute(sql=final_query)
+            **respBRIStars,)
     except Exception as why:
         raise Exception(repr(why))
 
@@ -248,9 +260,40 @@ def find_list_user():
 def user_logout_access(jti: str):
     try:
         db_conn = PortalMDODB()
-        final_query = """INSERT INTO `user_blacklist_token` (`jti`) VALUES ('{jti}');""".format(
-            jti=jti
-        )
-        return db_conn.execute(sql=final_query)
+        final_query = """INSERT INTO `user_blacklist_token` (`jti`) VALUES (%(jti)s);"""
+        return db_conn.execute(sql=final_query, jti=jti)
+    except Exception as why:
+        raise Exception(repr(why))
+
+def insert_new_user_manual(**user_data):
+    try:
+        db_conn = PortalMDODB()
+        final_query = """INSERT INTO `user_login` (`username`, `auth_type`, `password`, `email`, `fullname`) VALUES (%(username)s, 'MANUAL', %(password)s, %(email)s, %(fullname)s);"""
+        return db_conn.execute(sql=final_query, **user_data)
+    except Exception as why:
+        raise Exception(repr(why))
+    
+def update_login_user_manual(
+    id: int,
+    username: str,
+    last_source_ip_addr: str,
+    last_user_agent: str,
+):
+    try:
+        db_conn = PortalMDODB()
+        final_query = """UPDATE `user_login` SET `last_source_ip_addr`=%(last_source_ip_addr)s, `last_user_agent`=%(last_user_agent)s, `last_login`=NOW()\
+            WHERE `id`=%(id)s AND `username`=%(username)s;"""
+        return db_conn.execute(sql=final_query, id=id,
+            username=username,
+            last_source_ip_addr=last_source_ip_addr,
+            last_user_agent=last_user_agent,)
+    except Exception as why:
+        raise Exception(repr(why))
+
+def find_password_user_manual(username :str):
+    try :
+        db_conn = PortalMDODB()
+        final_query = """SELECT A.password FROM `user_login` A WHERE A.username=%(username)s;"""
+        return db_conn.fetch_one(sql=final_query, username=username)
     except Exception as why:
         raise Exception(repr(why))

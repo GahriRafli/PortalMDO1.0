@@ -82,7 +82,31 @@ class UserStatusList(Resource):
 class UserRegistration(Resource):
     @classmethod
     def post(cls):
-        return generateResp.noContent()
+        try:
+            user_register_json = request.get_json()
+            reg_username = user_register_json["username"]
+            reg_password = userModels.generate_hash(user_register_json["password"])
+            reg_email = user_register_json["email"]
+            reg_fullname = user_register_json["fullname"]
+            if reg_username.isnumeric():
+                return generateResp.badRequest(message="Username Numeric hanya dikhususkan untuk PN")
+            else:
+                user_data_json = {"username":reg_username, "password":reg_password, "email":reg_email, "fullname":reg_fullname}
+                userModels.insert_new_user_manual(**user_data_json)
+                user_after_insert = userModels.find_user_login_by_username(username=reg_username)
+                if user_after_insert :
+                    return generateResp.successCreated(respBody=user_after_insert)
+                else :
+                    generateResp.notFound(message=f"username {reg_username} not found!")
+        except KeyError as why:
+            current_app.logger.warning(repr(why))
+            return generateResp.badRequest(message="Request is missing required fields or incorrect value!", exceptionMessage=repr(why))
+        except ValueError as why:
+            current_app.logger.warning(repr(why))
+            return generateResp.badRequest(message="Duplicate Entry, Username Already Exist!", exceptionMessage=repr(why))
+        except Exception as why:
+            current_app.logger.warning(repr(why))
+            return generateResp.generalError(exceptionMessage=repr(why))
 
 
 class UserLogin(Resource):
@@ -187,7 +211,39 @@ class UserLogin(Resource):
                             message=json.dumps(check_ldap_existing_user)
                         )
                 elif current_user["auth_type"] == "MANUAL":
-                    pass
+                    user_password = userModels.find_password_user_manual(username=user_login_json["username"])
+                    if userModels.verify_hash(password=user_login_json["password"], hash_=user_password["password"]) :
+                        if current_user["user_status_id"] == int(
+                            param_status_user_active
+                        ):
+                            userModels.update_login_user_manual(id=current_user["id"], username=current_user["username"], last_source_ip_addr=param_ip_addr, last_user_agent=param_user_agent)
+                            return generateResp.successLogin(
+                                respBody=current_user,
+                                respToken={
+                                    "access_token": create_access_token(
+                                        identity=current_user["id"],
+                                        additional_claims=additional_information_token(
+                                            username=current_user["username"],
+                                            user_status_id=current_user[
+                                                "user_status_id"
+                                            ],
+                                            user_matrix_id=current_user[
+                                                "user_matrix_id"
+                                            ],
+                                        ),
+                                        fresh=True,
+                                    ),
+                                    "refresh_token": create_refresh_token(
+                                        identity=current_user["id"]
+                                    ),
+                                },
+                            )
+                        else:
+                            return generateResp.unauthorized(
+                                message=current_user["user_status_message_error"]
+                            )
+                    else :
+                        return generateResp.unauthorized(message="Invalid Credential!")
                 else:
                     return generateResp.unauthorized(
                         message="Invalid Auth Type untuk Existing Username!"
@@ -204,6 +260,7 @@ class UserLogin(Resource):
                         user_agent=param_user_agent,
                         ip_addr=param_ip_addr,
                     )
+                    print(check_ldap_new_user)
                     if (
                         check_ldap_new_user["responseStatus"] is True
                         and check_ldap_new_user["responseStatusBRIStars"] is True
@@ -269,7 +326,7 @@ class UserLogin(Resource):
                         )
                 else:
                     return generateResp.unauthorized(
-                        message="Kombinasi username bukan numeric. Belum terdaftar ke dalam sistem Portal MDO. Silahkan Hubungi Administrator - MDO untuk pengecekan lebih lanjut."
+                        message="Kombinasi username bukan numeric. Belum terdaftar ke dalam sistem Portal MDO.\r\nSilahkan Hubungi Administrator - MDO untuk pengecekan lebih lanjut."
                     )
         except Exception as why:
             return generateResp.generalError(exceptionMessage=repr(why))
@@ -281,9 +338,8 @@ class UserLogoutAccess(Resource):
     def post(self):
         try:
             jti = get_jwt()["jti"]
-            print(jti)
             userModels.user_logout_access(jti=jti)
-            return generateResp.success(respBody={"accessToken": get_jwt()})
+            return generateResp.success(respBody={"revokedAccessToken": get_jwt()})
         except Exception as why:
             current_app.logger.warning(repr(why))
             return generateResp.generalError(exceptionMessage=repr(why))
