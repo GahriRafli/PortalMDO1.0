@@ -297,3 +297,37 @@ def find_password_user_manual(username :str):
         return db_conn.fetch_one(sql=final_query, username=username)
     except Exception as why:
         raise Exception(repr(why))
+    
+def find_user_by_username_id(user_id :int, username :str):
+    try :
+        db_conn = PortalMDODB()
+        final_query = """SELECT * FROM user_login A WHERE A.id=%(user_id)s AND A.username=%(username)s;"""
+        return db_conn.fetch_one(sql=final_query, user_id=user_id, username=username)
+    except Exception as why:
+        raise Exception(repr(why))
+    
+def update_user_by_username_id(user_id :int, username :str, user_status_id :int, user_matrix_id :int):
+    try :
+        db_conn = PortalMDODB()
+        final_query = """UPDATE `user_login` SET `user_status_id`=%(user_status_id)s, `user_matrix_id`=%(user_matrix_id)s WHERE `id`=%(user_id)s AND `username`=%(username)s;"""
+        return db_conn.execute(sql=final_query, user_id=user_id, username=username, user_status_id=user_status_id, user_matrix_id=user_matrix_id)
+    except Exception as why:
+        raise Exception(repr(why))
+    
+def find_user_list_except_yourself(user_id :int):
+    try :
+        db_conn = PortalMDODB()
+        final_query = """SELECT A.id, A.username, A.auth_type,\
+            A.user_status_id, B.status_desc AS user_status_desc, B.message_error AS user_status_message_error,\
+            A.user_matrix_id, C.user_matrix_desc, C.user_role,\
+            A.photo_profile, A.email, A.fullname, A.orgeh,\
+            A.werksTX, A.btrtlTX, A.kstlTX, A.orgehTX, A.stellTX,\
+            A.branch, A.tipeUker, A.htext, A.corpTitle,\
+            A.last_source_ip_addr, A.last_user_agent, A.last_login, A.created_at, A.updated_at\
+            FROM user_login A\
+            INNER JOIN user_status B ON A.user_status_id = B.id\
+            INNER JOIN user_matrix C ON A.user_matrix_id = C.id\
+            WHERE A.id != %(user_id)s;"""
+        return db_conn.fetch_all(sql=final_query, user_id=user_id)
+    except Exception as why:
+        raise Exception(repr(why))

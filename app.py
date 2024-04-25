@@ -14,6 +14,7 @@ from blueprints.users.models import is_jti_blacklisted
 from blueprints.audit_trail.models import insert_api_audit_trail
 
 from blueprints.users.routes import bp_users
+from blueprints.config_esb.routes import bp_config_esb_monolith
 
 
 app = Flask(__name__)
@@ -46,6 +47,7 @@ app.logger.addHandler(log_handler)
 
 """START REGISTER BLUEPRINT"""
 app.register_blueprint(bp_users)
+app.register_blueprint(bp_config_esb_monolith)
 """END REGISTER BLUEPRINT"""
 
 # Logging Before dan After Request

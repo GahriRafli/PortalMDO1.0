@@ -168,33 +168,36 @@ class UserLogin(Resource):
                             last_user_agent=param_user_agent,
                             **check_ldap_existing_user["responseDataBRIStars"]
                         )
-                        if current_user["user_status_id"] == int(
+                        user_after_update = userModels.find_user_login_by_username(
+                            username=user_login_json["username"]
+                        )
+                        if user_after_update["user_status_id"] == int(
                             param_status_user_active
                         ):
                             return generateResp.successLogin(
-                                respBody=current_user,
+                                respBody=user_after_update,
                                 respToken={
                                     "access_token": create_access_token(
-                                        identity=current_user["id"],
+                                        identity=user_after_update["id"],
                                         additional_claims=additional_information_token(
-                                            username=current_user["username"],
-                                            user_status_id=current_user[
+                                            username=user_after_update["username"],
+                                            user_status_id=user_after_update[
                                                 "user_status_id"
                                             ],
-                                            user_matrix_id=current_user[
+                                            user_matrix_id=user_after_update[
                                                 "user_matrix_id"
                                             ],
                                         ),
                                         fresh=True,
                                     ),
                                     "refresh_token": create_refresh_token(
-                                        identity=current_user["id"]
+                                        identity=user_after_update["id"]
                                     ),
                                 },
                             )
                         else:
                             return generateResp.unauthorized(
-                                message=current_user["user_status_message_error"]
+                                message=user_after_update["user_status_message_error"]
                             )
                     elif (
                         check_ldap_existing_user["responseStatus"] is True
@@ -340,6 +343,40 @@ class UserLogoutAccess(Resource):
             jti = get_jwt()["jti"]
             userModels.user_logout_access(jti=jti)
             return generateResp.success(respBody={"revokedAccessToken": get_jwt()})
+        except Exception as why:
+            current_app.logger.warning(repr(why))
+            return generateResp.generalError(exceptionMessage=repr(why))
+
+class UserList(Resource):
+    @classmethod
+    @jwt_required()
+    def get(self):
+        try:
+            check_list_user = userModels.find_user_list_except_yourself(user_id=get_jwt_identity())
+            if not check_list_user :
+                return generateResp.noContent()
+            else :
+                return generateResp.success(respBody=check_list_user)
+        except Exception as why:
+            current_app.logger.warning(repr(why))
+            return generateResp.generalError(exceptionMessage=repr(why))
+        
+class UserUpdate(Resource):
+    @classmethod
+    @jwt_required()
+    def patch(self):
+        try:
+            user_update_json = request.get_json()
+            check_user = userModels.find_user_by_username_id(user_id=user_update_json["id"], username=user_update_json["username"])
+            if not check_user :
+                return generateResp.notFound(message=f"""Username {user_update_json["username"]} not found!""")
+            else :
+                userModels.update_user_by_username_id(user_id=user_update_json["id"], username=user_update_json["username"], user_status_id=user_update_json["userStatusId"], user_matrix_id=user_update_json["userMatrixId"])
+                check_user_after_update = userModels.find_user_login_by_username(username=user_update_json["username"])
+                if not check_user_after_update :
+                    return generateResp.notFound(message=f"""Username {user_update_json["username"]} not found!""")
+                else :
+                    return generateResp.success(respBody=check_user_after_update)  
         except Exception as why:
             current_app.logger.warning(repr(why))
             return generateResp.generalError(exceptionMessage=repr(why))
