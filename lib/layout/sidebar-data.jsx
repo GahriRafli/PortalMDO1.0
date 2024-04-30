@@ -11,123 +11,70 @@ import {
 export const navigation = [
   { name: "Home", href: "/", icon: HomeIcon },
   {
-    name: "Incidents",
-    href: "/incidents",
+    name: "ESB",
+    href: "#",
     icon: ShieldCheckIcon,
     children: [
       {
-        name: "Incident List",
-        href: "/incidents",
+        name: "Cache",
+        href: "#",
       },
       {
-        name: "Incident Matching",
-        href: "/incidents/search",
-      },
-      {
-        name: "Incident Download",
-        href: "/incidents/download",
+        name: "Service",
+        href: "/ESB/service",
       },
     ],
   },
   {
-    name: "Problems",
+    name: "BI-Fast",
     icon: FireIcon,
-    href: "/problem",
+    href: "#",
     children: [
       {
-        name: "Monitoring",
-        href: "/problem/monitoring",
-        permission: "all",
-      },
-      {
-        name: "My Task",
-        href: "/problem",
-        permission: "member",
-      },
-      {
-        name: "Search",
-        href: "/problem/search",
-        permission: "all",
-      },
-      {
-        name: "List",
-        href: "/problem/list",
-        permission: "all",
-      },
-      {
-        name: "Need Assign",
-        href: "/problem/assign",
-        permission: "all",
-      },
-      {
-        name: "Known Error",
-        href: "/problem/knownerror",
-        permission: "all",
+        name: "Alert",
+        href: "#",
+        // permission: "all",
       },
     ],
   },
   {
-    name: "Health Check",
+    name: "Audit Trail",
     icon: ClipboardCheckIcon,
-    href: "/healthcheck",
+    href: "#",
     children: [
       {
-        name: "Dashboard",
-        href: "/healthcheck/dashboard",
-        permission: "all",
-      },
-      {
-        name: "Create",
-        href: "/healthcheck/create",
-        permission: "all",
-      },
-      {
-        name: "Report",
-        href: "/healthcheck",
-        permission: "all",
+        name: "Audit Log",
+        href: "#",
+        // permission: "all",
       },
     ],
   },
   {
-    name: "Tickets",
+    name: "Proswitching",
     icon: ChatAlt2Icon,
-    href: "/tickets",
+    href: "#",
     children: [
       {
-        name: "Ticket List",
-        href: "/tickets",
-        permission: "all",
+        name: "Connection",
+        href: "#",
+        // permission: "all",
       },
     ],
   },
   {
-    name: "Report",
+    name: "Other",
     icon: DocumentReportIcon,
-    href: "/report",
+    href: "#",
     children: [
       {
-        name: "Third Party",
-        href: "/report/third-party",
-      },
-      {
-        name: "Incident by Type",
-        href: "/report/incident_by_type",
-      },
-      {
-        name: "Incident by Team",
-        href: "/report/incident_by_team",
+        name: "Hourly Report MDO",
+        href: "#",
       },
     ],
   },
   {
-    name: "SDK Tools",
+    name: "User Management",
     icon: ViewGridIcon,
-    href: "/tools",
-    children: [
-      {
-        name: "Courtesy",
-        href: "/tools/courtesy",
-      },
-    ],
+    href: "/usermanagement",
   },
 ];

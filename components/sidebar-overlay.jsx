@@ -60,7 +60,7 @@ export default function SidebarOverlay({
               </div>
             </Transition.Child>
             <div className="flex items-center flex-shrink-0 px-4">
-              <img className="w-auto h-8" src="/shield-logo.png" alt="Shield" />
+              <img className="w-auto h-8" src="/mdo_no_bg.png" alt="Shield" />
             </div>
             <div className="flex-1 h-0 mt-5 overflow-y-auto">
               <nav className="px-2">

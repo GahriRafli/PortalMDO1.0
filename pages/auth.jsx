@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Spinner } from "components/ui/svg/spinner";
 import clsx from "clsx";
 import { CustomAlert } from "components/ui/alert";
+import Link from "next/link";
 
 export default function Auth() {
   const router = useRouter();
@@ -27,21 +28,23 @@ export default function Auth() {
       });
       if (response.status === 200) {
         !isSubmitting;
-        if (response.data.fullname === null) {
+        if (response.data.userRole === null) {
           router.push("/profile");
         } else {
           router.push("/");
         }
+        console.log("berhasil login");
       }
     } catch (error) {
       setErrorMsg(`${error.data.message}`);
+      console.log("gagal login");
     }
   };
 
   return (
     <>
       <Head>
-        <title>Shield - Incident & Problem Management</title>
+        <title>Portal MDO</title>
       </Head>
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -51,9 +54,9 @@ export default function Auth() {
           alt="Workflow"
         /> */}
           <img
-            className="mx-auto h-12 ml-36"
-            src="/shield-logo-new-black.png"
-            alt="Shield logo"
+            className="mx-auto h-20 ml-40"
+            src="/mdo_no_bg.png"
+            alt="MDO logo"
           />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
@@ -166,13 +169,24 @@ export default function Auth() {
             </form>
 
             <div className="mt-6">
+              <p className="text-center text-sm text-gray-600">
+                Don't have Personal Number{" "}
+                <Link href="/regist">
+                  <a className="hover:underline hover:text-blue-600">
+                    Register here
+                  </a>
+                </Link>
+              </p>
+            </div>
+
+            <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-xs">
                   <span className="px-2 bg-white text-gray-500">
-                    Copyright &#169; {new Date().getFullYear()} APP - BRI
+                    Copyright &#169; {new Date().getFullYear()} MDO - BRI
                   </span>
                 </div>
               </div>

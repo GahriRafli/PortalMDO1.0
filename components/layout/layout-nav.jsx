@@ -127,12 +127,12 @@ export function LayoutNav({ session, isShowNotif }) {
                     <img
                       loading="lazy"
                       className="h-8 w-8 rounded-full"
-                      src={session.photo}
+                      src="/download.png"
                       alt="User Proflie"
                     />
                     <span className="hidden ml-3 text-gray-700 text-sm font-medium lg:block">
                       <span className="sr-only">Open user menu for </span>
-                      {session.fullname
+                      {session?.fullname
                         ? getNickName(session.fullname)
                         : session.username}
                     </span>

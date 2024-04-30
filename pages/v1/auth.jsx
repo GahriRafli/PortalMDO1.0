@@ -20,7 +20,7 @@ export default function Auth() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetchJson("/api/login", {
+      const response = await fetchJson("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -41,7 +41,7 @@ export default function Auth() {
   return (
     <>
       <Head>
-        <title>Shield - Incident & Problem Management</title>
+        <title>Portal MDO</title>
       </Head>
       <div className="min-h-screen bg-white flex">
         <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">

@@ -9,66 +9,93 @@ import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import {
   HomeIcon,
+  ShieldCheckIcon,
+  ClipboardCheckIcon,
   DocumentSearchIcon,
+  DocumentReportIcon,
   FireIcon,
   ChatAlt2Icon,
+  ViewGridIcon,
   FolderIcon,
 } from "@heroicons/react/outline";
 
 const navigation = [
-  { key: 1, name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { key: 2, name: "Incidents", href: "/incidents", icon: DocumentSearchIcon },
+  { key: 1, name: "Home", href: "/dashboard", icon: HomeIcon },
   {
-    key: 3,
-    name: "Problems",
-    href: "/problem",
+    key: 2,
+    name: "ESB",
+    href: "/",
     children: [
       {
-        name: "Monitoring",
-        href: "/problem/monitoring",
-        permission: "all",
+        name: "Cache",
+        href: "/ESB/cache",
+        // permission: "all",
       },
       {
-        name: "My Task",
-        href: "/problem",
-        permission: "member",
+        name: "Service",
+        href: "/ESB/service",
+        // permission: "member",
       },
+    ],
+    icon: ShieldCheckIcon,
+  },
+  {
+    key: 3,
+    name: "BI-Fast",
+    href: "/",
+    children: [
       {
-        name: "Search",
-        href: "/problem/search",
-        permission: "all",
-      },
-      {
-        name: "List",
-        href: "/problem/list",
-        permission: "all",
-      },
-      {
-        name: "Need Assign",
-        href: "/problem/assign",
-        permission: "all",
-      },
-      {
-        name: "Known Error",
-        href: "/problem/knownerror",
-        permission: "all",
+        name: "Alert",
+        href: "/bi-fast/alert",
+        // permission: "all",
       },
     ],
     icon: FireIcon,
   },
-  { key: 4, name: "Tickets", href: "/tickets", icon: ChatAlt2Icon },
   {
-    key: 5,
-    name: "Report",
-    href: "/report",
+    key: 4,
+    name: "Audit Trail",
+    href: "/",
     children: [
       {
-        name: "Third Party",
-        href: "/report/third-party",
-        permission: "all",
+        name: "Audit-Log",
+        href: "/audit-log/audit-trail",
+        // permission: "all",
       },
     ],
-    icon: FolderIcon,
+    icon: ClipboardCheckIcon,
+  },
+  {
+    key: 5,
+    name: "Proswitching",
+    href: "/",
+    children: [
+      {
+        name: "Connection",
+        href: "/Proswitching/koneksi",
+        // permission: "all",
+      },
+    ],
+    icon: ChatAlt2Icon,
+  },
+  {
+    key: 6,
+    name: "Other",
+    href: "/",
+    children: [
+      {
+        name: "Hourly Report MDO",
+        href: "/other/hourly",
+        // permission: "all",
+      },
+    ],
+    icon: DocumentReportIcon,
+  },
+  {
+    key: 7,
+    name: "User Management",
+    href: "/usermanagement",
+    icon: ViewGridIcon,
   },
 ];
 

@@ -84,7 +84,7 @@ export function LayoutSidebar({ session }) {
               <div className="flex-shrink-0 flex items-center px-4">
                 <img
                   className="h-12 w-auto"
-                  src="/shield-logo-white.png"
+                  src="/mdo_no_bg.png"
                   alt="Shield logo"
                 />
               </div>
@@ -109,9 +109,9 @@ export function LayoutSidebar({ session }) {
           <div className="flex flex-col flex-grow bg-gray-800 pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <img
-                className="h-12 w-auto"
-                src="/shield-logo-new-circle.png"
-                alt="Shield logo"
+                className="h-20 w-auto"
+                src="/mdo_no_bg.png"
+                alt="MDO logo"
               />
             </div>
             <nav
@@ -169,7 +169,8 @@ export function LayoutSidebar({ session }) {
                   <img
                     loading="lazy"
                     className="h-8 w-8 rounded-full"
-                    src={session.photo}
+                    // src={session.photo}
+                    src="/download.png"
                     alt="User Proflie"
                   />
                 </div>

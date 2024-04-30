@@ -3,7 +3,7 @@ import withSession from "../../lib/session";
 
 export default withSession(async (req, res) => {
   const user = req.session.get("user");
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/logout`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/users/logout`;
 
   try {
     // Call the API to revoke access token on the server
