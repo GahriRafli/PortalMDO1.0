@@ -85,7 +85,7 @@ class TempMDOMSSqlDB:
 
     def fetch_all(self, sql):
         self.__connect__()
-        self.cur.execute(sql, args)
+        self.cur.execute(sql)
         result = [dict(zip([column[0].lower() for column in self.cur.description], row)) for row in self.cur.fetchall()]
         self.__disconnect__()
         return result

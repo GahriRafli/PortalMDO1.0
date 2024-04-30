@@ -59,7 +59,7 @@ def before_request_callback():
     - Pencatatan epoch timestamp request time dalam satuan milisecond
     """
 
-    if request.method != "GET":
+    if request.method not in ["GET", "OPTIONS"]:
         g.username = (
             decode_token(request.headers["Authorization"].replace("Bearer ", ""))["username"]
             if "Authorization" in request.headers
@@ -94,7 +94,7 @@ def after_request_callback(response):
             ),
         )
     # elif request.method != "GET" and response.status_code > 201:
-    elif request.method != "GET":
+    elif request.method not in ["GET", "OPTIONS"]:
         g.responseTime = dt.datetime.now().timestamp()
 
         audit_log_json = {
