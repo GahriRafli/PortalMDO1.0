@@ -7,7 +7,7 @@ import {
   LayoutPageContent,
   LayoutPageHeader,
 } from "components/layout/index";
-import { Input, Modal, Form, Button } from "antd";
+import { Input, Modal, Form, Button, Checkbox, Row, Col } from "antd";
 import { SearchIcon } from "@heroicons/react/outline";
 import axios from "axios";
 
@@ -36,7 +36,9 @@ const ServicePage = ({ user }) => {
   const [showTable, setShowTable] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [updatedServiceId, setUpdatedServiceId] = useState("");
-  const [updateStatus, setUpdateStatus] = useState(null); // State untuk menyimpan status pembaruan
+  const [updatedServiceName, setUpdatedServiceName] = useState("");
+  const [updateStatus, setUpdateStatus] = useState(null);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -49,10 +51,11 @@ const ServicePage = ({ user }) => {
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
-      setServiceData(response.data);
+      setServiceData(response.data.responseData);
       setShowTable(true);
     } catch (error) {
       console.error("Error fetching service data:", error.message);
+      setError("Failed to fetch service data. Please try again later.");
     }
   };
 
@@ -76,8 +79,9 @@ const ServicePage = ({ user }) => {
     }
   };
 
-  const showModal = (serviceId) => {
+  const showModal = (serviceId, serviceName) => {
     setUpdatedServiceId(serviceId);
+    setUpdatedServiceName(serviceName);
     setIsModalVisible(true);
   };
 
@@ -87,27 +91,32 @@ const ServicePage = ({ user }) => {
 
   const onFinish = async (values) => {
     try {
+      const requestData = {
+        siteDBESB: serviceData.siteDBESB, // Menggunakan nilai dari response API
+        esbSvcName: updatedServiceName, // Menggunakan nilai yang disimpan dalam state
+        newServiceId: values.newServiceId, // Menggunakan nilai dari form input
+      };
+  
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/configs/${updatedServiceId}/esb-service`,
-        {
-          newServiceId: values.newServiceId,
-        },
+        requestData,
         {
           headers: {
             Authorization: `Bearer ${user.accessToken}`,
+            "Content-Type": "application/json", // Set header untuk menyatakan bahwa body adalah JSON
           },
         }
       );
+  
       console.log("Update successful:", response.data);
       handleCancel();
-      // Atur status pembaruan menjadi berhasil
       setUpdateStatus("success");
     } catch (error) {
       console.error("Error updating service:", error);
-      // Atur status pembaruan menjadi gagal
       setUpdateStatus("failed");
     }
   };
+  
 
   return (
     <>
@@ -175,6 +184,7 @@ const ServicePage = ({ user }) => {
                     </div>
                   </div>
                 </div>
+                {error && <div className="text-red-500">{error}</div>}
                 {showTable && (
                   <div className="overflow-x-auto">
                     <table className="min-w-full">
@@ -190,60 +200,65 @@ const ServicePage = ({ user }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td className="border px-3 py-2">
-                            {
-                              serviceData.responseData.ESBMonolithDCData[0]
-                                .serviceId
-                            }
-                          </td>
-                          <td className="border px-3 py-2">
-                            {
-                              serviceData.responseData.ESBMonolithDCData[0]
-                                .esbSvcName
-                            }
-                          </td>
-                          <td className="border px-3 py-2">
-                            <Button type="text">
-                              {serviceData.responseData.ESBMonolithDCStatus
-                                ? "✅"
-                                : "❌"}
-                            </Button>
-                          </td>
-                          <td className="border px-3 py-2">
-                            <Button type="text">
-                              {serviceData.responseData.ESBMonolithDRCStatus
-                                ? "✅"
-                                : "❌"}
-                            </Button>
-                          </td>
-                          <td className="border px-3 py-2">
-                            <Button type="text">
-                              {serviceData.responseData.ESBMonolithODCStatus
-                                ? "✅"
-                                : "❌"}
-                            </Button>
-                          </td>
-                          <td className="border px-3 py-2">
-                            <Button type="text">
-                              {serviceData.responseData.ESBMSRStatus
-                                ? "✅"
-                                : "❌"}
-                            </Button>
-                          </td>
-                          <td className="border px-3 py-2">
-                            <button
-                              onClick={() =>
-                                showModal(
-                                  serviceData.responseData.ESBMonolithDCData[0]
-                                    .serviceId
-                                )
-                              }
-                            >
-                              Update
-                            </button>
-                          </td>
-                        </tr>
+                        {serviceData.ESBMonolithDCStatus === false &&
+                          serviceData.ESBMonolithDRCStatus === false &&
+                          serviceData.ESBMonolithODCStatus === false &&
+                          serviceData.ESBMSRStatus === false ? (
+                            <tr>
+                              <td className="border px-3 py-2">❌</td>
+                              <td className="border px-3 py-2">❌</td>
+                              <td className="border px-3 py-2">❌</td>
+                              <td className="border px-3 py-2">❌</td>
+                              <td className="border px-3 py-2">❌</td>
+                              <td className="border px-3 py-2">❌</td>
+                              <td className="border px-3 py-2">❌</td>
+                            </tr>
+                          ) : (
+                            <tr>
+                              <td className="border px-3 py-2">
+                                {serviceData.ESBMonolithDCData.length === 0 ? "-" : serviceData.ESBMonolithDCData[0].serviceId}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {serviceData.ESBMonolithDCData.length === 0 ? "-" : serviceData.ESBMonolithDCData[0].esbSvcName}
+                              </td>
+                              <td className="border px-3 py-2">
+                                <Button type="text">
+                                  {serviceData.ESBMonolithDCStatus ? "✅" : "❌"}
+                                </Button>
+                              </td>
+                              <td className="border px-3 py-2">
+                                <Button type="text">
+                                  {serviceData.ESBMonolithDRCStatus ? "✅" : "❌"}
+                                </Button>
+                              </td>
+                              <td className="border px-3 py-2">
+                                <Button type="text">
+                                  {serviceData.ESBMonolithODCStatus ? "✅" : "❌"}
+                                </Button>
+                              </td>
+                              <td className="border px-3 py-2">
+                                <Button type="text">
+                                  {serviceData.ESBMSRStatus ? "✅" : "❌"}
+                                </Button>
+                              </td>
+                              <td className="border px-3 py-2">
+                                <button
+                                  onClick={() =>
+                                    showModal(
+                                      serviceData.ESBMonolithDCData.length === 0
+                                        ? "-"
+                                        : serviceData.ESBMonolithDCData[0].serviceId,
+                                      serviceData.ESBMonolithDCData.length === 0
+                                        ? "-"
+                                        : serviceData.ESBMonolithDCData[0].esbSvcName
+                                    )
+                                  }
+                                >
+                                  Update
+                                </button>
+                              </td>
+                            </tr>
+                          )}
                       </tbody>
                     </table>
                   </div>
@@ -260,6 +275,35 @@ const ServicePage = ({ user }) => {
         footer={null}
       >
         <Form layout="vertical" onFinish={onFinish}>
+          <Form.Item label="Service Name">
+            <Input value={updatedServiceName} disabled />
+          </Form.Item>
+          <Form.Item label="SiteDBESB">
+            <Checkbox.Group
+              value={serviceData.siteDBESB ? serviceData.siteDBESB.split(",") : []}
+              onChange={(values) =>
+                setServiceData((prev) => ({
+                  ...prev,
+                  siteDBESB: values.join(","),
+                }))
+              }
+            >
+              <Row>
+                <Col span={24}>
+                  <Checkbox value="ESB_MONOLITH_DC">ESB MONOLITH DC</Checkbox>
+                </Col>
+                <Col span={24}>
+                  <Checkbox value="ESB_MONOLITH_DRC">ESB MONOLITH DRC</Checkbox>
+                </Col>
+                <Col span={24}>
+                  <Checkbox value="ESB_MONOLITH_ODC">ESB MONOLITH ODC</Checkbox>
+                </Col>
+                <Col span={24}>
+                  <Checkbox value="ESB_MSR">ESB MSR</Checkbox>
+                </Col>
+              </Row>
+            </Checkbox.Group>
+          </Form.Item>
           <Form.Item
             name="newServiceId"
             label="New Service ID"
@@ -278,15 +322,21 @@ const ServicePage = ({ user }) => {
         </Form>
       </Modal>
 
-      {/* Pesan pop-up */}
       {updateStatus === "success" && (
-        <Modal title="Success" visible={updateStatus === "success"} onCancel={() => setUpdateStatus(null)}>
+        <Modal
+          title="Success"
+          visible={updateStatus === "success"}
+          onCancel={() => setUpdateStatus(null)}
+          footer={[
+            <Button key="cancel" onClick={() => setUpdateStatus(null)}>
+              Cancel
+            </Button>,
+            <Button key="ok" type="primary" onClick={() => setUpdateStatus(null)}>
+              OK
+            </Button>,
+          ]}
+        >
           <p>Service ID successfully updated!</p>
-        </Modal>
-      )}
-      {updateStatus === "failed" && (
-        <Modal title="Failed" visible={updateStatus === "failed"} onCancel={() => setUpdateStatus(null)}>
-          <p>Failed to update service ID. Please try again later.</p>
         </Modal>
       )}
     </>
