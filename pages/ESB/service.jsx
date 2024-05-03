@@ -79,6 +79,13 @@ const ServicePage = ({ user }) => {
     }
   };
 
+  const handleInputChange = (e) => {
+    setSearchKeyword(e.target.value);
+    if (e.target.value === "") {
+      router.push(router.pathname); // Reload page when input is cleared
+    }
+  };
+
   const showModal = (serviceId, serviceName) => {
     setUpdatedServiceId(serviceId);
     setUpdatedServiceName(serviceName);
@@ -96,7 +103,7 @@ const ServicePage = ({ user }) => {
         esbSvcName: updatedServiceName, // Menggunakan nilai yang disimpan dalam state
         newServiceId: values.newServiceId, // Menggunakan nilai dari form input
       };
-  
+
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/configs/${updatedServiceId}/esb-service`,
         requestData,
@@ -107,7 +114,7 @@ const ServicePage = ({ user }) => {
           },
         }
       );
-  
+
       console.log("Update successful:", response.data);
       handleCancel();
       setUpdateStatus("success");
@@ -116,7 +123,6 @@ const ServicePage = ({ user }) => {
       setUpdateStatus("failed");
     }
   };
-  
 
   return (
     <>
@@ -140,6 +146,8 @@ const ServicePage = ({ user }) => {
                       <form action="#" method="GET">
                         <Input
                           onKeyPress={onServiceIdSearch}
+                          onChange={handleInputChange} // Add onChange handler
+                          value={searchKeyword}
                           disabled={false}
                           allowClear
                           placeholder="Search here..."
@@ -166,6 +174,8 @@ const ServicePage = ({ user }) => {
                       <form action="#" method="GET">
                         <Input
                           onKeyPress={onServiceNameSearch}
+                          onChange={(e) => setSearchName(e.target.value)}
+                          value={searchName}
                           disabled={false}
                           allowClear
                           placeholder="Search here..."
@@ -201,64 +211,157 @@ const ServicePage = ({ user }) => {
                       </thead>
                       <tbody>
                         {serviceData.ESBMonolithDCStatus === false &&
-                          serviceData.ESBMonolithDRCStatus === false &&
-                          serviceData.ESBMonolithODCStatus === false &&
-                          serviceData.ESBMSRStatus === false ? (
-                            <tr>
-                              <td className="border px-3 py-2">❌</td>
-                              <td className="border px-3 py-2">❌</td>
-                              <td className="border px-3 py-2">❌</td>
-                              <td className="border px-3 py-2">❌</td>
-                              <td className="border px-3 py-2">❌</td>
-                              <td className="border px-3 py-2">❌</td>
-                              <td className="border px-3 py-2">❌</td>
-                            </tr>
-                          ) : (
-                            <tr>
-                              <td className="border px-3 py-2">
-                                {serviceData.ESBMonolithDCData.length === 0 ? "-" : serviceData.ESBMonolithDCData[0].serviceId}
-                              </td>
-                              <td className="border px-3 py-2">
-                                {serviceData.ESBMonolithDCData.length === 0 ? "-" : serviceData.ESBMonolithDCData[0].esbSvcName}
-                              </td>
-                              <td className="border px-3 py-2">
-                                <Button type="text">
-                                  {serviceData.ESBMonolithDCStatus ? "✅" : "❌"}
-                                </Button>
-                              </td>
-                              <td className="border px-3 py-2">
-                                <Button type="text">
-                                  {serviceData.ESBMonolithDRCStatus ? "✅" : "❌"}
-                                </Button>
-                              </td>
-                              <td className="border px-3 py-2">
-                                <Button type="text">
-                                  {serviceData.ESBMonolithODCStatus ? "✅" : "❌"}
-                                </Button>
-                              </td>
-                              <td className="border px-3 py-2">
-                                <Button type="text">
-                                  {serviceData.ESBMSRStatus ? "✅" : "❌"}
-                                </Button>
-                              </td>
-                              <td className="border px-3 py-2">
-                                <button
-                                  onClick={() =>
-                                    showModal(
-                                      serviceData.ESBMonolithDCData.length === 0
-                                        ? "-"
-                                        : serviceData.ESBMonolithDCData[0].serviceId,
-                                      serviceData.ESBMonolithDCData.length === 0
-                                        ? "-"
-                                        : serviceData.ESBMonolithDCData[0].esbSvcName
+                        serviceData.ESBMonolithDRCStatus === false &&
+                        serviceData.ESBMonolithODCStatus === false &&
+                        serviceData.ESBMSRStatus === false ? (
+                          <tr>
+                            <td className="border px-3 py-2">Tidak Tersedia</td>
+                            <td className="border px-3 py-2">Tidak Tersedia</td>
+                            <td className="border px-3 py-2">Tidak Tersedia</td>
+                            <td className="border px-3 py-2">Tidak Tersedia</td>
+                            <td className="border px-3 py-2">Tidak Tersedia</td>
+                            <td className="border px-3 py-2">Tidak Tersedia</td>
+                            <td className="border px-3 py-2">Tidak Tersedia</td>
+                          </tr>
+                        ) : (
+                          //disini looping tr nya
+                          <tr>
+                            <td className="border px-3 py-2">
+                              {serviceData.ESBMonolithDCStatus
+                                ? serviceData.ESBMonolithDCData.map(
+                                    (item, index) => (
+                                      <div key={index}>{item.serviceId}</div>
                                     )
+                                  )
+                                : serviceData.ESBMonolithDRCStatus
+                                ? serviceData.ESBMonolithDRCData.map(
+                                    (item, index) => (
+                                      <div key={index}>{item.serviceId}</div>
+                                    )
+                                  )
+                                : serviceData.ESBMonolithODCStatus
+                                ? serviceData.ESBMonolithODCData.map(
+                                    (item, index) => (
+                                      <div key={index}>{item.serviceId}</div>
+                                    )
+                                  )
+                                : serviceData.ESBMSRStatus
+                                ? serviceData.ESBMSRData.map((item, index) => (
+                                    <div key={index}>{item.serviceId}</div>
+                                  ))
+                                : "-"}
+                            </td>
+                            <td className="border px-3 py-2">
+                              {serviceData.ESBMonolithDCStatus
+                                ? serviceData.ESBMonolithDCData.map(
+                                    (item, index) => (
+                                      <div key={index}>{item.esbSvcName}</div>
+                                    )
+                                  )
+                                : serviceData.ESBMonolithDRCStatus
+                                ? serviceData.ESBMonolithDRCData.map(
+                                    (item, index) => (
+                                      <div key={index}>{item.esbSvcName}</div>
+                                    )
+                                  )
+                                : serviceData.ESBMonolithODCStatus
+                                ? serviceData.ESBMonolithODCData.map(
+                                    (item, index) => (
+                                      <div key={index}>{item.esbSvcName}</div>
+                                    )
+                                  )
+                                : serviceData.ESBMSRStatus
+                                ? serviceData.ESBMSRData.map((item, index) => (
+                                    <div key={index}>{item.esbSvcName}</div>
+                                  ))
+                                : "-"}
+                            </td>
+                            <td className="border px-3 py-2">
+                              <Button type="text">
+                                {serviceData.ESBMonolithDCStatus
+                                  ? "Tersedia"
+                                  : "Tidak Tersedia"}
+                              </Button>
+                            </td>
+                            <td className="border px-3 py-2">
+                              <Button type="text">
+                                {serviceData.ESBMonolithDRCStatus
+                                  ? "Tersedia"
+                                  : "Tidak Tersedia"}
+                              </Button>
+                            </td>
+                            <td className="border px-3 py-2">
+                              <Button type="text">
+                                {serviceData.ESBMonolithODCStatus
+                                  ? "Tersedia"
+                                  : "Tidak Tersedia"}
+                              </Button>
+                            </td>
+                            <td className="border px-3 py-2">
+                              <Button type="text">
+                                {serviceData.ESBMSRStatus
+                                  ? "Tersedia"
+                                  : "Tidak Tersedia"}
+                              </Button>
+                            </td>
+                            <td className="border px-3 py-2">
+                              <button
+                                onClick={() => {
+                                  let serviceId = "-";
+                                  let esbSvcName = "-";
+
+                                  if (serviceData.ESBMonolithDCStatus) {
+                                    serviceId =
+                                      serviceData.ESBMonolithDCData.length > 0
+                                        ? serviceData.ESBMonolithDCData[0]
+                                            .serviceId
+                                        : "-";
+                                    esbSvcName =
+                                      serviceData.ESBMonolithDCData.length > 0
+                                        ? serviceData.ESBMonolithDCData[0]
+                                            .esbSvcName
+                                        : "-";
+                                  } else if (serviceData.ESBMonolithDRCStatus) {
+                                    serviceId =
+                                      serviceData.ESBMonolithDRCData.length > 0
+                                        ? serviceData.ESBMonolithDRCData[0]
+                                            .serviceId
+                                        : "-";
+                                    esbSvcName =
+                                      serviceData.ESBMonolithDRCData.length > 0
+                                        ? serviceData.ESBMonolithDRCData[0]
+                                            .esbSvcName
+                                        : "-";
+                                  } else if (serviceData.ESBMonolithODCStatus) {
+                                    serviceId =
+                                      serviceData.ESBMonolithODCData.length > 0
+                                        ? serviceData.ESBMonolithODCData[0]
+                                            .serviceId
+                                        : "-";
+                                    esbSvcName =
+                                      serviceData.ESBMonolithODCData.length > 0
+                                        ? serviceData.ESBMonolithODCData[0]
+                                            .esbSvcName
+                                        : "-";
+                                  } else if (serviceData.ESBMSRStatus) {
+                                    serviceId =
+                                      serviceData.ESBMSRData.length > 0
+                                        ? serviceData.ESBMSRData[0].serviceId
+                                        : "-";
+                                    esbSvcName =
+                                      serviceData.ESBMSRData.length > 0
+                                        ? serviceData.ESBMSRData[0].esbSvcName
+                                        : "-";
                                   }
-                                >
-                                  Update
-                                </button>
-                              </td>
-                            </tr>
-                          )}
+
+                                  showModal(serviceId, esbSvcName);
+                                }}
+                              >
+                                Update
+                              </button>
+                            </td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -280,7 +383,9 @@ const ServicePage = ({ user }) => {
           </Form.Item>
           <Form.Item label="SiteDBESB">
             <Checkbox.Group
-              value={serviceData.siteDBESB ? serviceData.siteDBESB.split(",") : []}
+              value={
+                serviceData.siteDBESB ? serviceData.siteDBESB.split(",") : []
+              }
               onChange={(values) =>
                 setServiceData((prev) => ({
                   ...prev,
@@ -331,7 +436,11 @@ const ServicePage = ({ user }) => {
             <Button key="cancel" onClick={() => setUpdateStatus(null)}>
               Cancel
             </Button>,
-            <Button key="ok" type="primary" onClick={() => setUpdateStatus(null)}>
+            <Button
+              key="ok"
+              type="primary"
+              onClick={() => setUpdateStatus(null)}
+            >
               OK
             </Button>,
           ]}
